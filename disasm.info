@@ -12,6 +12,7 @@ RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
 RANGE { START $BFF2; END $BFFF; TYPE BYTETABLE; };
 
 # Variables
+LABEL { ADDR $0048; NAME "playState"; };
 LABEL { ADDR $0053; NAME "score"; SIZE 3; };
 LABEL { ADDR $0056; NAME "completedLines"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; };
@@ -19,19 +20,28 @@ LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
 LABEL { ADDR $00C4; NAME "ending"; };
 
-RANGE { START $8050; END $8059; TYPE ADDRTABLE; };
-
 # Code and tables
+RANGE { START $8050; END $8059; TYPE ADDRTABLE; }; # switch (renderMode)
+RANGE { START $8166; END $8171; TYPE ADDRTABLE; }; # switch (gameMode)
+RANGE { START $81B7; END $81CE; TYPE ADDRTABLE; }; # switch (playState)
+RANGE { START $81DE; END $81F5; TYPE ADDRTABLE; }; # switch (playState)
+RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
+
 LABEL { ADDR $804B; NAME "render"; };
-LABEL { ADDR $82B1; NAME "legal_and_title_screens"; }; # noncanon
-LABEL { ADDR $85DA; NAME "menu_screens"; }; # noncanon
-LABEL { ADDR $94EE; NAME "play_and_demo"; }; # noncanon
+LABEL { ADDR $815D; NAME "game_mode_play_high_score_screen_ending_pause_demo"; }; # noncanon
+LABEL { ADDR $8200; NAME "game_mode_legal_screen"; }; # noncanon
+LABEL { ADDR $824F; NAME "game_mode_title_screen"; }; # noncanon
+LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; }; # noncanon
+LABEL { ADDR $82D1; NAME "game_mode_game_type_menu"; }; # noncanon
+LABEL { ADDR $83D7; NAME "game_mode_level_and_height_menu"; }; # noncanon
+LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; }; # noncanon
+LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; }; # noncanon
 LABEL { ADDR $9725; NAME "copyPlayfieldRowToVRAM"; };
 LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; }; # noncanon
 LABEL { ADDR $9B53; NAME "garbageLines"; };
 LABEL { ADDR $9CA5; NAME "pointsTable"; SIZE 10; }; RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; };
-LABEL { ADDR $9F95; NAME "ending_animation"; }; # noncanon
-LABEL { ADDR $A344; NAME "congratulations_screen"; }; # noncanon
+LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
+LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; }; # noncanon
 LABEL { ADDR $A507; NAME "ending_over_120k"; }; # noncanon
 LABEL { ADDR $A96E; NAME "select_ending"; }; # noncanon
 LABEL { ADDR $A9A5; NAME "ending_selected"; }; # noncanon
