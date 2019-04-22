@@ -1,0 +1,38 @@
+GLOBAL {
+  STARTADDR $8000;
+};
+
+SEGMENT { START $8000; END $BFFF; NAME "PRG01"; };
+SEGMENT { START $C000; END $FFFF; NAME "PRG02"; };
+
+# Hack around broken disassembly. They are probably data anyway.
+RANGE { START $939B; END $93AA; TYPE BYTETABLE; };
+RANGE { START $A180; END $A180; TYPE BYTETABLE; };
+RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
+RANGE { START $BFF2; END $BFFF; TYPE BYTETABLE; };
+
+# Variables
+LABEL { ADDR $0053; NAME "score"; SIZE 3; };
+LABEL { ADDR $0056; NAME "completedLines"; };
+LABEL { ADDR $00BC; NAME "totalGarbage"; };
+LABEL { ADDR $00BD; NAME "renderMode"; };
+LABEL { ADDR $00C0; NAME "gameMode"; };
+LABEL { ADDR $00C4; NAME "ending"; };
+
+RANGE { START $8050; END $8059; TYPE ADDRTABLE; };
+
+# Code and tables
+LABEL { ADDR $804B; NAME "render"; };
+LABEL { ADDR $82B1; NAME "legal_and_title_screens"; }; # noncanon
+LABEL { ADDR $85DA; NAME "menu_screens"; }; # noncanon
+LABEL { ADDR $94EE; NAME "play_and_demo"; }; # noncanon
+LABEL { ADDR $9725; NAME "copyPlayfieldRowToVRAM"; };
+LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; }; # noncanon
+LABEL { ADDR $9B53; NAME "garbageLines"; };
+LABEL { ADDR $9CA5; NAME "pointsTable"; SIZE 10; }; RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; };
+LABEL { ADDR $9F95; NAME "ending_animation"; }; # noncanon
+LABEL { ADDR $A344; NAME "congratulations_screen"; }; # noncanon
+LABEL { ADDR $A507; NAME "ending_over_120k"; }; # noncanon
+LABEL { ADDR $A96E; NAME "select_ending"; }; # noncanon
+LABEL { ADDR $A9A5; NAME "ending_selected"; }; # noncanon
+LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; }; # noncanon
