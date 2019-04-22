@@ -21,6 +21,7 @@ LABEL { ADDR $00C0; NAME "gameMode"; };
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
 LABEL { ADDR $00D3; NAME "demoIndex"; };
+LABEL { ADDR $00F5; NAME "clearNewlyPressedButtons"; };
 LABEL { ADDR $00F7; NAME "getHeldButtons"; };
 LABEL { ADDR $994E; NAME "spawnTable"; };
 LABEL { ADDR $DF00; NAME "demoTetriminoTypeTable"; };
@@ -42,15 +43,46 @@ LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; }; # noncanon
 LABEL { ADDR $82D1; NAME "game_mode_game_type_menu"; }; # noncanon
 LABEL { ADDR $83D7; NAME "game_mode_level_and_height_menu"; }; # noncanon
 LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; }; # noncanon
+LABEL { ADDR $88CF; NAME "aNotPressed"; };
+LABEL { ADDR $88E9; NAME "restoreOrientationID"; };
+LABEL { ADDR $8914; NAME "drop_tetrimino"; }; # noncanon
+LABEL { ADDR $8924; NAME "playing"; };
+LABEL { ADDR $8939; NAME "autorepeating"; };
+LABEL { ADDR $894A; NAME "downPressed"; };
+LABEL { ADDR $8958; NAME "drop"; };
+LABEL { ADDR $8973; NAME "lookupDropSpeed"; };
+LABEL { ADDR $897E; NAME "noTableLookup"; };
+LABEL { ADDR $8989; NAME "incrementAutorepeatY"; };
+LABEL { ADDR $89AB; NAME "rotate_tetrimino"; }; # noncanon
+LABEL { ADDR $89AE; NAME "shift_tetrimino"; }; # noncanon
+LABEL { ADDR $89D3; NAME "resetAutorepeatX"; };
+LABEL { ADDR $89D7; NAME "buttonHeldDown"; };
+LABEL { ADDR $89EC; NAME "notPressingRight"; };
+LABEL { ADDR $8A01; NAME "restoreX"; };
+LABEL { ADDR $948B; NAME "is_position_valid"; };
 LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; }; # noncanon
 LABEL { ADDR $9725; NAME "copyPlayfieldRowToVRAM"; };
 LABEL { ADDR $977F; NAME "updateLineClearingAnimation"; };
+LABEL { ADDR $97A6; NAME "twoPlayers"; };
+LABEL { ADDR $97BD; NAME "updateVRAM"; };
 LABEL { ADDR $9903; NAME "pickRandomTetrimino"; };
+LABEL { ADDR $991C; NAME "invalidIndex"; };
+LABEL { ADDR $9938; NAME "useNewSpawnID"; };
+LABEL { ADDR $99B8; NAME "updatePlayfield_jmp"; }; # noncanon
+LABEL { ADDR $9A2D; NAME "drawCurtainRow"; };
+LABEL { ADDR $9A3E; NAME "incrementCurtainRow"; };
+LABEL { ADDR $9A47; NAME "endGame"; };
 LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; }; # noncanon
+LABEL { ADDR $9ACC; NAME "rowNotComplete"; };
+LABEL { ADDR $9AD2; NAME "incrementLineIndex"; };
 LABEL { ADDR $9B53; NAME "garbageLines"; };
 LABEL { ADDR $9CA5; NAME "pointsTable"; SIZE 10; }; RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; };
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; };
 LABEL { ADDR $9D51; NAME "pollControllerButtons"; };
+LABEL { ADDR $9D73; NAME "finishedMove"; };
+LABEL { ADDR $9D9A; NAME "moveInProgress"; };
+LABEL { ADDR $9D9E; NAME "holdButtons"; };
+LABEL { ADDR $9DA3; NAME "startButtonPressed"; };
 LABEL { ADDR $9DB0; NAME "recording"; };
 LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; };
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
