@@ -12,12 +12,15 @@ RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
 RANGE { START $BFF2; END $BFFF; TYPE BYTETABLE; };
 
 # Variables
+LABEL { ADDR $0033; NAME "verticalBlankingInterval"; };
 LABEL { ADDR $0048; NAME "playState"; };
 LABEL { ADDR $0053; NAME "score"; SIZE 3; };
 LABEL { ADDR $0056; NAME "completedLines"; };
+LABEL { ADDR $00A8; NAME "legalScreenCounter2"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
+LABEL { ADDR $00C3; NAME "legalScreenCounter1"; };
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
 LABEL { ADDR $00D3; NAME "demoIndex"; };
@@ -25,6 +28,8 @@ LABEL { ADDR $00F5; NAME "clearNewlyPressedButtons"; };
 LABEL { ADDR $00F7; NAME "getHeldButtons"; };
 LABEL { ADDR $994E; NAME "spawnTable"; };
 LABEL { ADDR $DF00; NAME "demoTetriminoTypeTable"; };
+LABEL { ADDR $00D1; NAME "demoButtonsTable_index"; }; # noncanon
+LABEL { ADDR $00D2; NAME "demoButtonsTable_indexOverflowed"; }; # noncanon
 
 # Code and tables
 RANGE { START $8050; END $8059; TYPE ADDRTABLE; }; # switch (renderMode)
@@ -73,6 +78,7 @@ LABEL { ADDR $9A2D; NAME "drawCurtainRow"; };
 LABEL { ADDR $9A3E; NAME "incrementCurtainRow"; };
 LABEL { ADDR $9A47; NAME "endGame"; };
 LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; }; # noncanon
+LABEL { ADDR $9A64; NAME "select_ending"; }; # noncanon
 LABEL { ADDR $9ACC; NAME "rowNotComplete"; };
 LABEL { ADDR $9AD2; NAME "incrementLineIndex"; };
 LABEL { ADDR $9B53; NAME "garbageLines"; };
@@ -85,14 +91,17 @@ LABEL { ADDR $9D9E; NAME "holdButtons"; };
 LABEL { ADDR $9DA3; NAME "startButtonPressed"; };
 LABEL { ADDR $9DB0; NAME "recording"; };
 LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; };
+LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; }; # noncanon
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
 LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; }; # noncanon
+LABEL { ADDR $A459; NAME "sleep_for_legalScreenCounter1_vblanks"; }; # noncanon
 LABEL { ADDR $A507; NAME "ending_over_120k"; }; # noncanon
-LABEL { ADDR $A96E; NAME "select_ending"; }; # noncanon
 LABEL { ADDR $A9A5; NAME "ending_selected"; }; # noncanon
 LABEL { ADDR $AA2F; NAME "waitForVerticalBlankingInterval"; };
+LABEL { ADDR $AB47; NAME "generateNextPseudorandomNumber"; };
 LABEL { ADDR $AB5E; NAME "initializeOAM"; };
 LABEL { ADDR $AB9D; NAME "pollController"; };
+LABEL { ADDR $AC6A; NAME "memset_page"; }; # noncanon
 LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; }; # noncanon
 LABEL { ADDR $E000; NAME "updateAudio"; };
 LABEL { ADDR $E003; NAME "updateAudio2"; }; # noncanon
