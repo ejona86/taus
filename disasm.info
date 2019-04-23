@@ -25,11 +25,13 @@ LABEL { ADDR $0041; NAME "tetriminoY"; };
 LABEL { ADDR $0045; NAME "fallTimer"; };
 LABEL { ADDR $0046; NAME "autorepeatX"; };
 LABEL { ADDR $0048; NAME "playState"; };
+LABEL { ADDR $0049; NAME "vramRow"; };
 LABEL { ADDR $004E; NAME "autorepeatY"; };
 LABEL { ADDR $004F; NAME "holdDownPoints"; };
 LABEL { ADDR $0050; NAME "lines"; SIZE 2; }; # noncanon
 LABEL { ADDR $0053; NAME "score"; SIZE 3; };
 LABEL { ADDR $0056; NAME "completedLines"; };
+LABEL { ADDR $0058; NAME "curtainRow"; };
 LABEL { ADDR $00A8; NAME "legalScreenCounter2"; };
 LABEL { ADDR $00AE; NAME "originalY"; };
 LABEL { ADDR $00AF; NAME "dropSpeed"; };
@@ -109,6 +111,7 @@ LABEL { ADDR $97BD; NAME "updateVRAM"; };
 LABEL { ADDR $9903; NAME "pickRandomTetrimino"; };
 LABEL { ADDR $991C; NAME "invalidIndex"; };
 LABEL { ADDR $9938; NAME "useNewSpawnID"; };
+LABEL { ADDR $9969; NAME "incrementPieceStat"; }; # noncanon
 LABEL { ADDR $99B8; NAME "updatePlayfield_jmp"; }; # noncanon
 LABEL { ADDR $9A2D; NAME "drawCurtainRow"; };
 LABEL { ADDR $9A3E; NAME "incrementCurtainRow"; };
