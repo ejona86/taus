@@ -3,7 +3,8 @@ GLOBAL {
 };
 
 SEGMENT { START $8000; END $BFFF; NAME "PRG01"; };
-SEGMENT { START $C000; END $FFFF; NAME "PRG02"; };
+SEGMENT { START $C000; END $FFF9; NAME "PRG02"; };
+SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 
 # Hack around broken disassembly. They are probably data anyway.
 RANGE { START $939B; END $93AA; TYPE BYTETABLE; };
