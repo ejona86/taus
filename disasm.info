@@ -12,6 +12,10 @@ RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
 RANGE { START $BFF2; END $BFFF; TYPE BYTETABLE; };
 
 # Variables
+# Note that this causes literal zeros, like for lda $0,x to incorrectly
+# reference tmp (see generateNextPseudorandomNumber)
+LABEL { ADDR $0000; NAME "tmp1"; }; # noncanon
+LABEL { ADDR $0001; NAME "tmp2"; }; # noncanon
 LABEL { ADDR $0017; NAME "rng_seed"; SIZE 2; }; # noncanon
 LABEL { ADDR $0019; NAME "spawnID"; };
 LABEL { ADDR $001A; NAME "spawnCount"; };
@@ -44,6 +48,7 @@ LABEL { ADDR $00D3; NAME "demoIndex"; };
 LABEL { ADDR $00F5; NAME "newlyPressedButtons"; }; # noncanon
 LABEL { ADDR $00F6; NAME "pressedButtons"; }; # noncanon
 LABEL { ADDR $00F7; NAME "getHeldButtons"; };
+LABEL { ADDR $0100; NAME "stack"; SIZE $FF; }; # noncanon
 LABEL { ADDR $03F0; NAME "statsByType"; SIZE 14; }; # noncanon
 LABEL { ADDR $0400; NAME "playfield"; };
 LABEL { ADDR $2007; NAME "colorTable"; };
@@ -64,9 +69,13 @@ RANGE { START $9956; END $9968; TYPE BYTETABLE; }; LABEL { ADDR $9956; NAME "spa
 RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; }; LABEL { ADDR $9CA5; NAME "pointsTable"; };
 RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
 RANGE { START $DF00; END $DF00; TYPE BYTETABLE; }; LABEL { ADDR $DF00; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
+RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
+LABEL { ADDR $8005; NAME "nmi"; }; # noncanon
+LABEL { ADDR $804A; NAME "irq"; }; # noncanon
 LABEL { ADDR $804B; NAME "render"; };
-LABEL { ADDR $8142; NAME "waitForVerticalBlankingInterval_jmp"; }; # noncanon
+LABEL { ADDR $8138; NAME "mainLoop"; }; # noncanon
+LABEL { ADDR $8142; NAME "notWaitingForVBlank"; }; # noncanon
 LABEL { ADDR $815D; NAME "game_mode_play_high_score_screen_ending_pause_demo"; }; # noncanon
 LABEL { ADDR $8161; NAME "branchOnGameMode"; };
 LABEL { ADDR $8200; NAME "game_mode_legal_screen"; }; # noncanon
@@ -132,3 +141,4 @@ LABEL { ADDR $AC6A; NAME "memset_page"; }; # noncanon
 LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; }; # noncanon
 LABEL { ADDR $E000; NAME "updateAudio"; };
 LABEL { ADDR $E003; NAME "updateAudio2"; }; # noncanon
+LABEL { ADDR $FF00; NAME "reset"; }; # noncanon
