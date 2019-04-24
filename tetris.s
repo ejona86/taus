@@ -33,3 +33,51 @@ oam: .res 256        ; sprite OAM data to be uploaded by DMA
 .segment "ZEROPAGE"
 
 .include "tetris-PRG.s"
+
+
+;
+; IPS Mod
+;
+
+IPSPRGOFFSET = -16+$8000
+
+.segment "IPSHEADER"
+.byte 'P', 'A', 'T', 'C', 'H'
+
+.segment "IPSEOF"
+.byte 'E', 'O', 'F'
+
+.segment "HUNK1HDR"
+.import __HUNK1_SIZE__
+.byte 0
+.dbyt incrementPieceStat+1-IPSPRGOFFSET
+.dbyt __HUNK1_SIZE__
+
+.segment "HUNK1"
+
+       jsr resetStatMod
+
+.segment "HUNK2HDR"
+.import __HUNK2_SIZE__
+.byte 0
+.dbyt $D6C8-IPSPRGOFFSET
+.dbyt __HUNK2_SIZE__
+
+.segment "HUNK2"
+
+; at incrementPieceStat, replace lda with 'jsr resetStatMod'
+resetStatMod:
+       lda     tetriminoTypeFromOrientation,x
+       cmp     #$6 ; i piece
+       beq     clearStats
+       rts
+clearStats:
+       lda     #$0
+       ldy     #14
+clearByte:
+       sta     statsByType-1,y
+       dey
+       bne     clearByte
+
+       lda     tetriminoTypeFromOrientation,x
+       rts
