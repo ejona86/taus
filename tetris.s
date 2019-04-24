@@ -55,6 +55,7 @@ IPSPRGOFFSET = -16+$8000
 
 .segment "HUNK1"
 
+; at incrementPieceStat, replaces lda
        jsr resetStatMod
 
 .segment "HUNK2HDR"
@@ -65,7 +66,6 @@ IPSPRGOFFSET = -16+$8000
 
 .segment "HUNK2"
 
-; at incrementPieceStat, replace lda with 'jsr resetStatMod'
 resetStatMod:
        lda     tetriminoTypeFromOrientation,x
        cmp     #$6 ; i piece
