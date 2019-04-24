@@ -48,9 +48,9 @@ IPSPRGOFFSET = -16+$8000
 .byte 'E', 'O', 'F'
 
 .segment "HUNK1HDR"
-.import __HUNK1_SIZE__
+.import __HUNK1_RUN__, __HUNK1_SIZE__
 .byte 0
-.dbyt incrementPieceStat+1-IPSPRGOFFSET
+.dbyt __HUNK1_RUN__-IPSPRGOFFSET
 .dbyt __HUNK1_SIZE__
 
 .segment "HUNK1"
@@ -58,9 +58,9 @@ IPSPRGOFFSET = -16+$8000
        jsr resetStatMod
 
 .segment "HUNK2HDR"
-.import __HUNK2_SIZE__
+.import __HUNK2_RUN__, __HUNK2_SIZE__
 .byte 0
-.dbyt $D6C8-IPSPRGOFFSET
+.dbyt __HUNK2_RUN__-IPSPRGOFFSET
 .dbyt __HUNK2_SIZE__
 
 .segment "HUNK2"
