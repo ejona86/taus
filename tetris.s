@@ -56,7 +56,8 @@ IPSPRGOFFSET = -16+$8000
 .segment "HUNK1"
 
 ; at incrementPieceStat, replaces lda
-       jsr resetStatMod
+       jmp resetStatMod
+afterJmpResetStatMod:
 
 .segment "HUNK2HDR"
 .import __HUNK2_RUN__, __HUNK2_SIZE__
@@ -70,7 +71,8 @@ resetStatMod:
        lda     tetriminoTypeFromOrientation,x
        cmp     #$6 ; i piece
        beq     clearStats
-       rts
+       lda     #$6
+       jmp     afterJmpResetStatMod
 clearStats:
        lda     #$0
        ldy     #14
@@ -79,5 +81,5 @@ clearByte:
        dey
        bne     clearByte
 
-       lda     tetriminoTypeFromOrientation,x
+       lda     #$0
        rts
