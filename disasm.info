@@ -2,15 +2,13 @@ GLOBAL {
   STARTADDR $8000;
 };
 
-SEGMENT { START $8000; END $BFFF; NAME "PRG01"; };
-SEGMENT { START $C000; END $FFF9; NAME "PRG02"; };
+SEGMENT { START $8000; END $FFF9; NAME "PRG"; };
 SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 
 # Hack around broken disassembly. They are probably data anyway.
 RANGE { START $939B; END $93AA; TYPE BYTETABLE; };
 RANGE { START $A180; END $A180; TYPE BYTETABLE; };
 RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
-RANGE { START $BFF2; END $BFFF; TYPE BYTETABLE; };
 
 # Variables
 # Note that this causes literal zeros, like for lda $0,x to incorrectly
@@ -95,6 +93,7 @@ RANGE { START $994E; END $9954; TYPE BYTETABLE; NAME "spawnTable"; };
 RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrientation"; }; # noncanon
 RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; };
 RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
+RANGE { START $BF3F; END $C2FE; TYPE BYTETABLE; NAME "gameBackground"; }; # noncanon
 RANGE { START $DF00; END $DF00; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
