@@ -138,6 +138,7 @@ RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrient
 RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; };
 RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
 RANGE { START $BF3C; END $C355; TYPE BYTETABLE; NAME "gameBackground"; }; # noncanon
+RANGE { START $C356; END $C39C; TYPE BYTETABLE; NAME "gameBackground_attrs"; }; # noncanon
 RANGE { START $DF00; END $DF00; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
