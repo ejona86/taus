@@ -129,4 +129,16 @@ clearStats:
 .segment "HUNK4"
 
 ; Only show 3 stats
-        cmp #$03
+        cmp     #$03
+
+
+.segment "HUNK5HDR"
+.import __HUNK5_RUN__, __HUNK5_SIZE__
+.byte 0
+.dbyt __HUNK5_RUN__-IPSPRGOFFSET
+.dbyt __HUNK5_SIZE__
+
+.segment "HUNK5"
+
+; Allow skipping legal screen
+        lda     #$00

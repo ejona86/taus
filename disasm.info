@@ -10,6 +10,10 @@ RANGE { START $939B; END $93AA; TYPE BYTETABLE; };
 RANGE { START $A180; END $A180; TYPE BYTETABLE; };
 RANGE { START $B24C; END $B24C; TYPE BYTETABLE; };
 
+# Disable broken labels. Labels are assumed to be the start of
+# instructions, so these cause misalignment.
+RANGE { START $BB62; END $BB64; TYPE BYTETABLE; };
+
 # Variables
 # Note that this causes literal zeros, like for lda $0,x to incorrectly
 # reference tmp (see generateNextPseudorandomNumber)
@@ -170,7 +174,7 @@ LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; }; # noncanon
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
 LABEL { ADDR $9FFF; NAME "MMC1_Control"; }; # noncanon
 LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; }; # noncanon
-LABEL { ADDR $A459; NAME "sleep_for_legalScreenCounter1_vblanks"; }; # noncanon
+LABEL { ADDR $A459; NAME "sleep_for_a_vblanks"; }; # noncanon
 LABEL { ADDR $A507; NAME "ending_over_120k"; }; # noncanon
 LABEL { ADDR $A9A5; NAME "ending_selected"; }; # noncanon
 LABEL { ADDR $AA2F; NAME "waitForVerticalBlankingInterval"; };
