@@ -84,18 +84,18 @@ RANGE { START $8050; END $8059; TYPE ADDRTABLE; }; # switch (renderMode)
 RANGE { START $8166; END $8171; TYPE ADDRTABLE; }; # switch (gameMode)
 RANGE { START $81B7; END $81CE; TYPE ADDRTABLE; }; # switch (playState)
 RANGE { START $81DE; END $81F5; TYPE ADDRTABLE; }; # switch (playState)
-RANGE { START $88EE; END $8913; TYPE DBYTETABLE; }; LABEL { ADDR $88EE; NAME "rotationTable"; };
-RANGE { START $898E; END $89AA; TYPE BYTETABLE; }; LABEL { ADDR $898E; NAME "framesPerDropTable"; };
-RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; }; LABEL { ADDR $8A9C; NAME "orientationTable"; };
-RANGE { START $96AA; END $96B7; TYPE DBYTETABLE; }; LABEL { ADDR $96AA; NAME "pieceToPpuStatAddr"; };
-RANGE { START $96B8; END $96D5; TYPE BYTETABLE; }; LABEL { ADDR $96B8; NAME "levelDisplayTable"; }; # noncanon
-RANGE { START $96D6; END $96E9; TYPE BYTETABLE; }; LABEL { ADDR $96D6; NAME "multBy10Table"; }; # noncanon
-RANGE { START $993B; END $994D; TYPE BYTETABLE; }; LABEL { ADDR $993B; NAME "tetriminoTypeFromOrientation"; }; # noncanon
-RANGE { START $994E; END $9954; TYPE BYTETABLE; }; LABEL { ADDR $994E; NAME "spawnTable"; };
-RANGE { START $9956; END $9968; TYPE BYTETABLE; }; LABEL { ADDR $9956; NAME "spawnOrientationFromOrientation"; }; # noncanon
-RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; }; LABEL { ADDR $9CA5; NAME "pointsTable"; };
+RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; };
+RANGE { START $898E; END $89AA; TYPE BYTETABLE; NAME "framesPerDropTable"; };
+RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; };
+RANGE { START $96AA; END $96B7; TYPE DBYTETABLE; NAME "pieceToPpuStatAddr"; };
+RANGE { START $96B8; END $96D5; TYPE BYTETABLE; NAME "levelDisplayTable"; }; # noncanon
+RANGE { START $96D6; END $96E9; TYPE BYTETABLE; NAME "multBy10Table"; }; # noncanon
+RANGE { START $993B; END $994D; TYPE BYTETABLE; NAME "tetriminoTypeFromOrientation"; }; # noncanon
+RANGE { START $994E; END $9954; TYPE BYTETABLE; NAME "spawnTable"; };
+RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrientation"; }; # noncanon
+RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; };
 RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
-RANGE { START $DF00; END $DF00; TYPE BYTETABLE; }; LABEL { ADDR $DF00; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
+RANGE { START $DF00; END $DF00; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
 LABEL { ADDR $8005; NAME "nmi"; }; # noncanon
