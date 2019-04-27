@@ -71,15 +71,10 @@ resetStatMod:
        lda     tetriminoTypeFromOrientation,x
        cmp     #$6 ; i piece
        beq     clearStats
-       lda     #$6
+       lda     #$0
        jmp     afterJmpResetStatMod
 clearStats:
        lda     #$0
-       ldy     #14
-clearByte:
-       sta     statsByType-1,y
-       dey
-       bne     clearByte
-
-       lda     #$0
+       sta     statsByType
+       sta     statsByType+1
        rts
