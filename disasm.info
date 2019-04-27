@@ -117,7 +117,8 @@ LABEL { ADDR $4017; NAME "JOY2"; };
 
 # Code and tables
 RANGE { START $8050; END $8059; TYPE ADDRTABLE; }; # switch (renderMode)
-RANGE { START $8166; END $8171; TYPE ADDRTABLE; }; # switch (gameMode)
+RANGE { START $8166; END $8173; TYPE ADDRTABLE; }; # switch (gameMode)
+RANGE { START $81A0; END $81B1; TYPE ADDRTABLE; }; # switch (??)
 RANGE { START $81B7; END $81CE; TYPE ADDRTABLE; }; # switch (playState)
 RANGE { START $81DE; END $81F5; TYPE ADDRTABLE; }; # switch (playState)
 RANGE { START $821A; END $821B; TYPE ADDRTABLE; }; # bulkCopyToPpu
@@ -151,7 +152,8 @@ RANGE { START $9EA7; END $9EA8; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9FFE; END $9FFF; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A225; END $A226; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A22A; END $A22B; TYPE ADDRTABLE; }; # bulkCopyToPpu
-RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
+RANGE { START $A4B6; END $A4C3; TYPE ADDRTABLE; }; # switch (ending)
+RANGE { START $A540; END $A54B; TYPE ADDRTABLE; }; # switch (??)
 RANGE { START $A939; END $A93A; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A93E; END $A93F; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; }; # noncanon
@@ -169,7 +171,7 @@ RANGE { START $C95D; END $C9A5; TYPE BYTETABLE; NAME "unknown1_nametablepalette_
 RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "unknown7_nametable"; }; # noncanon
 RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "unknown8_nametable"; }; # noncanon
 RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "unknown9_nametable"; }; # noncanon
-RANGE { START $DF00; END $DF00; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
+RANGE { START $DF00; END $DFFF; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
 LABEL { ADDR $8005; NAME "nmi"; }; # noncanon
@@ -211,6 +213,7 @@ LABEL { ADDR $977F; NAME "updateLineClearingAnimation"; };
 LABEL { ADDR $97A6; NAME "twoPlayers"; };
 LABEL { ADDR $97BD; NAME "updateVRAM"; };
 LABEL { ADDR $9808; NAME "updatePaletteForLevel"; COMMENT "Set Background palette 2 and Sprite palette 2"; }; # noncanon
+LABEL { ADDR $98EB; NAME "chooseNextTetrimino"; }; # noncanon
 LABEL { ADDR $9903; NAME "pickRandomTetrimino"; };
 LABEL { ADDR $991C; NAME "invalidIndex"; };
 LABEL { ADDR $9938; NAME "useNewSpawnID"; };
