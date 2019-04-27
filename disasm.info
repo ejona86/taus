@@ -22,11 +22,11 @@ LABEL { ADDR $001A; NAME "spawnCount"; };
 LABEL { ADDR $0033; NAME "verticalBlankingInterval"; };
 LABEL { ADDR $0040; NAME "tetriminoX"; };
 LABEL { ADDR $0041; NAME "tetriminoY"; };
+LABEL { ADDR $0044; NAME "levelNumber"; };
 LABEL { ADDR $0045; NAME "fallTimer"; };
 LABEL { ADDR $0046; NAME "autorepeatX"; };
 LABEL { ADDR $0048; NAME "playState"; };
 LABEL { ADDR $0049; NAME "vramRow"; };
-# $4A-$4D mirror $6A-$6D
 LABEL { ADDR $004E; NAME "autorepeatY"; };
 LABEL { ADDR $004F; NAME "holdDownPoints"; };
 LABEL { ADDR $0050; NAME "lines"; SIZE 2; }; # noncanon
@@ -34,8 +34,16 @@ LABEL { ADDR $0052; NAME "rowY"; };
 LABEL { ADDR $0053; NAME "score"; SIZE 3; };
 LABEL { ADDR $0056; NAME "completedLines"; };
 LABEL { ADDR $0058; NAME "curtainRow"; };
+# $60-$7F is a mirror of $40-$5F
+LABEL { ADDR $0060; NAME "tetriminoX_mirror"; }; # noncanon
+LABEL { ADDR $0061; NAME "tetriminoY_mirror"; }; # noncanon
+LABEL { ADDR $0064; NAME "levelNumber_mirror"; }; # noncanon
+LABEL { ADDR $0065; NAME "fallTimer_mirror"; }; # noncanon
+LABEL { ADDR $0066; NAME "autorepeatX_mirror"; }; # noncanon
 LABEL { ADDR $0068; NAME "playState_mirror"; }; # noncanon
-# Mirror of $60-$7F
+LABEL { ADDR $0069; NAME "vramRow_mirror"; }; # noncanon
+LABEL { ADDR $006E; NAME "autorepeatY_mirror"; }; # noncanon
+LABEL { ADDR $006F; NAME "holdDownPoints_mirror"; }; # noncanon
 LABEL { ADDR $0070; NAME "lines_mirror"; SIZE 2; }; # noncanon
 LABEL { ADDR $0072; NAME "rowY_mirror"; }; # noncanon
 LABEL { ADDR $0073; NAME "score_mirror"; SIZE 3; }; # noncanon
@@ -74,7 +82,7 @@ LABEL { ADDR $2003; NAME "OAMADDR"; };
 LABEL { ADDR $2004; NAME "OAMDATA"; };
 LABEL { ADDR $2005; NAME "PPUSCROLL"; };
 LABEL { ADDR $2006; NAME "PPUADDR"; };
-LABEL { ADDR $2007; NAME "PPUDATA"; }; # canon is colorTable
+LABEL { ADDR $2007; NAME "PPUDATA"; };
 LABEL { ADDR $4014; NAME "OAMDMA"; };
 
 # Code and tables
@@ -88,12 +96,13 @@ RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; };
 RANGE { START $96AA; END $96B7; TYPE DBYTETABLE; NAME "pieceToPpuStatAddr"; };
 RANGE { START $96B8; END $96D5; TYPE BYTETABLE; NAME "levelDisplayTable"; }; # noncanon
 RANGE { START $96D6; END $96E9; TYPE BYTETABLE; NAME "multBy10Table"; }; # noncanon
+RANGE { START $984C; END $9873; TYPE DBYTETABLE; NAME "colorTable"; COMMENT "4 bytes per level (bg, fg, c3, c4)"; };
 RANGE { START $993B; END $994D; TYPE BYTETABLE; NAME "tetriminoTypeFromOrientation"; }; # noncanon
 RANGE { START $994E; END $9954; TYPE BYTETABLE; NAME "spawnTable"; };
 RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrientation"; }; # noncanon
 RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; };
 RANGE { START $A4B6; END $A4C1; TYPE ADDRTABLE; }; # switch (ending)
-RANGE { START $BF3F; END $C2FE; TYPE BYTETABLE; NAME "gameBackground"; }; # noncanon
+RANGE { START $BF3C; END $C355; TYPE BYTETABLE; NAME "gameBackground"; }; # noncanon
 RANGE { START $DF00; END $DF00; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
