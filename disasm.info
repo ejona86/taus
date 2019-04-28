@@ -55,6 +55,7 @@ LABEL { ADDR $00BC; NAME "totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
 LABEL { ADDR $00C1; NAME "gameType"; COMMENT "A=0, B=1"; };
+LABEL { ADDR $00C2; NAME "musicType"; COMMENT "0-3; 3 is off"; }; # noncanon
 LABEL { ADDR $00C3; NAME "sleepCounter"; }; # canon is legalScreenCounter1
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
@@ -70,11 +71,12 @@ LABEL { ADDR $00FF; NAME "currentPpuCtrl"; }; # noncanon
 LABEL { ADDR $0100; NAME "stack"; SIZE $FF; }; # noncanon
 # OAM format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM
 LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; }; # noncanon
-LABEL { ADDR $03F0; NAME "statsByType"; SIZE 14; }; # noncanon
-LABEL { ADDR $0400; NAME "playfield"; };
+LABEL { ADDR $03F0; NAME "statsByType"; SIZE $0E; }; # noncanon
+LABEL { ADDR $0400; NAME "playfield"; SIZE $C8; };
+LABEL { ADDR $0500; NAME "playfieldForSecondPlayer"; SIZE $C8; }; # noncanon
 LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; }; # noncanon
-LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE 12; }; # noncanon
-LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE 12; }; # noncanon
+LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE $C; }; # noncanon
+LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE $C; }; # noncanon
 LABEL { ADDR $0748; NAME "highScoreLevels"; SIZE $08; }; # noncanon
 
 LABEL { ADDR $2000; NAME "PPUCTRL"; };
@@ -131,7 +133,7 @@ RANGE { START $85B2; END $85BB; TYPE BYTETABLE; NAME "unknown1_table"; }; # nonc
 RANGE { START $85BC; END $85C5; TYPE BYTETABLE; NAME "unknown2_table"; }; # noncanon
 RANGE { START $85C6; END $85CB; TYPE BYTETABLE; NAME "unknown3_table"; }; # noncanon
 RANGE { START $85CC; END $85D1; TYPE BYTETABLE; NAME "unknown4_table"; }; # noncanon
-RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "unknown5_table"; }; # noncanon
+RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "musicSelectionTable"; }; # noncanon
 RANGE { START $8603; END $8604; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $8608; END $8609; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "unknown6_table"; }; # nancanon
@@ -220,7 +222,9 @@ LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; }; # noncanon
 LABEL { ADDR $82D1; NAME "game_mode_game_type_menu"; }; # noncanon
 LABEL { ADDR $83D7; NAME "game_mode_level_and_height_menu"; }; # noncanon
 LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; }; # noncanon
-LABEL { ADDR $86E9; NAME "in_the_middle_of_reset_for_start_game"; }; # noncanon
+LABEL { ADDR $86DC; NAME "initNewGame"; }; # noncanon
+LABEL { ADDR $87DC; NAME "initPlayfieldIfTypeB"; }; # noncanon
+LABEL { ADDR $87E3; NAME "initPlayfieldForTypeB"; }; # noncanon
 LABEL { ADDR $88AB; NAME "rotate_tetrimino"; }; # noncanon
 LABEL { ADDR $88CF; NAME "aNotPressed"; };
 LABEL { ADDR $88E9; NAME "restoreOrientationID"; };
@@ -273,6 +277,7 @@ LABEL { ADDR $9DA3; NAME "startButtonPressed"; };
 LABEL { ADDR $9DB0; NAME "recording"; };
 LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; };
 LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; }; # noncanon
+LABEL { ADDR $9E07; NAME "initMusicSelection"; }; # noncanon
 LABEL { ADDR $9E3A; NAME "endingAnimation_maybe"; }; # noncanon
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
 LABEL { ADDR $9FFF; NAME "MMC1_Control"; }; # noncanon
@@ -295,7 +300,7 @@ LABEL { ADDR $AB5E; NAME "initializeOAM"; };
 LABEL { ADDR $AB69; NAME "pollController_actualRead"; }; # noncanon
 LABEL { ADDR $AB9D; NAME "pollController"; };
 LABEL { ADDR $AC1C; NAME "memset_ppu_page_and_more"; }; # noncanon
-LABEL { ADDR $AC6A; NAME "memset_page"; }; # noncanon
+LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page"; }; # noncanon
 LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; }; # noncanon
 LABEL { ADDR $ACA3; NAME "setMMC1Control"; }; # noncanon
 LABEL { ADDR $ACB7; NAME "changeCHRBank0"; }; # noncanon
