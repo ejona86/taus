@@ -44,7 +44,7 @@ LABEL { ADDR $0072; NAME "rowY_mirror"; }; # noncanon
 LABEL { ADDR $0073; NAME "score_mirror"; SIZE 3; }; # noncanon
 LABEL { ADDR $0076; NAME "completedLines_mirror"; }; # noncanon
 LABEL { ADDR $0078; NAME "curtainRow_mirror"; }; # noncanon
-LABEL { ADDR $00A8; NAME "generalCounter"; };
+LABEL { ADDR $00A8; NAME "generalCounter"; }; # canon is legalScreenCounter2
 LABEL { ADDR $00AE; NAME "originalY"; };
 LABEL { ADDR $00AF; NAME "dropSpeed"; };
 LABEL { ADDR $00B1; NAME "frameCounter"; };
@@ -54,7 +54,7 @@ LABEL { ADDR $00B9; NAME "leftPlayfield"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
-LABEL { ADDR $00C3; NAME "sleepCounter"; };
+LABEL { ADDR $00C3; NAME "sleepCounter"; }; # canon is legalScreenCounter1
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
 LABEL { ADDR $00CF; NAME "repeats"; };
@@ -71,6 +71,7 @@ LABEL { ADDR $0100; NAME "stack"; SIZE $FF; }; # noncanon
 LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; }; # noncanon
 LABEL { ADDR $03F0; NAME "statsByType"; SIZE 14; }; # noncanon
 LABEL { ADDR $0400; NAME "playfield"; };
+LABEL { ADDR $0700; NAME "highScoresTable"; }; # noncanon
 
 LABEL { ADDR $2000; NAME "PPUCTRL"; };
 LABEL { ADDR $2001; NAME "PPUMASK"; };
@@ -153,8 +154,9 @@ RANGE { START $9E83; END $9E84; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9EA2; END $9EA3; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9EA7; END $9EA8; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9FFE; END $9FFF; TYPE ADDRTABLE; }; # bulkCopyToPpu
-RANGE { START $A086; END $A08B; TYPE BYTETABLE; NAME "unknown9_table"; }; # noncanon
-RANGE { START $A08C; END $A0BB; TYPE BYTETABLE; NAME "unknown10_table"; }; # noncanon
+RANGE { START $A086; END $A08B; TYPE DBYTETABLE; NAME "highScorePpuAddrTable"; }; # noncanon
+RANGE { START $A08C; END $A0BB; TYPE BYTETABLE; NAME "highScoreCharToTile"; }; # noncanon
+RANGE { START $A0BC; END $A0ED; TYPE BYTETABLE; NAME "byteToBcdTable"; COMMENT "maxes out at 49"; }; # noncanon
 RANGE { START $A1F1; END $A1F8; TYPE BYTETABLE; NAME "unknown11_table"; }; # noncanon
 RANGE { START $A1F9; END $A200; TYPE BYTETABLE; NAME "unknown12_table"; }; # noncanon
 RANGE { START $A225; END $A226; TYPE ADDRTABLE; }; # bulkCopyToPpu
