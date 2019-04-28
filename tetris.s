@@ -59,13 +59,13 @@ IPSPRGOFFSET = -16+$8000
        jmp statsPerBlock
 afterJmpResetStatMod:
 
-.segment "HUNK2HDR"
-.import __HUNK2_RUN__, __HUNK2_SIZE__
+.segment "MAINHDR"
+.import __MAIN_RUN__, __MAIN_SIZE__
 .byte 0
-.dbyt __HUNK2_RUN__-IPSPRGOFFSET
-.dbyt __HUNK2_SIZE__
+.dbyt __MAIN_RUN__-IPSPRGOFFSET
+.dbyt __MAIN_SIZE__
 
-.segment "HUNK2"
+.segment "MAIN"
 
 statsPerBlock:
         lda     tetriminoTypeFromOrientation,x
@@ -79,13 +79,13 @@ clearDrought:
         sta     statsByType+1
         rts
 
-.segment "HUNK3HDR"
-.import __HUNK3_RUN__, __HUNK3_SIZE__
+.segment "GAME_BGHDR"
+.import __GAME_BG_RUN__, __GAME_BG_SIZE__
 .byte 0
-.dbyt __HUNK3_RUN__-IPSPRGOFFSET
-.dbyt __HUNK3_SIZE__
+.dbyt __GAME_BG_RUN__-IPSPRGOFFSET
+.dbyt __GAME_BG_SIZE__
 
-.segment "HUNK3"
+.segment "GAME_BG"
 
 ; gameBackground
 .byte   $20,$00,$20,$7A,$67,$77,$77,$72,$79,$7A,$78,$75,$7A,$67,$77,$78,$83,$78,$83,$77,$87,$67,$78,$73,$87,$70,$71,$67,$87,$78,$75,$7A,$72,$7A,$67
@@ -124,25 +124,25 @@ clearDrought:
 .byte   $23,$E0,$20,$BF,$23,$CC,$AA,$AA,$EE,$FF,$FF,$BB,$22,$CC,$AA,$AA,$EE,$FF,$FF,$FB,$F2,$FC,$FA,$FA,$FE,$FF,$FF,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 .byte   $FF
 
-.segment "HUNK4HDR"
-.import __HUNK4_RUN__, __HUNK4_SIZE__
+.segment "STATS_NUMBERHDR"
+.import __STATS_NUMBER_RUN__, __STATS_NUMBER_SIZE__
 .byte 0
-.dbyt __HUNK4_RUN__-IPSPRGOFFSET
-.dbyt __HUNK4_SIZE__
+.dbyt __STATS_NUMBER_RUN__-IPSPRGOFFSET
+.dbyt __STATS_NUMBER_SIZE__
 
-.segment "HUNK4"
+.segment "STATS_NUMBER"
 
 ; Only show 3 stats
         cmp     #$03
 
 
-.segment "HUNK5HDR"
-.import __HUNK5_RUN__, __HUNK5_SIZE__
+.segment "SKIP_LEGALHDR"
+.import __SKIP_LEGAL_RUN__, __SKIP_LEGAL_SIZE__
 .byte 0
-.dbyt __HUNK5_RUN__-IPSPRGOFFSET
-.dbyt __HUNK5_SIZE__
+.dbyt __SKIP_LEGAL_RUN__-IPSPRGOFFSET
+.dbyt __SKIP_LEGAL_SIZE__
 
-.segment "HUNK5"
+.segment "SKIP_LEGAL"
 
 ; Allow skipping legal screen
         lda     #$00
