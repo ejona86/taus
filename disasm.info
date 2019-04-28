@@ -71,7 +71,10 @@ LABEL { ADDR $0100; NAME "stack"; SIZE $FF; }; # noncanon
 LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; }; # noncanon
 LABEL { ADDR $03F0; NAME "statsByType"; SIZE 14; }; # noncanon
 LABEL { ADDR $0400; NAME "playfield"; };
-LABEL { ADDR $0700; NAME "highScoresTable"; }; # noncanon
+LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; }; # noncanon
+LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE 12; }; # noncanon
+LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE 12; }; # noncanon
+LABEL { ADDR $0748; NAME "highScoreLevels"; SIZE $08; }; # noncanon
 
 LABEL { ADDR $2000; NAME "PPUCTRL"; };
 LABEL { ADDR $2001; NAME "PPUMASK"; };
