@@ -5,14 +5,6 @@ GLOBAL {
 SEGMENT { START $8000; END $FFF9; NAME "PRG"; };
 SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 
-# Hack around broken disassembly. They are probably data anyway.
-RANGE { START $939B; END $93AA; TYPE BYTETABLE; };
-RANGE { START $A180; END $A180; TYPE BYTETABLE; };
-
-# Disable broken labels. Labels are assumed to be the start of
-# instructions, so these cause misalignment.
-RANGE { START $AA27; END $AA29; TYPE BYTETABLE; };
-
 # Variables
 # Note that this causes literal zeros, like for lda $0,x to incorrectly
 # reference tmp (see generateNextPseudorandomNumber)
@@ -130,11 +122,21 @@ RANGE { START $82EB; END $82EC; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $83F9; END $83FA; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $83FE; END $83FF; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $8407; END $8408; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $85B2; END $85BB; TYPE BYTETABLE; NAME "unknown1_table"; }; # noncanon
+RANGE { START $85BC; END $85C5; TYPE BYTETABLE; NAME "unknown2_table"; }; # noncanon
+RANGE { START $85C6; END $85CB; TYPE BYTETABLE; NAME "unknown3_table"; }; # noncanon
+RANGE { START $85CC; END $85D1; TYPE BYTETABLE; NAME "unknown4_table"; }; # noncanon
+RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "unknown5_table"; }; # noncanon
 RANGE { START $8603; END $8604; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $8608; END $8609; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "unknown6_table"; }; # nancanon
+RANGE { START $887C; END $8882; TYPE BYTETABLE; NAME "rngTable"; }; # noncanon
 RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; };
 RANGE { START $898E; END $89AA; TYPE BYTETABLE; NAME "framesPerDropTable"; };
 RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; };
+RANGE { START $8BE5; END $8C26; TYPE BYTETABLE; NAME "unknown7_table"; };
+RANGE { START $8C6C; END $8D1F; TYPE ADDRTABLE; NAME "oamContentLookup"; COMMENT "unknown size, but not more than 256"; };
+RANGE { START $8D20; END $948A; TYPE BYTETABLE; };
 RANGE { START $96AA; END $96B7; TYPE DBYTETABLE; NAME "pieceToPpuStatAddr"; };
 RANGE { START $96B8; END $96D5; TYPE BYTETABLE; NAME "levelDisplayTable"; }; # noncanon
 RANGE { START $96D6; END $96E9; TYPE BYTETABLE; NAME "multBy10Table"; }; # noncanon
@@ -145,21 +147,33 @@ RANGE { START $984C; END $9873; TYPE DBYTETABLE; NAME "colorTable"; COMMENT "4 b
 RANGE { START $993B; END $994D; TYPE BYTETABLE; NAME "tetriminoTypeFromOrientation"; }; # noncanon
 RANGE { START $994E; END $9954; TYPE BYTETABLE; NAME "spawnTable"; };
 RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrientation"; }; # noncanon
+RANGE { START $9B53; END $9B57; TYPE BYTETABLE; NAME "garbageLines"; };
 RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; };
 RANGE { START $9E83; END $9E84; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9EA2; END $9EA3; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9EA7; END $9EA8; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $9FFE; END $9FFF; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $A086; END $A08B; TYPE BYTETABLE; NAME "unknown9_table"; }; # noncanon
+RANGE { START $A08C; END $A0BB; TYPE BYTETABLE; NAME "unknown10_table"; }; # noncanon
+RANGE { START $A1F1; END $A1F8; TYPE BYTETABLE; NAME "unknown11_table"; }; # noncanon
+RANGE { START $A1F9; END $A200; TYPE BYTETABLE; NAME "unknown12_table"; }; # noncanon
 RANGE { START $A225; END $A226; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A22A; END $A22B; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $A33B; END $A33D; TYPE BYTETABLE; NAME "unknown13_table"; }; # noncanon
+RANGE { START $A33E; END $A343; TYPE BYTETABLE; NAME "unknown14_table"; }; # noncanon
+RANGE { START $A42E; END $A44C; TYPE BYTETABLE; NAME "unknown15_table"; }; # noncanon
 RANGE { START $A4B6; END $A4C3; TYPE ADDRTABLE; }; # switch (ending)
 RANGE { START $A540; END $A54B; TYPE ADDRTABLE; }; # switch (??)
+RANGE { START $A735; END $A7FC; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A80A; END $A925; TYPE BYTETABLE; }; # LOTS of tables
 RANGE { START $A939; END $A93A; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $AA11; END $AA2E; TYPE BYTETABLE; }; # LOTS of tables
 RANGE { START $A93E; END $A93F; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; }; # noncanon
 RANGE { START $AD17; END $AD2A; TYPE BYTETABLE; NAME "unknown1_palette"; }; # noncanon
 RANGE { START $AD2B; END $AD42; TYPE BYTETABLE; NAME "unknown2_palette"; }; # noncanon
 RANGE { START $AD43; END $AD66; TYPE BYTETABLE; NAME "unknown3_palette"; }; # noncanon
+RANGE { START $AD67; END $ADB7; TYPE BYTETABLE; NAME "unknown16_table"; };
 RANGE { START $ADB8; END $B218; TYPE BYTETABLE; NAME "unknown1_nametable"; }; # noncanon
 RANGE { START $B219; END $B679; TYPE BYTETABLE; NAME "unknown2_nametable"; }; # noncanon
 RANGE { START $B67A; END $BADA; TYPE BYTETABLE; NAME "unknown3_nametable"; }; # noncanon
@@ -171,7 +185,20 @@ RANGE { START $C95D; END $C9A5; TYPE BYTETABLE; NAME "unknown1_nametablepalette_
 RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "unknown7_nametable"; }; # noncanon
 RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "unknown8_nametable"; }; # noncanon
 RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "unknown9_nametable"; }; # noncanon
+RANGE { START $D6C9; END $DEFF; TYPE BYTETABLE; NAME "unreferenced_data1"; }; # noncanon
 RANGE { START $DF00; END $DFFF; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
+RANGE { START $E009; END $E04A; TYPE BYTETABLE; NAME "unreferenced_data2"; }; # noncanon
+RANGE { START $E0C8; END $E14F; TYPE BYTETABLE; NAME "unreferenced_data3"; }; # noncanon
+RANGE { START $E150; END $E193; TYPE BYTETABLE; NAME "unknown17_table"; }; # noncanon
+RANGE { START $E4B0; END $E4B8; TYPE BYTETABLE; NAME "unknown8_table"; }; # noncanon
+RANGE { START $E4F3; END $E510; TYPE BYTETABLE; NAME "unknown18_table"; }; # noncanon
+RANGE { START $E57C; END $E57F; TYPE BYTETABLE; NAME "unknown19_table"; }; # noncanon
+RANGE { START $E5AB; END $E5CF; TYPE BYTETABLE; }; LABEL { ADDR $E5AB; NAME "unknown20_table"; SIZE $25; }; # noncanon
+RANGE { START $E689; END $E6CF; TYPE BYTETABLE; }; # lots o' tables
+RANGE { START $EA4A; END $EB12; TYPE BYTETABLE; }; LABEL { ADDR $EA4A; NAME "unknown21_table"; SIZE $2; }; # noncanon
+RANGE { START $EB13; END $EBAE; TYPE BYTETABLE; }; LABEL { ADDR $EB13; NAME "unknown22_table"; SIZE $2; }; # noncanon
+RANGE { START $EBAF; END $FEFF; TYPE BYTETABLE; NAME "unknown23_table"; }; # noncanon
+RANGE { START $FF30; END $FFF9; TYPE BYTETABLE; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
 LABEL { ADDR $8005; NAME "nmi"; }; # noncanon
@@ -204,6 +231,7 @@ LABEL { ADDR $89D3; NAME "resetAutorepeatX"; };
 LABEL { ADDR $89D7; NAME "buttonHeldDown"; };
 LABEL { ADDR $89EC; NAME "notPressingRight"; };
 LABEL { ADDR $8A01; NAME "restoreX"; };
+LABEL { ADDR $8C27; NAME "copyToOamStaging_sorta"; }; # noncanon
 LABEL { ADDR $948B; NAME "is_position_valid"; };
 LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; }; # noncanon
 LABEL { ADDR $95B5; NAME "render_play_digits"; }; # noncanon
@@ -227,7 +255,6 @@ LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; }; # noncanon
 LABEL { ADDR $9A64; NAME "select_ending"; }; # noncanon
 LABEL { ADDR $9ACC; NAME "rowNotComplete"; };
 LABEL { ADDR $9AD2; NAME "incrementLineIndex"; };
-LABEL { ADDR $9B53; NAME "garbageLines"; };
 LABEL { ADDR $9BA8; NAME "incrementLines"; }; # noncanon
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; };
 LABEL { ADDR $9D51; NAME "pollControllerButtons"; };
