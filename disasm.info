@@ -44,7 +44,7 @@ LABEL { ADDR $0072; NAME "rowY_mirror"; }; # noncanon
 LABEL { ADDR $0073; NAME "score_mirror"; SIZE 3; }; # noncanon
 LABEL { ADDR $0076; NAME "completedLines_mirror"; }; # noncanon
 LABEL { ADDR $0078; NAME "curtainRow_mirror"; }; # noncanon
-LABEL { ADDR $00A8; NAME "legalScreenCounter2"; };
+LABEL { ADDR $00A8; NAME "generalCounter"; };
 LABEL { ADDR $00AE; NAME "originalY"; };
 LABEL { ADDR $00AF; NAME "dropSpeed"; };
 LABEL { ADDR $00B1; NAME "frameCounter"; };
@@ -54,7 +54,7 @@ LABEL { ADDR $00B9; NAME "leftPlayfield"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
-LABEL { ADDR $00C3; NAME "legalScreenCounter1"; };
+LABEL { ADDR $00C3; NAME "sleepCounter"; };
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
 LABEL { ADDR $00CF; NAME "repeats"; };
@@ -173,7 +173,7 @@ RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; }; # noncan
 RANGE { START $AD17; END $AD2A; TYPE BYTETABLE; NAME "unknown1_palette"; }; # noncanon
 RANGE { START $AD2B; END $AD42; TYPE BYTETABLE; NAME "unknown2_palette"; }; # noncanon
 RANGE { START $AD43; END $AD66; TYPE BYTETABLE; NAME "unknown3_palette"; }; # noncanon
-RANGE { START $AD67; END $ADB7; TYPE BYTETABLE; NAME "unknown16_table"; };
+RANGE { START $AD67; END $ADB7; TYPE BYTETABLE; NAME "defaultHighScoresTable"; };
 RANGE { START $ADB8; END $B218; TYPE BYTETABLE; NAME "unknown1_nametable"; }; # noncanon
 RANGE { START $B219; END $B679; TYPE BYTETABLE; NAME "unknown2_nametable"; }; # noncanon
 RANGE { START $B67A; END $BADA; TYPE BYTETABLE; NAME "unknown3_nametable"; }; # noncanon
@@ -256,6 +256,8 @@ LABEL { ADDR $9A64; NAME "select_ending"; }; # noncanon
 LABEL { ADDR $9ACC; NAME "rowNotComplete"; };
 LABEL { ADDR $9AD2; NAME "incrementLineIndex"; };
 LABEL { ADDR $9BA8; NAME "incrementLines"; }; # noncanon
+LABEL { ADDR $9BFE; NAME "addHoldDownPoints"; }; # noncanon
+LABEL { ADDR $9C2D; NAME "addLineClearPoints"; }; # noncanon
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; };
 LABEL { ADDR $9D51; NAME "pollControllerButtons"; };
 LABEL { ADDR $9D73; NAME "finishedMove"; };

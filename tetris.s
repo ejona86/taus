@@ -56,7 +56,7 @@ IPSPRGOFFSET = -16+$8000
 .segment "HUNK1"
 
 ; at incrementPieceStat, replaces lda
-       jmp resetStatMod
+       jmp statsPerBlock
 afterJmpResetStatMod:
 
 .segment "HUNK2HDR"
@@ -67,17 +67,17 @@ afterJmpResetStatMod:
 
 .segment "HUNK2"
 
-resetStatMod:
-       lda     tetriminoTypeFromOrientation,x
-       cmp     #$6 ; i piece
-       beq     clearStats
-       lda     #$0
-       jmp     afterJmpResetStatMod
-clearStats:
-       lda     #$0
-       sta     statsByType
-       sta     statsByType+1
-       rts
+statsPerBlock:
+        lda     tetriminoTypeFromOrientation,x
+        cmp     #$6 ; i piece
+        beq     clearDrought
+        lda     #$0
+        jmp     afterJmpResetStatMod
+clearDrought:
+        lda     #$0
+        sta     statsByType
+        sta     statsByType+1
+        rts
 
 .segment "HUNK3HDR"
 .import __HUNK3_RUN__, __HUNK3_SIZE__
@@ -146,3 +146,28 @@ clearStats:
 
 ; Allow skipping legal screen
         lda     #$00
+
+.segment "DEFAULT_HIGH_SCORESHDR"
+.import __DEFAULT_HIGH_SCORES_RUN__, __DEFAULT_HIGH_SCORES_SIZE__
+.byte 0
+.dbyt __DEFAULT_HIGH_SCORES_RUN__-IPSPRGOFFSET
+.dbyt __DEFAULT_HIGH_SCORES_SIZE__
+
+.segment "DEFAULT_HIGH_SCORES"
+
+; replace defaultHighScoresTable
+; # Convert ALPHA string to hex:
+; list(map(lambda x: hex(ord(x)-64), "CHEATR"))
+        .byte   $0C,$01,$0E,$03,$05,$2B ; "LANCE "
+        .byte   $09,$13,$2B,$01,$2B,$2B ; "IS A  "
+        .byte   $03,$08,$05,$01,$14,$12 ; "CHEATR"
+        .byte   $00,$00,$00,$00,$00,$00
+        .byte   $01,$0C,$05,$18,$2B,$2B,$14,$0F
+        .byte   $0E,$19,$2B,$2B,$0E,$09,$0E,$14
+        .byte   $05,$0E,$00,$00,$00,$00,$00,$00
+        .byte   $01,$00,$00,$00,$75,$00,$00,$50
+        .byte   $00,$00,$00,$00,$00,$20,$00,$00
+        .byte   $10,$00,$00,$05,$00,$00,$00,$00
+        .byte   $09,$05,$00,$00,$09,$05,$00,$00
+        .byte   $FF
+
