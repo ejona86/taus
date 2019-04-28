@@ -54,6 +54,7 @@ LABEL { ADDR $00B9; NAME "leftPlayfield"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; };
 LABEL { ADDR $00C0; NAME "gameMode"; };
+LABEL { ADDR $00C1; NAME "gameType"; COMMENT "A=0, B=1"; };
 LABEL { ADDR $00C3; NAME "sleepCounter"; }; # canon is legalScreenCounter1
 LABEL { ADDR $00C4; NAME "ending"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; };
@@ -275,6 +276,7 @@ LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; }; # noncanon
 LABEL { ADDR $9E3A; NAME "endingAnimation_maybe"; }; # noncanon
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; }; # noncanon
 LABEL { ADDR $9FFF; NAME "MMC1_Control"; }; # noncanon
+LABEL { ADDR $A1E0; NAME "copy_high_score_level_to_next_index"; COMMENT "reg a: row to copy"; }; # noncanon
 LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; }; # noncanon
 LABEL { ADDR $A459; NAME "sleep_for_a_vblanks"; }; # noncanon
 LABEL { ADDR $A507; NAME "ending_over_120k"; }; # noncanon
