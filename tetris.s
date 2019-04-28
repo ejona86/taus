@@ -69,14 +69,42 @@ afterJmpResetStatMod:
 
 statsPerBlock:
         lda     tetriminoTypeFromOrientation,x
-        cmp     #$6 ; i piece
+        cmp     #$06 ; i piece
         beq     clearDrought
-        lda     #$0
+        lda     #$00
         jmp     afterJmpResetStatMod
 clearDrought:
-        lda     #$0
+        lda     #$00
         sta     statsByType
         sta     statsByType+1
+        rts
+
+statsPerLineClear:
+; Manage the burn
+        lda     completedLines
+        jsr     switch_s_plus_2a
+        .addr   afterBurnUpdated
+        .addr   worstenBurn1
+        .addr   worstenBurn2
+        .addr   worstenBurn3
+        .addr   healBurn
+healBurn:
+        lda     #$00
+        sta     statsByType+2
+        sta     statsByType+2+1
+        jmp     afterBurnUpdated
+worstenBurn3:
+        lda     #$01
+        jsr     afterJmpResetStatMod
+worstenBurn2:
+        lda     #$01
+        jsr     afterJmpResetStatMod
+worstenBurn1:
+        lda     #$01
+        jsr     afterJmpResetStatMod
+afterBurnUpdated:
+        lda     #$00
+        sta     completedLines
         rts
 
 .segment "GAME_BGHDR"
@@ -102,9 +130,9 @@ clearDrought:
 .byte   $21,$60,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$78,$79,$79,$7A,$78,$79,$73,$78,$83
 .byte   $21,$80,$20,$7A,$3B,$0D,$11,$1D,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$30,$31,$31,$31,$31,$32,$87,$67,$78
 .byte   $21,$A0,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$17,$0E,$21,$1D,$34,$72,$83,$78
-.byte   $21,$C0,$20,$67,$3B,$0E,$0F,$0F,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$87,$72,$7A
+.byte   $21,$C0,$20,$67,$3B,$0B,$1B,$17,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$87,$72,$7A
 .byte   $21,$E0,$20,$77,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$78,$83,$70
-.byte   $22,$00,$20,$77,$3B,$0B,$1B,$17,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$72,$7A,$80
+.byte   $22,$00,$20,$77,$3B,$0E,$0F,$0F,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$72,$7A,$80
 .byte   $22,$20,$20,$87,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$77,$78,$73
 .byte   $22,$40,$20,$71,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$35,$36,$36,$36,$36,$37,$87,$67,$77
 .byte   $22,$60,$20,$81,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$38,$39,$39,$39,$39,$39,$3A,$77,$87
@@ -146,6 +174,18 @@ clearDrought:
 
 ; Allow skipping legal screen
         lda     #$00
+
+.segment "JMP_STATS_PER_LINE_CLEARHDR"
+.import __JMP_STATS_PER_LINE_CLEAR_RUN__, __JMP_STATS_PER_LINE_CLEAR_SIZE__
+.byte 0
+.dbyt __JMP_STATS_PER_LINE_CLEAR_RUN__-IPSPRGOFFSET
+.dbyt __JMP_STATS_PER_LINE_CLEAR_SIZE__
+
+.segment "JMP_STATS_PER_LINE_CLEAR"
+
+; at end of addLineClearPoints, replaces "lda #0; sta completedLines"
+        jsr statsPerLineClear
+        nop
 
 .segment "DEFAULT_HIGH_SCORESHDR"
 .import __DEFAULT_HIGH_SCORES_RUN__, __DEFAULT_HIGH_SCORES_SIZE__
