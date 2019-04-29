@@ -107,6 +107,40 @@ afterBurnUpdated:
         sta     completedLines
         rts
 
+; Divide 16 bit number by 8 bit number; result must fit in 8 bits
+; reg a: divisor  (input)
+;        quotient (output)
+; reg x: stat _index_ (already *2); data stored as _binary_ in little-endian
+div:
+        sta     tmp3
+        lda     statsByType,x
+        sta     tmp1
+        lda     statsByType+1,x
+        sta     tmp2
+        ldx     #$08
+div_while:
+        asl     tmp1
+        rol     tmp2
+        lda     tmp2
+        bcs     div_withCarry
+        sec
+        sbc     tmp3
+        bcc     div_checkDone
+        sta     tmp2
+        inc     tmp1
+        jmp     div_checkDone
+div_withCarry:
+        sec
+        sbc     tmp3
+        bcs     div_checkDone
+        sta     tmp2
+        inc     tmp1
+div_checkDone:
+        dex
+        bne     div_while
+        lda     tmp1
+        rts
+
 .segment "GAME_BGHDR"
 .import __GAME_BG_RUN__, __GAME_BG_SIZE__
 .byte 0
