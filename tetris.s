@@ -67,6 +67,19 @@ afterJmpResetStatMod:
 
 .segment "MAIN"
 
+linesDividedBy2 := $0003
+
+DHT_index = $00
+DHT := statsByType + DHT_index * 2
+BRN_index = $01
+BRN := statsByType + BRN_index * 2
+EFF_index = $02
+EFF := statsByType + EFF_index * 2
+lvl0ScoreIndex = $03 ; stored as little endian binary, divided by 10
+lvl0Score := statsByType + lvl0ScoreIndex * 2
+binaryLinesIndex = $04 ; stored as little endian binary; 9 bits
+binaryLines := statsByType + binaryLinesIndex * 2
+
 statsPerBlock:
         lda     tetriminoTypeFromOrientation,x
         cmp     #$06 ; i piece
@@ -75,69 +88,126 @@ statsPerBlock:
         jmp     afterJmpResetStatMod
 clearDrought:
         lda     #$00
-        sta     statsByType
-        sta     statsByType+1
+        sta     DHT
+        sta     DHT+1
         rts
 
 statsPerLineClear:
 ; Manage the burn
         lda     completedLines
         jsr     switch_s_plus_2a
-        .addr   afterBurnUpdated
+        .addr   statsPerLineClearDone
         .addr   worstenBurn1
         .addr   worstenBurn2
         .addr   worstenBurn3
         .addr   healBurn
 healBurn:
         lda     #$00
-        sta     statsByType+2
-        sta     statsByType+2+1
+        sta     BRN
+        sta     BRN+1
         jmp     afterBurnUpdated
 worstenBurn3:
-        lda     #$01
+        lda     #BRN_index
         jsr     afterJmpResetStatMod
 worstenBurn2:
-        lda     #$01
+        lda     #BRN_index
         jsr     afterJmpResetStatMod
 worstenBurn1:
-        lda     #$01
+        lda     #BRN_index
         jsr     afterJmpResetStatMod
+
 afterBurnUpdated:
+        ; update lines
+        lda     completedLines
+        clc
+        adc     binaryLines
+        sta     binaryLines
+        bcc     updateScore
+        inc     binaryLines+1
+
+updateScore:
+        ldx     completedLines
+        lda     binaryPointsTable,x
+        clc
+        adc     lvl0Score
+        sta     lvl0Score
+        bcc     updateEff
+        inc     lvl0Score+1
+
+updateEff:
+        lda     lvl0Score
+        sta     tmp1
+        lda     lvl0Score+1
+        sta     tmp2
+        lda     binaryLines+1
+        beq     loadLines
+
+        lda     binaryLines
+        sec
+        ror     a
+        ldx     #$01 ; no need to set to 0 in other case, since monotonic
+        stx     linesDividedBy2
+        jmp     doDiv
+loadLines:
+        lda     binaryLines
+doDiv:
+        jsr     divmod
+        lda     linesDividedBy2
+        beq     effToBcd
+        lsr     tmp1
+effToBcd:
+        ldx     tmp1
+        lda     byteToBcdTable,x
+        sta     tmp1
+        asl     a
+        asl     a
+        asl     a
+        asl     a
+        sta     EFF
+        lda     tmp1
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        sta     EFF+1
+
+statsPerLineClearDone:
         lda     #$00
         sta     completedLines
         rts
 
+binaryPointsTable: ; in binary, not bcd. All values pre-divided by 10
+        .byte 0, 4, 10, 30, 120
+
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
-; reg a: divisor  (input)
-;        quotient (output)
-; reg x: stat _index_ (already *2); data stored as _binary_ in little-endian
-div:
+; tmp1: (input)  binary dividend LO
+;       (output) quotient
+; tmp2: (input) binary dividend HI
+;       (output) remainder
+; reg a: divisor
+divmod:
         sta     tmp3
-        lda     statsByType,x
-        sta     tmp1
-        lda     statsByType+1,x
-        sta     tmp2
         ldx     #$08
-div_while:
+divmod_while:
         asl     tmp1
         rol     tmp2
         lda     tmp2
-        bcs     div_withCarry
+        bcs     divmod_withCarry
         sec
         sbc     tmp3
-        bcc     div_checkDone
+        bcc     divmod_checkDone
         sta     tmp2
         inc     tmp1
-        jmp     div_checkDone
-div_withCarry:
+        jmp     divmod_checkDone
+divmod_withCarry:
         sec
         sbc     tmp3
-        bcs     div_checkDone
+        bcs     divmod_checkDone
         sta     tmp2
         inc     tmp1
-div_checkDone:
+divmod_checkDone:
         dex
-        bne     div_while
+        bne     divmod_while
         lda     tmp1
         rts
 
