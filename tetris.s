@@ -67,15 +67,13 @@ afterJmpResetStatMod:
 
 .segment "MAIN"
 
-linesDividedBy2 := $0003
-
 DHT_index = $00
 DHT := statsByType + DHT_index * 2
 BRN_index = $01
 BRN := statsByType + BRN_index * 2
 EFF_index = $02
 EFF := statsByType + EFF_index * 2
-lvl0ScoreIndex = $03 ; stored as little endian binary, divided by 10
+lvl0ScoreIndex = $03 ; stored as little endian binary, divided by 2
 lvl0Score := statsByType + lvl0ScoreIndex * 2
 binaryLinesIndex = $04 ; stored as little endian binary; 9 bits
 binaryLines := statsByType + binaryLinesIndex * 2
@@ -126,15 +124,18 @@ afterBurnUpdated:
         inc     binaryLines+1
 
 updateScore:
-        ldx     completedLines
+        lda     completedLines
+        asl     a
+        tax
         lda     binaryPointsTable,x
         clc
         adc     lvl0Score
         sta     lvl0Score
-        bcc     updateEff
-        inc     lvl0Score+1
+        lda     binaryPointsTable+1,x
+        adc     lvl0Score+1
+        sta     lvl0Score+1
 
-updateEff:
+;updateEff
         lda     lvl0Score
         sta     tmp1
         lda     lvl0Score+1
@@ -142,42 +143,46 @@ updateEff:
         lda     binaryLines+1
         beq     loadLines
 
+        lsr     tmp2
+        ror     tmp1
         lda     binaryLines
         sec
         ror     a
-        ldx     #$01 ; no need to set to 0 in other case, since monotonic
-        stx     linesDividedBy2
         jmp     doDiv
 loadLines:
         lda     binaryLines
 doDiv:
         jsr     divmod
-        lda     linesDividedBy2
-        beq     effToBcd
-        lsr     tmp1
-effToBcd:
-        ldx     tmp1
-        lda     byteToBcdTable,x
+
+        lda     #$00
+        sta     tmp2
+        lda     #50 ; 50 because result is /2
+        jsr     divmod
+        lda     tmp1
+        sta     EFF+1
+
+        lda     tmp2
         sta     tmp1
+        lda     #$00
+        sta     tmp2
+        lda     #5 ; 5 because result is /2
+        jsr     divmod
+        lda     tmp1
         asl     a
         asl     a
         asl     a
+        clc
+        adc     tmp2
         asl     a
         sta     EFF
-        lda     tmp1
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        sta     EFF+1
 
 statsPerLineClearDone:
         lda     #$00
         sta     completedLines
         rts
 
-binaryPointsTable: ; in binary, not bcd. All values pre-divided by 10
-        .byte 0, 4, 10, 30, 120
+binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
+        .word   0, 40/2, 100/2, 300/2, 1200/2
 
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
 ; tmp1: (input)  binary dividend LO
