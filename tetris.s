@@ -152,7 +152,19 @@ updateScore:
 loadLines:
         lda     binaryLines
 doDiv:
+        pha
         jsr     divmod
+
+; calculate one more bit of result
+        pla
+        sta     tmp3
+        asl     tmp2
+        lda     tmp2
+        sec
+        sbc     tmp3
+        lda     #$00
+        rol     a
+        sta     EFF ; temporary location
 
         lda     #$00
         sta     tmp2
@@ -174,6 +186,8 @@ doDiv:
         clc
         adc     tmp2
         asl     a
+        clc
+        adc     EFF ; place lowest bit
         sta     EFF
 
 statsPerLineClearDone:
