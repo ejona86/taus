@@ -11,6 +11,9 @@ test: build
 dis:
 	@da65 -i disasm.info -o tetris-PRG.s tetris-PRG.bin
 
+dist: build
+	@flips build/tetris.nes build/tetris.mod.nes build/mod-dist.ips > /dev/null
+
 clean:
 	@[ ! -d build/ ] || rm -r build/
 
