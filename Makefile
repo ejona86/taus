@@ -39,6 +39,8 @@ mod: build/tetris-mod.nes
 # These are "true" phonies, and always execute something
 .PHONY: test clean
 
+.SUFFIXES:
+
 ifneq "$(V)" "1"
 .SILENT:
 endif
