@@ -192,19 +192,19 @@ RANGE { START $A93E; END $A93F; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; }; # noncanon
 RANGE { START $AD17; END $AD2A; TYPE BYTETABLE; NAME "legal_screen_palette"; }; # noncanon
 RANGE { START $AD2B; END $AD42; TYPE BYTETABLE; NAME "menu_palette"; }; # noncanon
-RANGE { START $AD43; END $AD66; TYPE BYTETABLE; NAME "unknown3_palette"; }; # noncanon
+RANGE { START $AD43; END $AD66; TYPE BYTETABLE; NAME "ending_palette"; }; # noncanon
 RANGE { START $AD67; END $ADB7; TYPE BYTETABLE; NAME "defaultHighScoresTable"; };
 RANGE { START $ADB8; END $B218; TYPE BYTETABLE; NAME "legal_screen_nametable"; }; # noncanon
 RANGE { START $B219; END $B679; TYPE BYTETABLE; NAME "title_screen_nametable"; }; # noncanon
 RANGE { START $B67A; END $BADA; TYPE BYTETABLE; NAME "game_type_menu_nametable"; }; # noncanon
 RANGE { START $BADB; END $BF3B; TYPE BYTETABLE; NAME "level_menu_nametable"; }; # noncanon
 RANGE { START $BF3C; END $C39C; TYPE BYTETABLE; NAME "game_nametable"; }; # noncanon
-RANGE { START $C39D; END $C7FD; TYPE BYTETABLE; NAME "unknown5_nametable"; }; # noncanon
+RANGE { START $C39D; END $C7FD; TYPE BYTETABLE; NAME "enter_high_score_nametable"; }; # noncanon
 RANGE { START $C7FE; END $C95C; TYPE BYTETABLE; NAME "high_scores_nametable"; }; # noncanon
 RANGE { START $C95D; END $C9A5; TYPE BYTETABLE; NAME "height_menu_nametablepalette_patch"; }; # noncanon
-RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "unknown7_nametable"; }; # noncanon
-RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "unknown8_nametable"; }; # noncanon
-RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "unknown9_nametable"; }; # noncanon
+RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "type_b_lvl9_ending_nametable"; }; # noncanon
+RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "type_b_ending_nametable"; }; # noncanon
+RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "type_a_ending_nametable"; }; # noncanon
 RANGE { START $D6C9; END $DEFF; TYPE BYTETABLE; NAME "unreferenced_data1"; }; # noncanon
 RANGE { START $DF00; END $DFFF; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; };
 RANGE { START $E009; END $E04A; TYPE BYTETABLE; NAME "unreferenced_data2"; }; # noncanon

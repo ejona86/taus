@@ -1,4 +1,4 @@
-all: tetris mod
+all: tetris mod screens
 
 build:
 	mkdir build
@@ -17,12 +17,13 @@ build/tetris.nes: tetris.cfg build/tetris.o build/tetris-PRG.s
 	sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' build/tetris.lbl > build/tetris.inc
 
 build/tetris-mod.o: build/tetris.nes
+build/tetris-screens.o: build/tetris.nes
 
-build/tetris-mod.nes: tetris-mod.cfg build/tetris-mod.o build/tetris.nes
-	ld65 -o build/tetris-mod.ips -C tetris-mod.cfg build/tetris-mod.o
-	cp build/tetris.nes build/tetris-mod.nes
-	flips build/tetris-mod.ips build/tetris-mod.nes > /dev/null
-	flips build/tetris.nes build/tetris-mod.nes build/tetris-mod.dist.ips > /dev/null
+build/tetris-%.nes: tetris-%.cfg build/tetris-%.o build/tetris.nes
+	ld65 -o build/tetris-$*.ips -C tetris-$*.cfg build/tetris-$*.o
+	cp build/tetris.nes build/tetris-$*.nes
+	flips build/tetris-$*.ips build/tetris-$*.nes > /dev/null
+	flips build/tetris.nes build/tetris-$*.nes build/tetris-$*.dist.ips > /dev/null
 
 test: tetris.nes build/tetris.nes
 	diff tetris.nes build/tetris.nes
@@ -33,9 +34,10 @@ clean:
 dis: build/tetris-PRG.s
 tetris: build/tetris.nes
 mod: build/tetris-mod.nes
+screens: build/tetris-screens.nes
 
 # These are simply aliases
-.PHONY: all dis tetris mod
+.PHONY: all dis tetris mod screens
 # These are "true" phonies, and always execute something
 .PHONY: test clean
 
