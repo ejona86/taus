@@ -85,11 +85,17 @@ LABEL { ADDR $00FB; NAME "joy1Location"; COMMENT "normal=0; 1 or 3 for expansion
 LABEL { ADDR $00FE; NAME "currentPpuMask"; };
 LABEL { ADDR $00FF; NAME "currentPpuCtrl"; };
 LABEL { ADDR $0100; NAME "stack"; SIZE $FF; };
-# OAM format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM
-LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; };
+LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; COMMENT "format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM"; };
 LABEL { ADDR $03F0; NAME "statsByType"; SIZE $0E; };
 LABEL { ADDR $0400; NAME "playfield"; SIZE $C8; }; # canon
 LABEL { ADDR $0500; NAME "playfieldForSecondPlayer"; SIZE $C8; };
+LABEL { ADDR $0690; NAME "musicData"; SIZE $0A; COMMENT "2 bytes + 3 pointers"; };
+LABEL { ADDR $06A0; NAME "musicDataDeref"; SIZE $08; COMMENT "deref'd musicData+2"; };
+LABEL { ADDR $06CC; NAME "musicTrack_dec"; COMMENT "$00-$09"; };
+LABEL { ADDR $06F0; NAME "soundEffect1"; };
+LABEL { ADDR $06F1; NAME "soundEffect2"; };
+LABEL { ADDR $06F5; NAME "musicTrack"; COMMENT "$FF turns off music. $00 continues selection. $01-$0A for new selection"; }; # canon says $0B is valid, but it is never used and makes musicDataTableIndex look wrong
+LABEL { ADDR $06FD; NAME "currentlyPlayingMusicTrack"; };
 LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; };
 LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE $C; };
 LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE $C; };
@@ -122,8 +128,8 @@ LABEL { ADDR $400E; NAME "NOISE_LO"; };
 LABEL { ADDR $400F; NAME "NOISE_HI"; };
 LABEL { ADDR $4010; NAME "DMC_FREQ"; };
 LABEL { ADDR $4011; NAME "DMC_RAW"; };
-LABEL { ADDR $4012; NAME "DMC_START"; };
-LABEL { ADDR $4013; NAME "DMC_LEN"; };
+LABEL { ADDR $4012; NAME "DMC_START"; COMMENT "start << 6 + $C000"; };
+LABEL { ADDR $4013; NAME "DMC_LEN"; COMMENT "len << 4 + 1 "; };
 LABEL { ADDR $4014; NAME "OAMDMA"; };
 LABEL { ADDR $4015; NAME "SND_CHN"; };
 LABEL { ADDR $4016; NAME "JOY1"; };
@@ -219,15 +225,54 @@ RANGE { START $E4F3; END $E510; TYPE BYTETABLE; NAME "unknown18_table"; };
 RANGE { START $E57C; END $E57F; TYPE BYTETABLE; NAME "unknown19_table"; };
 RANGE { START $E5AB; END $E5CF; TYPE BYTETABLE; }; LABEL { ADDR $E5AB; NAME "unknown20_table"; SIZE $25; };
 RANGE { START $E689; END $E6CF; TYPE BYTETABLE; }; # lots o' tables
-RANGE { START $EA4A; END $EB12; TYPE BYTETABLE; }; LABEL { ADDR $EA4A; NAME "unknown21_table"; SIZE $2; };
+RANGE { START $EA4A; END $EA75; TYPE ADDRTABLE; }; LABEL { ADDR $EA4A; NAME "unknown21_table"; SIZE $2; };
+RANGE { START $EA76; END $EB12; TYPE BYTETABLE; };
 RANGE { START $EB13; END $EBAE; TYPE BYTETABLE; }; LABEL { ADDR $EB13; NAME "unknown22_table"; SIZE $2; };
-RANGE { START $EBAF; END $FEFF; TYPE BYTETABLE; NAME "unknown23_table"; };
+RANGE { START $EBAF; END $EC22; TYPE BYTETABLE; NAME "unknown23_table"; };
+RANGE { START $EC23; END $EC2C; TYPE BYTETABLE; NAME "musicDataTableIndex"; };
+RANGE { START $EC2D; END $EC2E; TYPE BYTETABLE; NAME "musicDataTable"; }; # $01 Unused title screen
+RANGE { START $EC2F; END $EC36; TYPE ADDRTABLE; };
+RANGE { START $EC37; END $EC38; TYPE BYTETABLE; }; # $02 B-Type goal achieved
+RANGE { START $EC39; END $EC40; TYPE ADDRTABLE; };
+RANGE { START $EC41; END $EC42; TYPE BYTETABLE; }; # $03 Music-1
+RANGE { START $EC43; END $EC4A; TYPE ADDRTABLE; };
+RANGE { START $EC4B; END $EC4C; TYPE BYTETABLE; }; # $04 Music-2
+RANGE { START $EC4D; END $EC54; TYPE ADDRTABLE; };
+RANGE { START $EC55; END $EC56; TYPE BYTETABLE; }; # $05 Music-3
+RANGE { START $EC57; END $EC5E; TYPE ADDRTABLE; };
+RANGE { START $EC5F; END $EC60; TYPE BYTETABLE; }; # $06 Music-1 allegro
+RANGE { START $EC61; END $EC68; TYPE ADDRTABLE; };
+RANGE { START $EC69; END $EC6A; TYPE BYTETABLE; }; # $07 Music-2 allegro
+RANGE { START $EC6B; END $EC72; TYPE ADDRTABLE; };
+RANGE { START $EC73; END $EC74; TYPE BYTETABLE; }; # $08 Music-3 allegro
+RANGE { START $EC75; END $EC7C; TYPE ADDRTABLE; };
+RANGE { START $EC7D; END $EC7E; TYPE BYTETABLE; }; # $09 Congrats screen
+RANGE { START $EC7F; END $EC86; TYPE ADDRTABLE; };
+RANGE { START $EC87; END $EC88; TYPE BYTETABLE; }; # $0A Endings
+RANGE { START $EC89; END $EC90; TYPE ADDRTABLE; };
+RANGE { START $EC91; END $EC9A; TYPE ADDRTABLE; NAME "music_bTypeGoalAchieved"; };
+RANGE { START $EC9B; END $ECF0; TYPE BYTETABLE; };
+RANGE { START $ECF1; END $ECFA; TYPE ADDRTABLE; NAME "music_titleScreen"; };
+RANGE { START $ECFB; END $EEBE; TYPE BYTETABLE; };
+RANGE { START $EEBF; END $EEE2; TYPE ADDRTABLE; NAME "music_music1"; };
+RANGE { START $EEE3; END $F2B0; TYPE BYTETABLE; };
+RANGE { START $F2B1; END $F2CA; TYPE ADDRTABLE; NAME "music_music3"; };
+RANGE { START $F2CB; END $F3A3; TYPE BYTETABLE; };
+RANGE { START $F3A4; END $F3BB; TYPE ADDRTABLE; NAME "music_congratulations"; };
+RANGE { START $F3BC; END $F5C1; TYPE BYTETABLE; };
+RANGE { START $F5C2; END $F5F1; TYPE ADDRTABLE; NAME "music_music2"; };
+RANGE { START $F5F2; END $F89D; TYPE BYTETABLE; };
+RANGE { START $F89E; END $F8CD; TYPE ADDRTABLE; NAME "music_endings"; };
+RANGE { START $F8CE; END $F9F1; TYPE BYTETABLE; };
+RANGE { START $F9F2; END $FEFF; TYPE BYTETABLE; NAME "unreferenced_data4"; };# TODO: figure out precise start location
 RANGE { START $FF30; END $FFF9; TYPE BYTETABLE; };
 RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
+LABEL { ADDR $8000; NAME "initRam"; COMMENT "incremented to reset MMC1 reg"; };
 LABEL { ADDR $8005; NAME "nmi"; };
 LABEL { ADDR $804A; NAME "irq"; };
 LABEL { ADDR $804B; NAME "render"; }; # canon
+LABEL { ADDR $805A; NAME "initRamContinued"; };
 LABEL { ADDR $8138; NAME "mainLoop"; };
 LABEL { ADDR $8142; NAME "notWaitingForVBlank"; };
 LABEL { ADDR $815D; NAME "game_mode_play_high_score_screen_ending_pause_demo"; };
@@ -311,7 +356,7 @@ LABEL { ADDR $9DA3; NAME "startButtonPressed"; }; # canon
 LABEL { ADDR $9DB0; NAME "recording"; }; # canon
 LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; }; # canon
 LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; };
-LABEL { ADDR $9E07; NAME "initMusicSelection"; };
+LABEL { ADDR $9E07; NAME "setMusicTrack"; };
 LABEL { ADDR $9E3A; NAME "endingAnimation_maybe"; };
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; };
 LABEL { ADDR $9FF2; NAME "showHighScores"; };
@@ -346,5 +391,8 @@ LABEL { ADDR $BFFF; NAME "MMC1_CHR0"; };
 LABEL { ADDR $DFFF; NAME "MMC1_CHR1"; };
 LABEL { ADDR $E000; NAME "updateAudio"; }; # canon
 LABEL { ADDR $E003; NAME "updateAudio2"; COMMENT "canon is updateAudio"; };
-LABEL { ADDR $FF00; NAME "reset"; };
+LABEL { ADDR $E583; NAME "updateMusic"; };
+LABEL { ADDR $E6D7; NAME "loadMusicTrack"; };
+LABEL { ADDR $E840; NAME "updateMusicFrame"; };
+LABEL { ADDR $FF00; NAME "reset"; COMMENT "incremented to reset MMC1 reg"; };
 LABEL { ADDR $FFF0; NAME "MMC1_PRG"; };
