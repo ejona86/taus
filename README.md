@@ -15,5 +15,5 @@ Manual prep:
    file: `$ ines.py split tetris.nes`
 3. Use `$ make` to build artifacts into `build/`, which includes disassembling
    into `build/tetris-PRG.s`. `$ make test` verifies the reassembled version
-   matches the original. The mod will be generated at `build/mod.ips` and will
-   have been applied to `build/tetris.mod.nes`.
+   matches the original. The mod will be generated at `build/tetris-mod.ips`
+   and will have been applied to `build/tetris-mod.nes`.
