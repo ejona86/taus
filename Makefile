@@ -1,29 +1,39 @@
-all: tetris mod screens
+all: tetris taus screens
+
+# Manually list prerequisites that are generated. Non-generated files will
+# automatically be computed.
+build/taus.o: build/tetris.inc
+build/screens.o: build/tetris.inc
+# List linker dependencies
+build/tetris.nes: build/tetris.o tetris-PRG.o
+build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/highscores.o
+build/screens.ips: build/screens.o build/ips.o
+
+CAFLAGS =
+LDFLAGS =
+VPATH = build
 
 build:
 	mkdir build
 
-build/tetris-PRG.s: disasm.info tetris-PRG.bin Makefile | build
-	da65 -i disasm.info -o build/tetris-PRG.s tetris-PRG.bin
-
 build/%.o: %.s Makefile | build
-	ca65 $< -o $@
+	ca65 $(CAFLAGS) --create-dep $@.d $< -o $@
 
-build/tetris.o: tetris-CHR-00.bin tetris-CHR-01.bin
+build/%: %.cfg
+	ld65 $(LDFLAGS) -o $@ -C $< $(filter %.o,$^)
 
-build/tetris.nes: tetris.cfg build/tetris.o build/tetris-PRG.s
-	ca65 -g build/tetris-PRG.s -o build/tetris-PRG.o
-	ld65 -o build/tetris.nes -C tetris.cfg -Ln build/tetris.lbl build/tetris.o build/tetris-PRG.o
+build/%.nes: build/%.ips build/tetris.nes
+	cp build/tetris.nes $@
+	flips $< $@ > /dev/null
+	flips build/tetris.nes $@ build/$*.dist.ips > /dev/null
+
+build/tetris-PRG.s: tetris-PRG.info tetris-PRG.bin Makefile | build
+	da65 -i tetris-PRG.info -o $@ tetris-PRG.bin
+
+build/tetris-PRG.o: CAFLAGS = -g
+build/tetris.nes: LDFLAGS = -Ln build/tetris.lbl
+build/tetris.inc: build/tetris.nes
 	sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' build/tetris.lbl > build/tetris.inc
-
-build/tetris-mod.o: build/tetris.nes
-build/tetris-screens.o: build/tetris.nes
-
-build/tetris-%.nes: tetris-%.cfg build/tetris-%.o build/tetris.nes
-	ld65 -o build/tetris-$*.ips -C tetris-$*.cfg build/tetris-$*.o
-	cp build/tetris.nes build/tetris-$*.nes
-	flips build/tetris-$*.ips build/tetris-$*.nes > /dev/null
-	flips build/tetris.nes build/tetris-$*.nes build/tetris-$*.dist.ips > /dev/null
 
 test: tetris.nes build/tetris.nes
 	diff tetris.nes build/tetris.nes
@@ -33,11 +43,11 @@ clean:
 
 dis: build/tetris-PRG.s
 tetris: build/tetris.nes
-mod: build/tetris-mod.nes
-screens: build/tetris-screens.nes
+taus: build/taus.nes
+screens: build/screens.nes
 
 # These are simply aliases
-.PHONY: all dis tetris mod screens
+.PHONY: all dis tetris taus screens
 # These are "true" phonies, and always execute something
 .PHONY: test clean
 
@@ -46,3 +56,5 @@ screens: build/tetris-screens.nes
 ifneq "$(V)" "1"
 .SILENT:
 endif
+
+include $(wildcard build/*.d)

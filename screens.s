@@ -3,14 +3,7 @@
 ;
 
 .include "build/tetris.inc"
-
-IPSPRGOFFSET = -16+$8000
-
-.segment "IPSHEADER"
-.byte 'P', 'A', 'T', 'C', 'H'
-
-.segment "IPSEOF"
-.byte 'E', 'O', 'F'
+.include "ips.inc"
 
 .segment "HUNK1HDR"
 .import __HUNK1_RUN__, __HUNK1_SIZE__
@@ -37,13 +30,13 @@ IPSPRGOFFSET = -16+$8000
        jsr      mainLoopIterMod
 
 
-.segment "MAINHDR"
-.import __MAIN_RUN__, __MAIN_SIZE__
+.segment "CODEHDR"
+.import __CODE_RUN__, __CODE_SIZE__
 .byte 0
-.dbyt __MAIN_RUN__-IPSPRGOFFSET
-.dbyt __MAIN_SIZE__
+.dbyt __CODE_RUN__-IPSPRGOFFSET
+.dbyt __CODE_SIZE__
 
-.segment "MAIN"
+.segment "CODE"
 
 screenToDisplay := levelNumber
 backgroundRendered := levelNumber+1
