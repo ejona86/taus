@@ -61,4 +61,45 @@ function test_divmod ()
 	end
 end
 
+function test_binaryToBcd ()
+	local tests = {
+		{0, 0x00},
+		{10, 0x10},
+		{999, 0x999},
+		{454, 0x454},
+		{134, 0x134},
+	}
+	for _, test in ipairs(tests) do
+		asm.waitbefore()
+		asm.waitbefore()
+		local bin = test[1]
+		local bcd = test[2]
+		memory.writebyte(labels.tmp1, bin % 256)
+		memory.setregister("a", bin / 256)
+		asm.jsr(labels.binaryToBcd)
+		local a = memory.getregister("a")
+		assert(a == (bcd % 256), "a: " .. a)
+		assertbyte("tmp2", math.floor(bcd / 256))
+		asm.waitbefore()
+		emu.poweron()
+	end
+end
+
+function test_benchbin2bcd ()
+	asm.waitbefore()
+	asm.waitbefore()
+	local score = 7656 / 2
+	local lines = 33 -- result = 232
+	memory.writebyte(labels.tmp1, score % 256)
+	memory.writebyte(labels.tmp2, score / 256)
+	memory.setregister("a", lines)
+	memory.setregister("pc", labels.doDiv)
+	local startcycles = debugger.getcyclescount()
+	asm.waitexecute(labels.statsPerLineClearDone)
+	local cycles = debugger.getcyclescount() - startcycles
+	print("cycles: " .. cycles)
+	assertbyteoff("EFF", 0, 0x32)
+	assertbyteoff("EFF", 1, 0x02)
+end
+
 testing.run()

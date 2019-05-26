@@ -93,7 +93,7 @@ updateScore:
         adc     lvl0Score+1
         sta     lvl0Score+1
 
-;updateEff
+updateEff:
         lda     lvl0Score
         sta     tmp1
         lda     lvl0Score+1
@@ -116,10 +116,11 @@ doDiv:
 ; calculate one more bit of result
         pla
         sta     tmp3
-        asl     tmp2
         lda     tmp2
+        asl     a
         sec
         sbc     tmp3
+.if 0
         lda     #$00
         rol     a
         sta     EFF ; temporary location
@@ -147,6 +148,15 @@ doDiv:
         clc
         adc     EFF ; place lowest bit
         sta     EFF
+.else
+        rol     tmp1
+        lda     #$00
+        rol     a
+        jsr     binaryToBcd
+        sta     EFF
+        lda     tmp2
+        sta     EFF+1
+.endif
 
 statsPerLineClearDone:
         lda     #$00
@@ -155,6 +165,51 @@ statsPerLineClearDone:
 
 binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
         .word   0, 40/2, 100/2, 300/2, 1200/2
+
+
+.if 1
+; Convert 10 bit binary number (max 999) to bcd. Double dabble algorithm.
+; a:    (input) 2 high bits of binary number
+;       (output) low byte
+; tmp1: (input) 8 low bits of binary number
+; tmp2: (output) high byte
+binaryToBcd:
+        ldy     #00
+        sty     tmp2
+.if 1
+        ldy     #08
+.else
+        ; Uses 5 bytes to save 16 cycles
+        asl     tmp1
+        rol     a
+        rol     tmp2
+        ldy     #07
+.endif
+
+binaryToBcd_while:
+        tax
+        and     #$0F
+        cmp     #$05
+        txa                     ; Does not change carry
+        bcc     binaryToBcd_tensDigit
+        ; carry is set, so it will add +1
+        adc     #$02
+        tax
+binaryToBcd_tensDigit:
+        cmp     #$50
+        bcc     binaryToBcd_shift
+        clc
+        adc     #$30
+binaryToBcd_shift:
+        asl     tmp1
+        rol     a
+        rol     tmp2
+        dey
+        bne     binaryToBcd_while
+
+binaryToBcd_rts:
+        rts
+.endif
 
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
 ; tmp1: (input)  binary dividend LO
