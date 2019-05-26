@@ -53,7 +53,10 @@ function test_divmod ()
 		memory.writebyte(labels.tmp1, dividend % 256)
 		memory.writebyte(labels.tmp2, dividend / 256)
 		memory.setregister("a", divisor)
+		local startcycles = debugger.getcyclescount()
 		asm.jsr(labels.divmod)
+		local cycles = debugger.getcyclescount() - startcycles
+		print("cycles: " .. cycles)
 		assertbyte("tmp1", math.floor(dividend / divisor))
 		assertbyte("tmp2", dividend % divisor)
 		asm.waitbefore()
@@ -76,7 +79,10 @@ function test_binaryToBcd ()
 		local bcd = test[2]
 		memory.writebyte(labels.tmp1, bin % 256)
 		memory.setregister("a", bin / 256)
+		local startcycles = debugger.getcyclescount()
 		asm.jsr(labels.binaryToBcd)
+		local cycles = debugger.getcyclescount() - startcycles
+		print("cycles: " .. cycles)
 		local a = memory.getregister("a")
 		assert(a == (bcd % 256), "a: " .. a)
 		assertbyte("tmp2", math.floor(bcd / 256))
@@ -85,7 +91,7 @@ function test_binaryToBcd ()
 	end
 end
 
-function test_benchbin2bcd ()
+function test_benchdoDiv ()
 	asm.waitbefore()
 	asm.waitbefore()
 	local score = 7656 / 2
@@ -100,6 +106,18 @@ function test_benchbin2bcd ()
 	print("cycles: " .. cycles)
 	assertbyteoff("EFF", 0, 0x32)
 	assertbyteoff("EFF", 1, 0x02)
+end
+
+-- If repeated, this can produce different results, because it doesn't sanitize
+-- the current stats values.
+function test_benchstatsPerLineClear ()
+	asm.waitbefore()
+	asm.waitbefore()
+	memory.writebyte(labels.completedLines, 3)
+	local startcycles = debugger.getcyclescount()
+	asm.jsr(labels.statsPerLineClear)
+	local cycles = debugger.getcyclescount() - startcycles
+	print("cycles: " .. cycles)
 end
 
 testing.run()
