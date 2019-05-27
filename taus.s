@@ -1,17 +1,10 @@
 PLAYERID_SPRITE=1
 ;
-; IPS Mod
+; Tetris AUS mod: Actually Useful Stats
 ;
 
 .include "build/tetris.inc"
-
-IPSPRGOFFSET = -16+$8000
-
-.segment "IPSHEADER"
-.byte 'P', 'A', 'T', 'C', 'H'
-
-.segment "IPSEOF"
-.byte 'E', 'O', 'F'
+.include "ips.inc"
 
 .segment "HUNK1HDR"
 .import __HUNK1_RUN__, __HUNK1_SIZE__
@@ -25,13 +18,13 @@ IPSPRGOFFSET = -16+$8000
        jmp statsPerBlock
 afterJmpResetStatMod:
 
-.segment "MAINHDR"
-.import __MAIN_RUN__, __MAIN_SIZE__
+.segment "CODEHDR"
+.import __CODE_RUN__, __CODE_SIZE__
 .byte 0
-.dbyt __MAIN_RUN__-IPSPRGOFFSET
-.dbyt __MAIN_SIZE__
+.dbyt __CODE_RUN__-IPSPRGOFFSET
+.dbyt __CODE_SIZE__
 
-.segment "MAIN"
+.segment "CODE"
 
 DHT_index = $00
 DHT := statsByType + DHT_index * 2
@@ -101,7 +94,7 @@ updateScore:
         adc     lvl0Score+1
         sta     lvl0Score+1
 
-;updateEff
+updateEff:
         lda     lvl0Score
         sta     tmp1
         lda     lvl0Score+1
@@ -124,37 +117,18 @@ doDiv:
 ; calculate one more bit of result
         pla
         sta     tmp3
-        asl     tmp2
         lda     tmp2
+        asl     a
         sec
         sbc     tmp3
+
+        rol     tmp1
         lda     #$00
         rol     a
-        sta     EFF ; temporary location
-
-        lda     #$00
-        sta     tmp2
-        lda     #50 ; 50 because result is /2
-        jsr     divmod
-        lda     tmp1
-        sta     EFF+1
-
-        lda     tmp2
-        sta     tmp1
-        lda     #$00
-        sta     tmp2
-        lda     #5 ; 5 because result is /2
-        jsr     divmod
-        lda     tmp1
-        asl     a
-        asl     a
-        asl     a
-        clc
-        adc     tmp2
-        asl     a
-        clc
-        adc     EFF ; place lowest bit
+        jsr     binaryToBcd
         sta     EFF
+        lda     tmp2
+        sta     EFF+1
 
 statsPerLineClearDone:
         lda     #$00
@@ -163,6 +137,49 @@ statsPerLineClearDone:
 
 binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
         .word   0, 40/2, 100/2, 300/2, 1200/2
+
+
+; Convert 10 bit binary number (max 999) to bcd. Double dabble algorithm.
+; a:    (input) 2 high bits of binary number
+;       (output) low byte
+; tmp1: (input) 8 low bits of binary number
+; tmp2: (output) high byte
+binaryToBcd:
+        ldy     #00
+        sty     tmp2
+.if 1
+        ldy     #08
+.else
+        ; Uses 5 bytes to save 16 cycles
+        asl     tmp1
+        rol     a
+        rol     tmp2
+        ldy     #07
+.endif
+
+binaryToBcd_while:
+        tax
+        and     #$0F
+        cmp     #$05
+        txa                     ; Does not change carry
+        bcc     binaryToBcd_tensDigit
+        ; carry is set, so it will add +1
+        adc     #$02
+        tax
+binaryToBcd_tensDigit:
+        cmp     #$50
+        bcc     binaryToBcd_shift
+        clc
+        adc     #$30
+binaryToBcd_shift:
+        asl     tmp1
+        rol     a
+        rol     tmp2
+        dey
+        bne     binaryToBcd_while
+
+binaryToBcd_rts:
+        rts
 
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
 ; tmp1: (input)  binary dividend LO
@@ -253,17 +270,6 @@ divmod_checkDone:
         cmp     #$03
 
 
-.segment "SKIP_LEGALHDR"
-.import __SKIP_LEGAL_RUN__, __SKIP_LEGAL_SIZE__
-.byte 0
-.dbyt __SKIP_LEGAL_RUN__-IPSPRGOFFSET
-.dbyt __SKIP_LEGAL_SIZE__
-
-.segment "SKIP_LEGAL"
-
-; Allow skipping legal screen
-        lda     #$00
-
 .segment "JMP_STATS_PER_LINE_CLEARHDR"
 .import __JMP_STATS_PER_LINE_CLEAR_RUN__, __JMP_STATS_PER_LINE_CLEAR_SIZE__
 .byte 0
@@ -275,40 +281,6 @@ divmod_checkDone:
 ; at end of addLineClearPoints, replaces "lda #0; sta completedLines"
         jsr statsPerLineClear
         nop
-
-.segment "DEFAULT_HIGH_SCORESHDR"
-.import __DEFAULT_HIGH_SCORES_RUN__, __DEFAULT_HIGH_SCORES_SIZE__
-.byte 0
-.dbyt __DEFAULT_HIGH_SCORES_RUN__-IPSPRGOFFSET
-.dbyt __DEFAULT_HIGH_SCORES_SIZE__
-
-.segment "DEFAULT_HIGH_SCORES"
-
-; replace defaultHighScoresTable
-        ; NAME
-        ; # Convert ALPHA string to hex:
-        ; list(map(lambda x: hex(ord(x)-64), "CHEATR"))
-        .byte   $01,$13,$08,$01,$12,$01 ; "ASHARA"
-        .byte   $05,$0D,$2A,$0A,$2B,$2B ; "EM.J  "
-        .byte   $05,$12,$09,$03,$2B,$2B ; "ERIC  "
-        .byte   $00,$00,$00,$00,$00,$00
-        .byte   $01,$0C,$05,$18,$2B,$2B
-        .byte   $14,$0F,$0E,$19,$2B,$2B
-        .byte   $0E,$09,$0E,$14,$05,$0E
-        .byte   $00,$00,$00,$00,$00,$00
-        ; SCORE, in BCD
-        .byte   $39,$97,$72
-        .byte   $29,$51,$88
-        .byte   $17,$30,$68
-        .byte   $00,$00,$00
-        .byte   $00,$20,$00
-        .byte   $00,$10,$00
-        .byte   $00,$05,$00
-        .byte   $00,$00,$00
-        ; LV, in binary
-        .byte   $13,$12,$09,$00
-        .byte   $09,$05,$00,$00
-        .byte   $FF
 
 .segment "JMP_LEVEL_MENU_CHECK_SELECT_PRESSEDHDR"
 .import __JMP_LEVEL_MENU_CHECK_SELECT_PRESSED_RUN__, __JMP_LEVEL_MENU_CHECK_SELECT_PRESSED_SIZE__
@@ -368,7 +340,7 @@ afterJmpLevelMenuCheckSelectPressedMod:
         sta     PPUSCROLL
 .endif
 
-.segment "MAIN"
+.segment "CODE"
 
 playerId := $0003
 

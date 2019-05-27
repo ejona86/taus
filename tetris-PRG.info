@@ -1,0 +1,398 @@
+GLOBAL {
+  STARTADDR $8000;
+};
+
+SEGMENT { START $8000; END $FFF9; NAME "PRG"; };
+SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
+
+# "canon" names match those in https://meatfighter.com/nintendotetrisai/
+# Note that the a particular location in memory may have mulitple names within
+# meatfighter's documentation.
+
+# Variables
+# Note that this causes literal zeros, like for lda $0,x to incorrectly
+# reference tmp (see generateNextPseudorandomNumber)
+LABEL { ADDR $0000; NAME "tmp1"; };
+LABEL { ADDR $0001; NAME "tmp2"; };
+LABEL { ADDR $0002; NAME "tmp3"; };
+LABEL { ADDR $0017; NAME "rng_seed"; SIZE 2; };
+LABEL { ADDR $0019; NAME "spawnID"; }; # canon
+LABEL { ADDR $001A; NAME "spawnCount"; }; # canon
+LABEL { ADDR $0033; NAME "verticalBlankingInterval"; }; # canon
+LABEL { ADDR $0040; NAME "tetriminoX"; }; # canon
+LABEL { ADDR $0041; NAME "tetriminoY"; }; # canon
+LABEL { ADDR $0044; NAME "levelNumber"; }; # canon
+LABEL { ADDR $0045; NAME "fallTimer"; }; # canon
+LABEL { ADDR $0046; NAME "autorepeatX"; }; # canon
+LABEL { ADDR $0047; NAME "startLevel"; };
+LABEL { ADDR $0048; NAME "playState"; }; # canon
+LABEL { ADDR $0049; NAME "vramRow"; }; # canon
+LABEL { ADDR $004E; NAME "autorepeatY"; }; # canon
+LABEL { ADDR $004F; NAME "holdDownPoints"; }; # canon
+LABEL { ADDR $0050; NAME "lines"; SIZE 2; };
+LABEL { ADDR $0052; NAME "rowY"; }; # canon
+LABEL { ADDR $0053; NAME "score"; SIZE 3; }; # canon
+LABEL { ADDR $0056; NAME "completedLines"; }; # canon
+LABEL { ADDR $0058; NAME "curtainRow"; }; # canon
+LABEL { ADDR $0059; NAME "startHeight"; };
+# $60-$7F is a mirror of $40-$5F
+LABEL { ADDR $0060; NAME "tetriminoX_mirror"; };
+LABEL { ADDR $0061; NAME "tetriminoY_mirror"; };
+LABEL { ADDR $0064; NAME "levelNumber_mirror"; };
+LABEL { ADDR $0065; NAME "fallTimer_mirror"; };
+LABEL { ADDR $0066; NAME "autorepeatX_mirror"; };
+LABEL { ADDR $0067; NAME "startLevel_mirror"; };
+LABEL { ADDR $0068; NAME "playState_mirror"; };
+LABEL { ADDR $0069; NAME "vramRow_mirror"; };
+LABEL { ADDR $006E; NAME "autorepeatY_mirror"; };
+LABEL { ADDR $006F; NAME "holdDownPoints_mirror"; };
+LABEL { ADDR $0070; NAME "lines_mirror"; SIZE 2; };
+LABEL { ADDR $0072; NAME "rowY_mirror"; };
+LABEL { ADDR $0073; NAME "score_mirror"; SIZE 3; };
+LABEL { ADDR $0076; NAME "completedLines_mirror"; };
+LABEL { ADDR $0078; NAME "curtainRow_mirror"; };
+LABEL { ADDR $0079; NAME "startHeight_mirror"; };
+LABEL { ADDR $00A0; NAME "spriteXOffset"; };
+LABEL { ADDR $00A1; NAME "spriteYOffset"; };
+LABEL { ADDR $00A2; NAME "spriteIndexInOamContentLookup"; };
+LABEL { ADDR $00A8; NAME "generalCounter"; COMMENT "canon is legalScreenCounter2"; };
+LABEL { ADDR $00A9; NAME "generalCounter2"; };
+LABEL { ADDR $00AE; NAME "originalY"; }; # canon
+LABEL { ADDR $00AF; NAME "dropSpeed"; }; # canon
+LABEL { ADDR $00B1; NAME "frameCounter"; SIZE 2; }; # canon
+LABEL { ADDR $00B3; NAME "oamStagingLength"; }; # canon
+LABEL { ADDR $00B5; NAME "newlyPressedButtons_mirror"; };
+LABEL { ADDR $00B6; NAME "pressedButtons_mirror"; };
+LABEL { ADDR $00B9; NAME "leftPlayfield"; }; # canon
+LABEL { ADDR $00BC; NAME "totalGarbage"; }; # canon
+LABEL { ADDR $00BD; NAME "renderMode"; }; # canon
+LABEL { ADDR $00BE; NAME "numberOfPlayers"; }; # canon
+LABEL { ADDR $00C0; NAME "gameMode"; }; # canon
+LABEL { ADDR $00C1; NAME "gameType"; COMMENT "A=0, B=1"; }; # canon
+LABEL { ADDR $00C2; NAME "musicType"; COMMENT "0-3; 3 is off"; };
+LABEL { ADDR $00C3; NAME "sleepCounter"; }; # canon is legalScreenCounter1
+LABEL { ADDR $00C4; NAME "ending"; }; # canon
+LABEL { ADDR $00CE; NAME "heldButtons"; }; # canon
+LABEL { ADDR $00CF; NAME "repeats"; }; # canon
+LABEL { ADDR $00D1; NAME "demoButtonsTable_index"; };
+LABEL { ADDR $00D2; NAME "demoButtonsTable_indexOverflowed"; };
+LABEL { ADDR $00D3; NAME "demoIndex"; }; # canon
+LABEL { ADDR $00DF; NAME "displayNextPiece"; }; # canon
+LABEL { ADDR $00F5; NAME "newlyPressedButtons"; COMMENT "$80-a $40-b $20-select $10-start $08-up $04-down $02-left $01-right"; };
+LABEL { ADDR $00F6; NAME "pressedButtons"; };
+LABEL { ADDR $00F7; NAME "getHeldButtons"; }; # canon
+LABEL { ADDR $00FB; NAME "joy1Location"; COMMENT "normal=0; 1 or 3 for expansion"; };
+LABEL { ADDR $00FE; NAME "currentPpuMask"; };
+LABEL { ADDR $00FF; NAME "currentPpuCtrl"; };
+LABEL { ADDR $0100; NAME "stack"; SIZE $FF; };
+LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; COMMENT "format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM"; };
+LABEL { ADDR $03F0; NAME "statsByType"; SIZE $0E; };
+LABEL { ADDR $0400; NAME "playfield"; SIZE $C8; }; # canon
+LABEL { ADDR $0500; NAME "playfieldForSecondPlayer"; SIZE $C8; };
+LABEL { ADDR $0690; NAME "musicData"; SIZE $0A; COMMENT "2 bytes + 3 pointers"; };
+LABEL { ADDR $06A0; NAME "musicDataDeref"; SIZE $08; COMMENT "deref'd musicData+2"; };
+LABEL { ADDR $06CC; NAME "musicTrack_dec"; COMMENT "$00-$09"; };
+LABEL { ADDR $06F0; NAME "soundEffect1"; };
+LABEL { ADDR $06F1; NAME "soundEffect2"; };
+LABEL { ADDR $06F5; NAME "musicTrack"; COMMENT "$FF turns off music. $00 continues selection. $01-$0A for new selection"; }; # canon says $0B is valid, but it is never used and makes musicDataTableIndex look wrong
+LABEL { ADDR $06FD; NAME "currentlyPlayingMusicTrack"; };
+LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; };
+LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE $C; };
+LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE $C; };
+LABEL { ADDR $0748; NAME "highScoreLevels"; SIZE $08; };
+
+LABEL { ADDR $2000; NAME "PPUCTRL"; };
+LABEL { ADDR $2001; NAME "PPUMASK"; };
+LABEL { ADDR $2002; NAME "PPUSTATUS"; };
+LABEL { ADDR $2003; NAME "OAMADDR"; };
+LABEL { ADDR $2004; NAME "OAMDATA"; };
+LABEL { ADDR $2005; NAME "PPUSCROLL"; };
+LABEL { ADDR $2006; NAME "PPUADDR"; };
+LABEL { ADDR $2007; NAME "PPUDATA"; };
+
+LABEL { ADDR $4000; NAME "SQ1_VOL"; };
+LABEL { ADDR $4001; NAME "SQ1_SWEEP"; };
+LABEL { ADDR $4002; NAME "SQ1_LO"; };
+LABEL { ADDR $4003; NAME "SQ1_HI"; };
+LABEL { ADDR $4004; NAME "SQ2_VOL"; };
+LABEL { ADDR $4005; NAME "SQ2_SWEEP"; };
+LABEL { ADDR $4006; NAME "SQ2_LO"; };
+LABEL { ADDR $4007; NAME "SQ2_HI"; };
+LABEL { ADDR $4008; NAME "TRI_LINEAR"; };
+# $4009 is unused
+LABEL { ADDR $400A; NAME "TRI_LO"; };
+LABEL { ADDR $400B; NAME "TRI_HI"; };
+LABEL { ADDR $400C; NAME "NOISE_VOL"; };
+# $400D is unused
+LABEL { ADDR $400E; NAME "NOISE_LO"; };
+LABEL { ADDR $400F; NAME "NOISE_HI"; };
+LABEL { ADDR $4010; NAME "DMC_FREQ"; };
+LABEL { ADDR $4011; NAME "DMC_RAW"; };
+LABEL { ADDR $4012; NAME "DMC_START"; COMMENT "start << 6 + $C000"; };
+LABEL { ADDR $4013; NAME "DMC_LEN"; COMMENT "len << 4 + 1 "; };
+LABEL { ADDR $4014; NAME "OAMDMA"; };
+LABEL { ADDR $4015; NAME "SND_CHN"; };
+LABEL { ADDR $4016; NAME "JOY1"; };
+LABEL { ADDR $4017; NAME "JOY2"; };
+# $4018-$401F normally disabled
+
+# Code and tables
+RANGE { START $8050; END $8059; TYPE ADDRTABLE; }; # switch (renderMode)
+RANGE { START $8166; END $8173; TYPE ADDRTABLE; }; # switch (gameMode)
+RANGE { START $81A0; END $81B1; TYPE ADDRTABLE; }; # switch (??)
+RANGE { START $81B7; END $81CE; TYPE ADDRTABLE; }; # switch (playState)
+RANGE { START $81DE; END $81F5; TYPE ADDRTABLE; }; # switch (playState)
+RANGE { START $821A; END $821B; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $821F; END $8220; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $826D; END $826E; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $8272; END $8273; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $82E6; END $82E7; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $82EB; END $82EC; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $83F9; END $83FA; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $83FE; END $83FF; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $8407; END $8408; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $85B2; END $85BB; TYPE BYTETABLE; NAME "levelToSpriteYOffset"; };
+RANGE { START $85BC; END $85C5; TYPE BYTETABLE; NAME "levelToSpriteXOffset"; };
+RANGE { START $85C6; END $85CB; TYPE BYTETABLE; NAME "heightToPpuHighAddr"; };
+RANGE { START $85CC; END $85D1; TYPE BYTETABLE; NAME "heightToPpuLowAddr"; };
+RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "musicSelectionTable"; };
+RANGE { START $8603; END $8604; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $8608; END $8609; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "unknown6_table"; };
+RANGE { START $887C; END $8882; TYPE BYTETABLE; NAME "rngTable"; };
+RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; }; # canon
+RANGE { START $898E; END $89AA; TYPE BYTETABLE; NAME "framesPerDropTable"; }; # canon
+RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; }; # canon
+RANGE { START $8BE5; END $8C26; TYPE BYTETABLE; NAME "unknown7_table"; };
+RANGE { START $8C6C; END $8D1F; TYPE ADDRTABLE; NAME "oamContentLookup"; COMMENT "unknown size, but not more than 256"; };
+RANGE { START $8D20; END $948A; TYPE BYTETABLE; };
+RANGE { START $96AA; END $96B7; TYPE DBYTETABLE; NAME "pieceToPpuStatAddr"; };
+RANGE { START $96B8; END $96D5; TYPE BYTETABLE; NAME "levelDisplayTable"; };
+RANGE { START $96D6; END $96E9; TYPE BYTETABLE; NAME "multBy10Table"; };
+RANGE { START $96EA; END $9711; TYPE WORDTABLE; NAME "vramPlayfieldRows"; COMMENT "addresses"; }; # canon
+RANGE { START $97FE; END $9802; TYPE BYTETABLE; NAME "leftColumns"; }; # canon
+RANGE { START $9803; END $9807; TYPE BYTETABLE; NAME "rightColumns"; }; # canon
+RANGE { START $984C; END $9873; TYPE DBYTETABLE; NAME "colorTable"; COMMENT "4 bytes per level (bg, fg, c3, c4)"; }; # canon
+RANGE { START $993B; END $994D; TYPE BYTETABLE; NAME "tetriminoTypeFromOrientation"; };
+RANGE { START $994E; END $9954; TYPE BYTETABLE; NAME "spawnTable"; }; # canon
+RANGE { START $9956; END $9968; TYPE BYTETABLE; NAME "spawnOrientationFromOrientation"; };
+RANGE { START $9B53; END $9B57; TYPE BYTETABLE; NAME "garbageLines"; }; # canon
+RANGE { START $9CA5; END $9CAE; TYPE WORDTABLE; NAME "pointsTable"; }; # canon
+RANGE { START $9E83; END $9E84; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $9EA2; END $9EA3; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $9EA7; END $9EA8; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $9FFE; END $9FFF; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $A086; END $A08B; TYPE DBYTETABLE; NAME "highScorePpuAddrTable"; };
+RANGE { START $A08C; END $A0BB; TYPE BYTETABLE; NAME "highScoreCharToTile"; };
+RANGE { START $A0BC; END $A0ED; TYPE BYTETABLE; NAME "byteToBcdTable"; COMMENT "maxes out at 49"; };
+RANGE { START $A1F1; END $A1F8; TYPE BYTETABLE; NAME "unknown11_table"; };
+RANGE { START $A1F9; END $A200; TYPE BYTETABLE; NAME "unknown12_table"; };
+RANGE { START $A225; END $A226; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $A22A; END $A22B; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $A33B; END $A33D; TYPE BYTETABLE; NAME "unknown13_table"; };
+RANGE { START $A33E; END $A343; TYPE BYTETABLE; NAME "unknown14_table"; };
+RANGE { START $A42E; END $A44C; TYPE BYTETABLE; NAME "unknown15_table"; };
+RANGE { START $A4B6; END $A4C3; TYPE ADDRTABLE; }; # switch (ending)
+RANGE { START $A540; END $A54B; TYPE ADDRTABLE; }; # switch (??)
+RANGE { START $A735; END $A7FC; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A80A; END $A925; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A939; END $A93A; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $AA11; END $AA2E; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A93E; END $A93F; TYPE ADDRTABLE; }; # bulkCopyToPpu
+RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; };
+RANGE { START $AD17; END $AD2A; TYPE BYTETABLE; NAME "legal_screen_palette"; };
+RANGE { START $AD2B; END $AD42; TYPE BYTETABLE; NAME "menu_palette"; };
+RANGE { START $AD43; END $AD66; TYPE BYTETABLE; NAME "ending_palette"; };
+RANGE { START $AD67; END $ADB7; TYPE BYTETABLE; NAME "defaultHighScoresTable"; };
+RANGE { START $ADB8; END $B218; TYPE BYTETABLE; NAME "legal_screen_nametable"; };
+RANGE { START $B219; END $B679; TYPE BYTETABLE; NAME "title_screen_nametable"; };
+RANGE { START $B67A; END $BADA; TYPE BYTETABLE; NAME "game_type_menu_nametable"; };
+RANGE { START $BADB; END $BF3B; TYPE BYTETABLE; NAME "level_menu_nametable"; };
+RANGE { START $BF3C; END $C39C; TYPE BYTETABLE; NAME "game_nametable"; };
+RANGE { START $C39D; END $C7FD; TYPE BYTETABLE; NAME "enter_high_score_nametable"; };
+RANGE { START $C7FE; END $C95C; TYPE BYTETABLE; NAME "high_scores_nametable"; };
+RANGE { START $C95D; END $C9A5; TYPE BYTETABLE; NAME "height_menu_nametablepalette_patch"; };
+RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "type_b_lvl9_ending_nametable"; };
+RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "type_b_ending_nametable"; };
+RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "type_a_ending_nametable"; };
+RANGE { START $D6C9; END $DEFF; TYPE BYTETABLE; NAME "unreferenced_data1"; };
+RANGE { START $DF00; END $DFFF; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; }; # canon
+RANGE { START $E009; END $E04A; TYPE BYTETABLE; NAME "unreferenced_data2"; };
+RANGE { START $E0C8; END $E14F; TYPE BYTETABLE; NAME "unreferenced_data3"; };
+RANGE { START $E150; END $E193; TYPE BYTETABLE; NAME "unknown17_table"; };
+RANGE { START $E4B0; END $E4B8; TYPE BYTETABLE; NAME "unknown8_table"; };
+RANGE { START $E4F3; END $E510; TYPE BYTETABLE; NAME "unknown18_table"; };
+RANGE { START $E57C; END $E57F; TYPE BYTETABLE; NAME "unknown19_table"; };
+RANGE { START $E5AB; END $E5CF; TYPE BYTETABLE; }; LABEL { ADDR $E5AB; NAME "unknown20_table"; SIZE $25; };
+RANGE { START $E689; END $E6CF; TYPE BYTETABLE; }; # lots o' tables
+RANGE { START $EA4A; END $EA75; TYPE ADDRTABLE; }; LABEL { ADDR $EA4A; NAME "unknown21_table"; SIZE $2; };
+RANGE { START $EA76; END $EB12; TYPE BYTETABLE; };
+RANGE { START $EB13; END $EBAE; TYPE BYTETABLE; }; LABEL { ADDR $EB13; NAME "unknown22_table"; SIZE $2; };
+RANGE { START $EBAF; END $EC22; TYPE BYTETABLE; NAME "unknown23_table"; };
+RANGE { START $EC23; END $EC2C; TYPE BYTETABLE; NAME "musicDataTableIndex"; };
+RANGE { START $EC2D; END $EC2E; TYPE BYTETABLE; NAME "musicDataTable"; }; # $01 Unused title screen
+RANGE { START $EC2F; END $EC36; TYPE ADDRTABLE; };
+RANGE { START $EC37; END $EC38; TYPE BYTETABLE; }; # $02 B-Type goal achieved
+RANGE { START $EC39; END $EC40; TYPE ADDRTABLE; };
+RANGE { START $EC41; END $EC42; TYPE BYTETABLE; }; # $03 Music-1
+RANGE { START $EC43; END $EC4A; TYPE ADDRTABLE; };
+RANGE { START $EC4B; END $EC4C; TYPE BYTETABLE; }; # $04 Music-2
+RANGE { START $EC4D; END $EC54; TYPE ADDRTABLE; };
+RANGE { START $EC55; END $EC56; TYPE BYTETABLE; }; # $05 Music-3
+RANGE { START $EC57; END $EC5E; TYPE ADDRTABLE; };
+RANGE { START $EC5F; END $EC60; TYPE BYTETABLE; }; # $06 Music-1 allegro
+RANGE { START $EC61; END $EC68; TYPE ADDRTABLE; };
+RANGE { START $EC69; END $EC6A; TYPE BYTETABLE; }; # $07 Music-2 allegro
+RANGE { START $EC6B; END $EC72; TYPE ADDRTABLE; };
+RANGE { START $EC73; END $EC74; TYPE BYTETABLE; }; # $08 Music-3 allegro
+RANGE { START $EC75; END $EC7C; TYPE ADDRTABLE; };
+RANGE { START $EC7D; END $EC7E; TYPE BYTETABLE; }; # $09 Congrats screen
+RANGE { START $EC7F; END $EC86; TYPE ADDRTABLE; };
+RANGE { START $EC87; END $EC88; TYPE BYTETABLE; }; # $0A Endings
+RANGE { START $EC89; END $EC90; TYPE ADDRTABLE; };
+RANGE { START $EC91; END $EC9A; TYPE ADDRTABLE; NAME "music_bTypeGoalAchieved"; };
+RANGE { START $EC9B; END $ECF0; TYPE BYTETABLE; };
+RANGE { START $ECF1; END $ECFA; TYPE ADDRTABLE; NAME "music_titleScreen"; };
+RANGE { START $ECFB; END $EEBE; TYPE BYTETABLE; };
+RANGE { START $EEBF; END $EEE2; TYPE ADDRTABLE; NAME "music_music1"; };
+RANGE { START $EEE3; END $F2B0; TYPE BYTETABLE; };
+RANGE { START $F2B1; END $F2CA; TYPE ADDRTABLE; NAME "music_music3"; };
+RANGE { START $F2CB; END $F3A3; TYPE BYTETABLE; };
+RANGE { START $F3A4; END $F3BB; TYPE ADDRTABLE; NAME "music_congratulations"; };
+RANGE { START $F3BC; END $F5C1; TYPE BYTETABLE; };
+RANGE { START $F5C2; END $F5F1; TYPE ADDRTABLE; NAME "music_music2"; };
+RANGE { START $F5F2; END $F89D; TYPE BYTETABLE; };
+RANGE { START $F89E; END $F8CD; TYPE ADDRTABLE; NAME "music_endings"; };
+RANGE { START $F8CE; END $F9F1; TYPE BYTETABLE; };
+RANGE { START $F9F2; END $FEFF; TYPE BYTETABLE; NAME "unreferenced_data4"; };# TODO: figure out precise start location
+RANGE { START $FF30; END $FFF9; TYPE BYTETABLE; };
+RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
+
+LABEL { ADDR $8000; NAME "initRam"; COMMENT "incremented to reset MMC1 reg"; };
+LABEL { ADDR $8005; NAME "nmi"; };
+LABEL { ADDR $804A; NAME "irq"; };
+LABEL { ADDR $804B; NAME "render"; }; # canon
+LABEL { ADDR $805A; NAME "initRamContinued"; };
+LABEL { ADDR $8138; NAME "mainLoop"; };
+LABEL { ADDR $8142; NAME "notWaitingForVBlank"; };
+LABEL { ADDR $815D; NAME "game_mode_play_high_score_screen_ending_pause_demo"; };
+LABEL { ADDR $8161; NAME "branchOnGameMode"; }; # canon
+LABEL { ADDR $8200; NAME "game_mode_legal_screen"; };
+LABEL { ADDR $824F; NAME "game_mode_title_screen"; };
+LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; };
+LABEL { ADDR $82D1; NAME "game_mode_game_type_menu"; };
+LABEL { ADDR $83D7; NAME "game_mode_level_and_height_menu"; };
+LABEL { ADDR $846C; NAME "level_menu_start_new_game"; };
+LABEL { ADDR $8478; NAME "level_menu_check_b_pressed"; };
+LABEL { ADDR $8486; NAME "level_menu_choose_random"; };
+LABEL { ADDR $84AE; NAME "level_menu_check_right_pressed"; };
+LABEL { ADDR $84D0; NAME "level_menu_check_left_pressed"; };
+LABEL { ADDR $84EE; NAME "level_menu_check_down_pressed"; };
+LABEL { ADDR $8517; NAME "level_menu_check_up_pressed"; };
+LABEL { ADDR $8540; NAME "level_menu_check_a_pressed"; };
+LABEL { ADDR $8555; NAME "level_menu_flicker_selection"; };
+LABEL { ADDR $855F; NAME "level_menu_flicker_selection_level"; };
+LABEL { ADDR $85B1; NAME "game_mode_level_and_height_menu_return"; };
+LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; };
+LABEL { ADDR $85F0; NAME "initGameBackground"; };
+LABEL { ADDR $86DC; NAME "initNewGame"; };
+LABEL { ADDR $8776; NAME "someCopiesAndMirror60to40"; };
+LABEL { ADDR $87AE; NAME "mirror40to60"; };
+LABEL { ADDR $87DC; NAME "initPlayfieldIfTypeB"; };
+LABEL { ADDR $87E3; NAME "initPlayfieldForTypeB"; };
+LABEL { ADDR $88AB; NAME "rotate_tetrimino"; };
+LABEL { ADDR $88CF; NAME "aNotPressed"; }; # canon
+LABEL { ADDR $88E9; NAME "restoreOrientationID"; }; # canon
+LABEL { ADDR $8914; NAME "drop_tetrimino"; };
+LABEL { ADDR $8924; NAME "playing"; }; # canon
+LABEL { ADDR $8939; NAME "autorepeating"; }; # canon
+LABEL { ADDR $894A; NAME "downPressed"; }; # canon
+LABEL { ADDR $8958; NAME "drop"; }; # canon
+LABEL { ADDR $8973; NAME "lookupDropSpeed"; }; # canon
+LABEL { ADDR $897E; NAME "noTableLookup"; }; # canon
+LABEL { ADDR $8989; NAME "incrementAutorepeatY"; }; # canon
+LABEL { ADDR $89AE; NAME "shift_tetrimino"; };
+LABEL { ADDR $89D3; NAME "resetAutorepeatX"; }; # canon
+LABEL { ADDR $89D7; NAME "buttonHeldDown"; };
+LABEL { ADDR $89EC; NAME "notPressingRight"; }; # canon
+LABEL { ADDR $8A01; NAME "restoreX"; }; # canon
+LABEL { ADDR $8A0A; NAME "stageSpriteForCurrentPiece"; };
+LABEL { ADDR $8BCE; NAME "stageSpriteForNextPiece"; };
+LABEL { ADDR $8C27; NAME "loadSpriteIntoOamStaging"; };
+LABEL { ADDR $8D20; NAME "spriteLevelSelectCursor"; };
+LABEL { ADDR $8D31; NAME "spriteGameAndMusicTypeCursors"; };
+LABEL { ADDR $948B; NAME "is_position_valid"; };
+LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; };
+LABEL { ADDR $95B5; NAME "render_play_digits"; };
+LABEL { ADDR $9712; NAME "twoDigsToPPU"; };
+LABEL { ADDR $9725; NAME "copyPlayfieldRowToVRAM"; }; # canon
+LABEL { ADDR $977F; NAME "updateLineClearingAnimation"; }; # canon
+LABEL { ADDR $97A6; NAME "twoPlayers"; }; # canon
+LABEL { ADDR $97BD; NAME "updateVRAM"; }; # canon
+LABEL { ADDR $9808; NAME "updatePaletteForLevel"; COMMENT "Set Background palette 2 and Sprite palette 2"; };
+LABEL { ADDR $98EB; NAME "chooseNextTetrimino"; };
+LABEL { ADDR $9903; NAME "pickRandomTetrimino"; }; # canon
+LABEL { ADDR $991C; NAME "invalidIndex"; }; # canon
+LABEL { ADDR $9938; NAME "useNewSpawnID"; }; # canon
+LABEL { ADDR $9969; NAME "incrementPieceStat"; };
+LABEL { ADDR $99A2; NAME "triggerGameOverIfInvalid"; };
+LABEL { ADDR $99B8; NAME "updatePlayfield_jmp"; };
+LABEL { ADDR $9A2D; NAME "drawCurtainRow"; }; # canon
+LABEL { ADDR $9A3E; NAME "incrementCurtainRow"; }; # canon
+LABEL { ADDR $9A47; NAME "endGame"; }; # canon
+LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; };
+LABEL { ADDR $9A64; NAME "select_ending"; };
+LABEL { ADDR $9ACC; NAME "rowNotComplete"; }; # canon
+LABEL { ADDR $9AD2; NAME "incrementLineIndex"; }; # canon
+LABEL { ADDR $9BA8; NAME "incrementLines"; };
+LABEL { ADDR $9BFE; NAME "addHoldDownPoints"; };
+LABEL { ADDR $9C2D; NAME "addLineClearPoints"; };
+LABEL { ADDR $9CAF; NAME "updatePlayfield"; }; # canon
+LABEL { ADDR $9D51; NAME "pollControllerButtons"; }; # canon
+LABEL { ADDR $9D73; NAME "finishedMove"; }; # canon
+LABEL { ADDR $9D9A; NAME "moveInProgress"; }; # canon
+LABEL { ADDR $9D9E; NAME "holdButtons"; }; # canon
+LABEL { ADDR $9DA3; NAME "startButtonPressed"; }; # canon
+LABEL { ADDR $9DB0; NAME "recording"; }; # canon
+LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; }; # canon
+LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; };
+LABEL { ADDR $9E07; NAME "setMusicTrack"; };
+LABEL { ADDR $9E3A; NAME "endingAnimation_maybe"; };
+LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; };
+LABEL { ADDR $9FF2; NAME "showHighScores"; };
+LABEL { ADDR $9FFF; NAME "MMC1_Control"; };
+LABEL { ADDR $A1E0; NAME "copy_high_score_level_to_next_index"; COMMENT "reg a: row to copy"; };
+LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; };
+LABEL { ADDR $A459; NAME "sleep_for_a_vblanks"; };
+LABEL { ADDR $A507; NAME "ending_over_120k"; };
+LABEL { ADDR $A9A5; NAME "ending_selected"; };
+LABEL { ADDR $AA2F; NAME "waitForVerticalBlankingInterval"; }; # canon
+LABEL { ADDR $AA45; NAME "updateAudioAndWaitForVerticalBlankingInterval"; };
+LABEL { ADDR $AA52; NAME "setPPUColorControl"; };
+LABEL { ADDR $AA59; NAME "updatePpuMask"; };
+LABEL { ADDR $AA5F; NAME "updateAudioAndWaitForVBlankTwiceAndDisableNMI"; };
+LABEL { ADDR $AA6B; NAME "waitForVBlankAndDisableNMI"; };
+LABEL { ADDR $AA78; NAME "disableNmi"; };
+LABEL { ADDR $AA8A; NAME "copyCurrentScrollAndCtrlToPPU"; };
+LABEL { ADDR $AA98; NAME "bulkCopyToPpu"; };
+LABEL { ADDR $AB21; NAME "copyAddrAtReturnAddressToTmp_incrReturnAddrBy2"; };
+LABEL { ADDR $AB47; NAME "generateNextPseudorandomNumber"; }; # canon
+LABEL { ADDR $AB5E; NAME "initializeOAM"; }; # canon
+LABEL { ADDR $AB69; NAME "pollController_actualRead"; };
+LABEL { ADDR $AB9D; NAME "pollController"; }; # canon
+LABEL { ADDR $AC1C; NAME "memset_ppu_page_and_more"; };
+LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page"; };
+LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; };
+LABEL { ADDR $ACA3; NAME "setMMC1Control"; };
+LABEL { ADDR $ACB7; NAME "changeCHRBank0"; };
+LABEL { ADDR $ACCB; NAME "changeCHRBank1"; };
+LABEL { ADDR $ACDF; NAME "changePRGBank"; };
+LABEL { ADDR $BFFF; NAME "MMC1_CHR0"; };
+LABEL { ADDR $DFFF; NAME "MMC1_CHR1"; };
+LABEL { ADDR $E000; NAME "updateAudio"; }; # canon
+LABEL { ADDR $E003; NAME "updateAudio2"; COMMENT "canon is updateAudio"; };
+LABEL { ADDR $E583; NAME "updateMusic"; };
+LABEL { ADDR $E6D7; NAME "loadMusicTrack"; };
+LABEL { ADDR $E840; NAME "updateMusicFrame"; };
+LABEL { ADDR $FF00; NAME "reset"; COMMENT "incremented to reset MMC1 reg"; };
+LABEL { ADDR $FFF0; NAME "MMC1_PRG"; };
