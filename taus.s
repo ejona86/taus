@@ -120,35 +120,7 @@ doDiv:
         asl     a
         sec
         sbc     tmp3
-.if 0
-        lda     #$00
-        rol     a
-        sta     EFF ; temporary location
 
-        lda     #$00
-        sta     tmp2
-        lda     #50 ; 50 because result is /2
-        jsr     divmod
-        lda     tmp1
-        sta     EFF+1
-
-        lda     tmp2
-        sta     tmp1
-        lda     #$00
-        sta     tmp2
-        lda     #5 ; 5 because result is /2
-        jsr     divmod
-        lda     tmp1
-        asl     a
-        asl     a
-        asl     a
-        clc
-        adc     tmp2
-        asl     a
-        clc
-        adc     EFF ; place lowest bit
-        sta     EFF
-.else
         rol     tmp1
         lda     #$00
         rol     a
@@ -156,7 +128,6 @@ doDiv:
         sta     EFF
         lda     tmp2
         sta     EFF+1
-.endif
 
 statsPerLineClearDone:
         lda     #$00
@@ -167,7 +138,6 @@ binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
         .word   0, 40/2, 100/2, 300/2, 1200/2
 
 
-.if 1
 ; Convert 10 bit binary number (max 999) to bcd. Double dabble algorithm.
 ; a:    (input) 2 high bits of binary number
 ;       (output) low byte
@@ -209,7 +179,6 @@ binaryToBcd_shift:
 
 binaryToBcd_rts:
         rts
-.endif
 
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
 ; tmp1: (input)  binary dividend LO
