@@ -5,10 +5,7 @@
 .include "ips.inc"
 
 .segment "SKIP_LEGALHDR"
-.import __SKIP_LEGAL_RUN__, __SKIP_LEGAL_SIZE__
-.byte 0
-.dbyt __SKIP_LEGAL_RUN__-IPSPRGOFFSET
-.dbyt __SKIP_LEGAL_SIZE__
+        ips_hunkhdr     "SKIP_LEGAL"
 
 .segment "SKIP_LEGAL"
 

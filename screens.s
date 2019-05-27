@@ -6,10 +6,7 @@
 .include "ips.inc"
 
 .segment "HUNK1HDR"
-.import __HUNK1_RUN__, __HUNK1_SIZE__
-.byte 0
-.dbyt __HUNK1_RUN__-IPSPRGOFFSET
-.dbyt __HUNK1_SIZE__
+        ips_hunkhdr     "HUNK1"
 
 .segment "HUNK1"
 
@@ -19,10 +16,7 @@
         nop
 
 .segment "JMP_MAIN_LOOP_ITERHDR"
-.import __JMP_MAIN_LOOP_ITER_RUN__, __JMP_MAIN_LOOP_ITER_SIZE__
-.byte 0
-.dbyt __JMP_MAIN_LOOP_ITER_RUN__-IPSPRGOFFSET
-.dbyt __JMP_MAIN_LOOP_ITER_SIZE__
+        ips_hunkhdr     "JMP_MAIN_LOOP_ITER"
 
 .segment "JMP_MAIN_LOOP_ITER"
 
@@ -31,10 +25,7 @@
 
 
 .segment "CODEHDR"
-.import __CODE_RUN__, __CODE_SIZE__
-.byte 0
-.dbyt __CODE_RUN__-IPSPRGOFFSET
-.dbyt __CODE_SIZE__
+        ips_hunkhdr     "CODE"
 
 .segment "CODE"
 
