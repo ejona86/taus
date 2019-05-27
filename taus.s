@@ -6,10 +6,7 @@
 .include "ips.inc"
 
 .segment "HUNK1HDR"
-.import __HUNK1_RUN__, __HUNK1_SIZE__
-.byte 0
-.dbyt __HUNK1_RUN__-IPSPRGOFFSET
-.dbyt __HUNK1_SIZE__
+        ips_hunkhdr     "HUNK1"
 
 .segment "HUNK1"
 
@@ -18,10 +15,7 @@
 afterJmpResetStatMod:
 
 .segment "CODEHDR"
-.import __CODE_RUN__, __CODE_SIZE__
-.byte 0
-.dbyt __CODE_RUN__-IPSPRGOFFSET
-.dbyt __CODE_SIZE__
+        ips_hunkhdr     "CODE"
 
 .segment "CODE"
 
@@ -213,10 +207,7 @@ divmod_checkDone:
         rts
 
 .segment "GAME_BGHDR"
-.import __GAME_BG_RUN__, __GAME_BG_SIZE__
-.byte 0
-.dbyt __GAME_BG_RUN__-IPSPRGOFFSET
-.dbyt __GAME_BG_SIZE__
+        ips_hunkhdr     "GAME_BG"
 
 .segment "GAME_BG"
 
@@ -258,10 +249,7 @@ divmod_checkDone:
 .byte   $FF
 
 .segment "STATS_NUMBERHDR"
-.import __STATS_NUMBER_RUN__, __STATS_NUMBER_SIZE__
-.byte 0
-.dbyt __STATS_NUMBER_RUN__-IPSPRGOFFSET
-.dbyt __STATS_NUMBER_SIZE__
+        ips_hunkhdr     "STATS_NUMBER"
 
 .segment "STATS_NUMBER"
 
@@ -270,10 +258,7 @@ divmod_checkDone:
 
 
 .segment "JMP_STATS_PER_LINE_CLEARHDR"
-.import __JMP_STATS_PER_LINE_CLEAR_RUN__, __JMP_STATS_PER_LINE_CLEAR_SIZE__
-.byte 0
-.dbyt __JMP_STATS_PER_LINE_CLEAR_RUN__-IPSPRGOFFSET
-.dbyt __JMP_STATS_PER_LINE_CLEAR_SIZE__
+        ips_hunkhdr     "JMP_STATS_PER_LINE_CLEAR"
 
 .segment "JMP_STATS_PER_LINE_CLEAR"
 

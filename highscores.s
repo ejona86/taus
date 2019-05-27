@@ -5,10 +5,7 @@
 .include "ips.inc"
 
 .segment "DEFAULT_HIGH_SCORESHDR"
-.import __DEFAULT_HIGH_SCORES_RUN__, __DEFAULT_HIGH_SCORES_SIZE__
-.byte 0
-.dbyt __DEFAULT_HIGH_SCORES_RUN__-IPSPRGOFFSET
-.dbyt __DEFAULT_HIGH_SCORES_SIZE__
+        ips_hunkhdr     "DEFAULT_HIGH_SCORES"
 
 .segment "DEFAULT_HIGH_SCORES"
 
