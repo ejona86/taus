@@ -35,7 +35,7 @@ build/tetris-PRG.s: tetris-PRG.info tetris-PRG.bin Makefile | build
 	da65 -i tetris-PRG.info -o $@ tetris-PRG.bin
 
 build/tetris.inc: build/tetris.nes
-	sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' build/tetris.nes.lbl > build/tetris.inc
+	sort build/tetris.nes.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' > build/tetris.inc
 
 build/custom.nes: build/tetris.nes
 	cp $< $@.tmp

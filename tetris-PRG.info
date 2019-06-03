@@ -57,6 +57,7 @@ LABEL { ADDR $00A1; NAME "spriteYOffset"; };
 LABEL { ADDR $00A2; NAME "spriteIndexInOamContentLookup"; };
 LABEL { ADDR $00A8; NAME "generalCounter"; COMMENT "canon is legalScreenCounter2"; };
 LABEL { ADDR $00A9; NAME "generalCounter2"; };
+LABEL { ADDR $00AD; NAME "selectingLevelOrHeight"; COMMENT "0-level, 1-height"; };
 LABEL { ADDR $00AE; NAME "originalY"; }; # canon
 LABEL { ADDR $00AF; NAME "dropSpeed"; }; # canon
 LABEL { ADDR $00B1; NAME "frameCounter"; SIZE 2; }; # canon
@@ -189,7 +190,7 @@ RANGE { START $85CC; END $85D1; TYPE BYTETABLE; NAME "heightToPpuLowAddr"; };
 RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "musicSelectionTable"; };
 RANGE { START $8603; END $8604; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $8608; END $8609; TYPE ADDRTABLE; }; # bulkCopyToPpu
-RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "unknown6_table"; };
+RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "game_typeb_nametable_patch"; };
 RANGE { START $887C; END $8882; TYPE BYTETABLE; NAME "rngTable"; };
 RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; }; # canon
 RANGE { START $898E; END $89AA; TYPE BYTETABLE; NAME "framesPerDropTable"; }; # canon
@@ -331,55 +332,98 @@ RANGE { START $FFFA; END $FFFF; TYPE ADDRTABLE; }; # interrupts
 
 LABEL { ADDR $8000; NAME "initRam"; COMMENT "incremented to reset MMC1 reg"; };
 LABEL { ADDR $8005; NAME "nmi"; };
+LABEL { ADDR $801B; NAME "@jumpOverIncrement"; };
 LABEL { ADDR $804A; NAME "irq"; };
 LABEL { ADDR $804B; NAME "render"; }; # canon
 LABEL { ADDR $805A; NAME "initRamContinued"; };
-LABEL { ADDR $8138; NAME "mainLoop"; };
-LABEL { ADDR $8142; NAME "notWaitingForVBlank"; };
+LABEL { ADDR $8064; NAME "@zeroOutPages"; };
+LABEL { ADDR $8095; NAME "@initHighScoreTable"; COMMENT "Only run on cold boot"; };
+LABEL { ADDR $80A3; NAME "@continueColdBootInit"; };
+LABEL { ADDR $80BC; NAME "@continueWarmBootInit"; };
+LABEL { ADDR $8138; NAME "@mainLoop"; };
+LABEL { ADDR $8142; NAME "@notWaitingForVBlank"; };
+LABEL { ADDR $815A; NAME "@skipDemo"; };
 LABEL { ADDR $815D; NAME "game_mode_play_high_score_screen_ending_pause_demo"; };
 LABEL { ADDR $8161; NAME "branchOnGameMode"; }; # canon
+LABEL { ADDR $819B; NAME "game_mode_play_high_score_screen_ending_pause_demo2"; };
 LABEL { ADDR $8200; NAME "game_mode_legal_screen"; };
+LABEL { ADDR $823F; NAME "@waitForStartButton"; };
+LABEL { ADDR $824C; NAME "@continueToNextScreen"; };
 LABEL { ADDR $824F; NAME "game_mode_title_screen"; };
+LABEL { ADDR $828D; NAME "@waitForStartButton"; };
+LABEL { ADDR $829F; NAME "@startButtonPressed"; COMMENT "Show menu screens"; };
+LABEL { ADDR $82A7; NAME "@timeout"; COMMENT "Start demo"; };
 LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; };
 LABEL { ADDR $82D1; NAME "game_mode_game_type_menu"; };
+LABEL { ADDR $8326; NAME "@rightNotPressed"; };
+LABEL { ADDR $8335; NAME "@leftNotPressed"; };
+LABEL { ADDR $8350; NAME "@downNotPressed"; };
+LABEL { ADDR $8369; NAME "@upNotPressed"; };
+LABEL { ADDR $8377; NAME "@startNotPressed"; };
+LABEL { ADDR $8389; NAME "@bNotPressed"; };
+LABEL { ADDR $83AE; NAME "@flickerCursorPair1"; };
+LABEL { ADDR $83CE; NAME "@flickerCursorPair2"; };
 LABEL { ADDR $83D7; NAME "game_mode_level_and_height_menu"; };
-LABEL { ADDR $846C; NAME "level_menu_start_new_game"; };
-LABEL { ADDR $8478; NAME "level_menu_check_b_pressed"; };
-LABEL { ADDR $8486; NAME "level_menu_choose_random"; };
-LABEL { ADDR $84AE; NAME "level_menu_check_right_pressed"; };
-LABEL { ADDR $84D0; NAME "level_menu_check_left_pressed"; };
-LABEL { ADDR $84EE; NAME "level_menu_check_down_pressed"; };
-LABEL { ADDR $8517; NAME "level_menu_check_up_pressed"; };
-LABEL { ADDR $8540; NAME "level_menu_check_a_pressed"; };
-LABEL { ADDR $8555; NAME "level_menu_flicker_selection"; };
-LABEL { ADDR $855F; NAME "level_menu_flicker_selection_level"; };
+LABEL { ADDR $8409; NAME "@skipTypeBHeightDisplay"; };
+LABEL { ADDR $8428; NAME "@forceStartLevelToRange"; };
+LABEL { ADDR $846C; NAME "@startAndANotPressed"; };
+LABEL { ADDR $8478; NAME "@checkBPressed"; };
+LABEL { ADDR $8486; NAME "@chooseRandom"; };
+LABEL { ADDR $8497; NAME "@chooseRandom2"; };
+LABEL { ADDR $84AE; NAME "@checkRightPressed"; };
+LABEL { ADDR $84C8; NAME "@rightPressedForHeightSelection"; };
+LABEL { ADDR $84D0; NAME "@checkLeftPressed"; };
+LABEL { ADDR $84E8; NAME "@leftPressedForHeightSelection"; };
+LABEL { ADDR $84EE; NAME "@checkDownPressed"; };
+LABEL { ADDR $850B; NAME "@downPressedForHeightSelection"; };
+LABEL { ADDR $8517; NAME "@checkUpPressed"; };
+LABEL { ADDR $8534; NAME "@upPressedForHeightSelection"; };
+LABEL { ADDR $8540; NAME "@checkAPressed"; };
+LABEL { ADDR $8555; NAME "@showSelection"; };
+LABEL { ADDR $855F; NAME "@showSelectionLevel"; };
+LABEL { ADDR $8581; NAME "skipShowingSelectionLevel"; };
+LABEL { ADDR $858F; NAME "@showSelectionHeight"; };
 LABEL { ADDR $85B1; NAME "game_mode_level_and_height_menu_return"; };
 LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; };
 LABEL { ADDR $85F0; NAME "initGameBackground"; };
-LABEL { ADDR $86DC; NAME "initNewGame"; };
+LABEL { ADDR $863C; NAME "@typeB"; };
+LABEL { ADDR $865F; NAME "@nextPpuAddress"; };
+LABEL { ADDR $866D; NAME "@nextPpuData"; };
+LABEL { ADDR $867F; NAME "@endOfPpuPatching"; };
+LABEL { ADDR $8693; NAME "@finish"; };
 LABEL { ADDR $8776; NAME "someCopiesAndMirror60to40"; };
+LABEL { ADDR $8788; NAME "@copyByteFromMirror"; };
 LABEL { ADDR $87AE; NAME "mirror40to60"; };
+LABEL { ADDR $87B0; NAME "@copyByteToMirror"; };
+LABEL { ADDR $87C7; NAME "@ret"; };
 LABEL { ADDR $87DC; NAME "initPlayfieldIfTypeB"; };
 LABEL { ADDR $87E3; NAME "initPlayfieldForTypeB"; };
 LABEL { ADDR $88AB; NAME "rotate_tetrimino"; };
-LABEL { ADDR $88CF; NAME "aNotPressed"; }; # canon
-LABEL { ADDR $88E9; NAME "restoreOrientationID"; }; # canon
+LABEL { ADDR $88CF; NAME "@aNotPressed"; }; # canon
+LABEL { ADDR $88E9; NAME "@restoreOrientationID"; }; # canon
+LABEL { ADDR $88ED; NAME "@ret"; };
 LABEL { ADDR $8914; NAME "drop_tetrimino"; };
-LABEL { ADDR $8924; NAME "playing"; }; # canon
-LABEL { ADDR $8939; NAME "autorepeating"; }; # canon
-LABEL { ADDR $894A; NAME "downPressed"; }; # canon
-LABEL { ADDR $8958; NAME "drop"; }; # canon
-LABEL { ADDR $8973; NAME "lookupDropSpeed"; }; # canon
-LABEL { ADDR $897E; NAME "noTableLookup"; }; # canon
-LABEL { ADDR $8989; NAME "incrementAutorepeatY"; }; # canon
+LABEL { ADDR $8922; NAME "@notBeginningOfGame"; };
+LABEL { ADDR $8924; NAME "@playing"; }; # canon
+LABEL { ADDR $8939; NAME "@autorepeating"; }; # canon
+LABEL { ADDR $894A; NAME "@downPressed"; }; # canon
+LABEL { ADDR $8958; NAME "@drop"; }; # canon
+LABEL { ADDR $8972; NAME "@ret"; };
+LABEL { ADDR $8973; NAME "@lookupDropSpeed"; }; # canon
+LABEL { ADDR $897E; NAME "@noTableLookup"; }; # canon
+LABEL { ADDR $8989; NAME "@incrementAutorepeatY"; }; # canon
 LABEL { ADDR $89AE; NAME "shift_tetrimino"; };
-LABEL { ADDR $89D3; NAME "resetAutorepeatX"; }; # canon
-LABEL { ADDR $89D7; NAME "buttonHeldDown"; };
-LABEL { ADDR $89EC; NAME "notPressingRight"; }; # canon
-LABEL { ADDR $8A01; NAME "restoreX"; }; # canon
+LABEL { ADDR $89D3; NAME "@resetAutorepeatX"; }; # canon
+LABEL { ADDR $89D7; NAME "@buttonHeldDown"; };
+LABEL { ADDR $89EC; NAME "@notPressingRight"; }; # canon
+LABEL { ADDR $8A01; NAME "@restoreX"; }; # canon
+LABEL { ADDR $8A09; NAME "@ret"; };
 LABEL { ADDR $8A0A; NAME "stageSpriteForCurrentPiece"; };
 LABEL { ADDR $8BCE; NAME "stageSpriteForNextPiece"; };
+LABEL { ADDR $8BE4; NAME "@ret"; };
 LABEL { ADDR $8C27; NAME "loadSpriteIntoOamStaging"; };
+LABEL { ADDR $8C3B; NAME "@whileNotFF"; };
+LABEL { ADDR $8C6B; NAME "@ret"; };
 LABEL { ADDR $8D20; NAME "spriteLevelSelectCursor"; };
 LABEL { ADDR $8D31; NAME "spriteGameAndMusicTypeCursors"; };
 LABEL { ADDR $948B; NAME "is_position_valid"; };
