@@ -25,9 +25,13 @@ BRN_index = $01
 BRN := statsByType + BRN_index * 2
 EFF_index = $02
 EFF := statsByType + EFF_index * 2
-lvl0ScoreIndex = $03 ; stored as little endian binary, divided by 2
+TRT_index = $03
+TRT := statsByType + TRT_index * 2
+tetrisClears = statsByType + $04 * 2
+lineClears = statsByType + $04 * 2 + 1
+lvl0ScoreIndex = $05 ; stored as little endian binary, divided by 2
 lvl0Score := statsByType + lvl0ScoreIndex * 2
-binaryLinesIndex = $04 ; stored as little endian binary; 9 bits
+binaryLinesIndex = $06 ; stored as little endian binary; 9 bits
 binaryLines := statsByType + binaryLinesIndex * 2
 
 statsPerBlock:
@@ -123,6 +127,26 @@ doDiv:
         lda     tmp2
         sta     EFF+1
 
+updateTrt:
+        inc     lineClears
+        lda     completedLines
+        cmp     #$04
+        bne     calcTrt
+        inc     tetrisClears
+calcTrt:
+        lda     tetrisClears
+        sta     tmp1
+        lda     #$00
+        sta     tmp2
+        jsr     multiplyBy100
+        lda     lineClears
+        jsr     divmod
+        lda     #$00
+        jsr     binaryToBcd
+        sta     TRT
+        lda     tmp2
+        sta     TRT+1
+
 statsPerLineClearDone:
         lda     #$00
         sta     completedLines
@@ -206,6 +230,48 @@ divmod_checkDone:
         lda     tmp1
         rts
 
+; Multiply 16 bit number by 100
+; tmp1: (input)  LO
+;       (output) LO
+; tmp2: (input)  HI
+;       (output) HI
+multiplyBy100:
+        asl     tmp1    ; input =<< 2
+        rol     tmp2
+        asl     tmp1
+        rol     tmp2
+
+        lda     tmp1    ; output = input
+        ldx     tmp2
+
+        asl     tmp1    ; input =<< 3
+        rol     tmp2
+        asl     tmp1
+        rol     tmp2
+        asl     tmp1
+        rol     tmp2
+
+        clc             ; output += input
+        adc     tmp1
+        tay
+        txa
+        adc     tmp2
+        tax
+        tya
+
+        asl     tmp1    ; input =<< 1
+        rol     tmp2
+
+        clc             ; output += input
+        adc     tmp1
+        tay
+        txa
+        adc     tmp2
+
+        sty     tmp1
+        sta     tmp2
+        rts
+
 .segment "GAME_BGHDR"
         ips_hunkhdr     "GAME_BG"
 
@@ -230,7 +296,7 @@ divmod_checkDone:
 .byte   $21,$E0,$20,$77,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$78,$83,$70
 .byte   $22,$00,$20,$77,$3B,$0E,$0F,$0F,$FF,$00,$00,$00,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$72,$7A,$80
 .byte   $22,$20,$20,$87,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$33,$FF,$FF,$FF,$FF,$34,$77,$78,$73
-.byte   $22,$40,$20,$71,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$35,$36,$36,$36,$36,$37,$87,$67,$77
+.byte   $22,$40,$20,$71,$3B,$1D,$1B,$1D,$FF,$00,$00,$00,$B0,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$35,$36,$36,$36,$36,$37,$87,$67,$77
 .byte   $22,$60,$20,$81,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$38,$39,$39,$39,$39,$39,$3A,$77,$87
 .byte   $22,$80,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3B,$15,$0E,$1F,$0E,$15,$3C,$77,$78
 .byte   $22,$A0,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3B,$FF,$FF,$FF,$FF,$FF,$3C,$87,$67
@@ -244,8 +310,14 @@ divmod_checkDone:
 .byte   $23,$A0,$20,$80,$7A,$87,$78,$84,$7A,$77,$87,$78,$84,$7A,$67,$87,$77,$87,$77,$72,$83,$80,$81,$77,$67,$82,$79,$7A,$67,$77,$78,$83,$72,$7A,$67
 
 ;attributes
-.byte   $23,$C0,$20,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$AF,$AF,$EF,$FF,$FF,$BF,$2F,$CF,$AA,$AA,$EE,$FF,$FF,$FF,$33,$CC,$AA,$AA,$EE,$FF,$FF
-.byte   $23,$E0,$20,$BF,$23,$CC,$AA,$AA,$EE,$FF,$FF,$BB,$22,$CC,$AA,$AA,$EE,$FF,$FF,$FB,$F2,$FC,$FA,$FA,$FE,$FF,$FF,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+.byte   $23,$C0,$20,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+.byte               $FF,$FF,$FF,$AF,$AF,$EF,$FF,$FF
+.byte               $BF,$2F,$CF,$AA,$AA,$EE,$FF,$FF
+.byte               $FF,$33,$CC,$AA,$AA,$EE,$FF,$FF
+.byte   $23,$E0,$20,$FF,$33,$CC,$AA,$AA,$EE,$FF,$FF
+.byte               $BB,$22,$CC,$AA,$AA,$EE,$FF,$FF
+.byte               $FB,$F2,$FC,$FA,$FA,$FE,$FF,$FF
+.byte               $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 .byte   $FF
 
 .segment "STATS_NUMBERHDR"
@@ -254,7 +326,7 @@ divmod_checkDone:
 .segment "STATS_NUMBER"
 
 ; Only show 3 stats
-        cmp     #$03
+        cmp     #$04
 
 
 .segment "JMP_STATS_PER_LINE_CLEARHDR"
@@ -265,3 +337,9 @@ divmod_checkDone:
 ; at end of addLineClearPoints, replaces "lda #0; sta completedLines"
         jsr statsPerLineClear
         nop
+
+.segment "IPSCHR"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$B0
+        ; percent
+        .incbin "build/taus.chrs/00"

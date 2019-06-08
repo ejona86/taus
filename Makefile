@@ -2,7 +2,7 @@ all: tetris taus screens custom
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
-build/taus.o: build/tetris.inc
+build/taus.o: build/tetris.inc build/taus.chrs/
 build/screens.o: build/tetris.inc
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
@@ -28,8 +28,13 @@ build/%: %.cfg
 build/%.nes: build/%.ips build/tetris.nes
 	cp $<.lbl build/$*.lbl
 	cp $<.dbg build/$*.dbg
-	flips --apply $< build/tetris.nes $@ > /dev/null
+	# If the first time fails, run it a second time to display output
+	flips --apply $< build/tetris.nes $@ > /dev/null || flips --apply $< build/tetris.nes $@
 	flips --create build/tetris.nes $@ build/$*.dist.ips > /dev/null
+
+build/%.chrs/: %.chr | build
+	[ -d build/$*.chrs ] || mkdir build/$*.chrs
+	split -x -b 16 $< build/$*.chrs/
 
 build/tetris-PRG.s: tetris-PRG.info tetris-PRG.bin Makefile | build
 	da65 -i tetris-PRG.info -o $@ tetris-PRG.bin

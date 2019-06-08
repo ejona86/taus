@@ -36,6 +36,8 @@ function test_demo ()
 	assertbyteoff("BRN", 1, 0x00)
 	assertbyteoff("EFF", 0, 0x88)
 	assertbyteoff("EFF", 1, 0x01)
+	assertbyteoff("TRT", 0, 0x25)
+	assertbyteoff("TRT", 1, 0x00)
 end
 
 function test_divmod ()
@@ -86,6 +88,31 @@ function test_binaryToBcd ()
 		local a = memory.getregister("a")
 		assert(a == (bcd % 256), "a: " .. a)
 		assertbyte("tmp2", math.floor(bcd / 256))
+		asm.waitbefore()
+		emu.poweron()
+	end
+end
+
+function test_multiplyBy100 ()
+	local tests = {
+		{0, 0},
+		{3, 300},
+		{100, 10000},
+		{655, 65500},
+	}
+	for _, test in ipairs(tests) do
+		asm.waitbefore()
+		asm.waitbefore()
+		local bin = test[1]
+		local bcd = test[2]
+		memory.writebyte(labels.tmp1, test[1] % 256)
+		memory.writebyte(labels.tmp2, test[1] / 256)
+		local startcycles = debugger.getcyclescount()
+		asm.jsr(labels.multiplyBy100)
+		local cycles = debugger.getcyclescount() - startcycles
+		print("cycles: " .. cycles)
+		assertbyte("tmp1", math.floor(test[2] % 256))
+		assertbyte("tmp2", math.floor(test[2] / 256))
 		asm.waitbefore()
 		emu.poweron()
 	end
