@@ -34,23 +34,23 @@ backgroundRendered := levelNumber+1
 
 mainLoopIterMod:
         lda     newlyPressedButtons
-        beq     checkForRender
+        beq     @checkForRender
         lda     #$00
         sta     backgroundRendered
         inc     screenToDisplay
         lda     screenToDisplay
         cmp     #screens
-        bne     checkForRender
+        bne     @checkForRender
         lda     #$00
         sta     screenToDisplay
 
-checkForRender:
+@checkForRender:
         lda     backgroundRendered
-        bne     mainLoopIterMod_return
+        bne     @return
         inc     backgroundRendered
         jsr     load_background
 
-mainLoopIterMod_return:
+@return:
         lda     #$00    ; wait for vsync
         sta     $A7
         rts
@@ -77,14 +77,14 @@ load_background:
         ; screen-specific hacks
         lda     screenToDisplay
         cmp     #$03
-        bne     continue
+        bne     @continue
         ; level menu, type a
         jsr     bulkCopyToPpu
         .addr   height_menu_nametablepalette_patch
         jsr     bulkCopyToPpu
         .addr   high_scores_nametable
 
-continue:
+@continue:
         jsr     waitForVBlankAndDisableNMI
         jsr     waitForVerticalBlankingInterval
         jsr     updateAudioAndWaitForVBlankTwiceAndDisableNMI

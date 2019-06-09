@@ -37,10 +37,10 @@ binaryLines := statsByType + binaryLinesIndex * 2
 statsPerBlock:
         lda     tetriminoTypeFromOrientation,x
         cmp     #$06 ; i piece
-        beq     clearDrought
+        beq     @clearDrought
         lda     #$00
         jmp     afterJmpResetStatMod
-clearDrought:
+@clearDrought:
         lda     #$00
         sta     DHT
         sta     DHT+1
@@ -51,35 +51,35 @@ statsPerLineClear:
         lda     completedLines
         jsr     switch_s_plus_2a
         .addr   statsPerLineClearDone
-        .addr   worstenBurn1
-        .addr   worstenBurn2
-        .addr   worstenBurn3
-        .addr   healBurn
-healBurn:
+        .addr   @worstenBurn1
+        .addr   @worstenBurn2
+        .addr   @worstenBurn3
+        .addr   @healBurn
+@healBurn:
         lda     #$00
         sta     BRN
         sta     BRN+1
-        jmp     afterBurnUpdated
-worstenBurn3:
+        jmp     @afterBurnUpdated
+@worstenBurn3:
         lda     #BRN_index
         jsr     afterJmpResetStatMod
-worstenBurn2:
+@worstenBurn2:
         lda     #BRN_index
         jsr     afterJmpResetStatMod
-worstenBurn1:
+@worstenBurn1:
         lda     #BRN_index
         jsr     afterJmpResetStatMod
 
-afterBurnUpdated:
+@afterBurnUpdated:
         ; update lines
         lda     completedLines
         clc
         adc     binaryLines
         sta     binaryLines
-        bcc     updateScore
+        bcc     @updateScore
         inc     binaryLines+1
 
-updateScore:
+@updateScore:
         lda     completedLines
         asl     a
         tax
@@ -91,13 +91,13 @@ updateScore:
         adc     lvl0Score+1
         sta     lvl0Score+1
 
-updateEff:
+@updateEff:
         lda     lvl0Score
         sta     tmp1
         lda     lvl0Score+1
         sta     tmp2
         lda     binaryLines+1
-        beq     loadLines
+        beq     @loadLines
 
         lsr     tmp2
         ror     tmp1
@@ -105,7 +105,7 @@ updateEff:
         sec
         ror     a
         jmp     doDiv
-loadLines:
+@loadLines:
         lda     binaryLines
 doDiv:
         pha
@@ -127,13 +127,13 @@ doDiv:
         lda     tmp2
         sta     EFF+1
 
-updateTrt:
+@updateTrt:
         inc     lineClears
         lda     completedLines
         cmp     #$04
-        bne     calcTrt
+        bne     @calcTrt
         inc     tetrisClears
-calcTrt:
+@calcTrt:
         lda     tetrisClears
         sta     tmp1
         lda     #$00
@@ -174,28 +174,27 @@ binaryToBcd:
         ldy     #07
 .endif
 
-binaryToBcd_while:
+@while:
         tax
         and     #$0F
         cmp     #$05
         txa                     ; Does not change carry
-        bcc     binaryToBcd_tensDigit
+        bcc     @tensDigit
         ; carry is set, so it will add +1
         adc     #$02
         tax
-binaryToBcd_tensDigit:
+@tensDigit:
         cmp     #$50
-        bcc     binaryToBcd_shift
+        bcc     @shift
         clc
         adc     #$30
-binaryToBcd_shift:
+@shift:
         asl     tmp1
         rol     a
         rol     tmp2
         dey
-        bne     binaryToBcd_while
+        bne     @while
 
-binaryToBcd_rts:
         rts
 
 ; Divide 16 bit number by 8 bit number; result must fit in 8 bits
@@ -207,26 +206,26 @@ binaryToBcd_rts:
 divmod:
         sta     tmp3
         ldx     #$08
-divmod_while:
+@while:
         asl     tmp1
         rol     tmp2
         lda     tmp2
-        bcs     divmod_withCarry
+        bcs     @withCarry
         sec
         sbc     tmp3
-        bcc     divmod_checkDone
+        bcc     @checkDone
         sta     tmp2
         inc     tmp1
-        jmp     divmod_checkDone
-divmod_withCarry:
+        jmp     @checkDone
+@withCarry:
         sec
         sbc     tmp3
-        bcs     divmod_checkDone
+        bcs     @checkDone
         sta     tmp2
         inc     tmp1
-divmod_checkDone:
+@checkDone:
         dex
-        bne     divmod_while
+        bne     @while
         lda     tmp1
         rts
 
