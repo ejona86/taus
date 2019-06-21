@@ -13,8 +13,8 @@
         ; NAME
         ; # Convert ALPHA string to hex:
         ; list(map(lambda x: hex(ord(x)-64), "CHEATR"))
-        .byte   $01,$13,$08,$01,$12,$01 ; "ASHARA"
         .byte   $05,$0D,$2A,$0A,$2B,$2B ; "EM.J  "
+        .byte   $01,$13,$08,$01,$12,$01 ; "ASHARA"
         .byte   $05,$12,$09,$03,$2B,$2B ; "ERIC  "
         .byte   $00,$00,$00,$00,$00,$00
         .byte   $01,$0C,$05,$18,$2B,$2B
@@ -22,16 +22,16 @@
         .byte   $0E,$09,$0E,$14,$05,$0E
         .byte   $00,$00,$00,$00,$00,$00
         ; SCORE, in BCD
-        .byte   $39,$97,$72
-        .byte   $29,$51,$88
-        .byte   $17,$30,$68
+        .byte   $43,$36,$81
+        .byte   $41,$19,$67
+        .byte   $22,$68,$39
         .byte   $00,$00,$00
         .byte   $00,$20,$00
         .byte   $00,$10,$00
         .byte   $00,$05,$00
         .byte   $00,$00,$00
         ; LV, in binary
-        .byte   $13,$12,$09,$00
+        .byte   16,16,11,$00
         .byte   $09,$05,$00,$00
         .byte   $FF
 
