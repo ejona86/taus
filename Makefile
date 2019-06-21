@@ -6,7 +6,7 @@ build/taus.o: build/tetris.inc build/taus.chrs/
 build/screens.o: build/tetris.inc
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
-build/taus.ips: build/taus.o build/ips.o build/fastlegal.o
+build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 # Combine mods
