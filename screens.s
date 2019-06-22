@@ -76,13 +76,30 @@ load_background:
 
         ; screen-specific hacks
         lda     screenToDisplay
-        cmp     #$03
-        bne     @continue
-        ; level menu, type a
+        cmp     #$07
+        bpl     @continue
+        jsr     switch_s_plus_2a
+        .addr   @continue
+        .addr   @continue
+        .addr   @continue
+        .addr   @levelMenuTypeA
+        .addr   @levelMenuTypeB
+        .addr   @continue
+        .addr   @highScoreEntry
+
+@levelMenuTypeA:
         jsr     bulkCopyToPpu
         .addr   height_menu_nametablepalette_patch
+        ; fall-through
+
+@levelMenuTypeB:
+@highScoreEntry:
+        ; This is necessary on type a, since the height menu patch overwrites
+        ; the high score table (unnecessarily). On type b it appears to have
+        ; no impact. On high score entry it messes up the background (a bug).
         jsr     bulkCopyToPpu
         .addr   high_scores_nametable
+        ; fall-through
 
 @continue:
         jsr     waitForVBlankAndDisableNMI
