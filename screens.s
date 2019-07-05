@@ -57,7 +57,7 @@ mainLoopIterMod:
 
 
 load_background:
-        jsr     setPPUColorControl
+        jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
         lda     #$10
         jsr     setMMC1Control
@@ -102,10 +102,8 @@ load_background:
         ; fall-through
 
 @continue:
-        jsr     waitForVBlankAndDisableNMI
-        jsr     waitForVerticalBlankingInterval
-        jsr     updateAudioAndWaitForVBlankTwiceAndDisableNMI
-        jsr     waitForVerticalBlankingInterval
+        jsr     waitForVBlankAndEnableNmi
+        jsr     updateAudioWaitForNmiAndEnablePpuRendering
         rts
 
 ; index passed as 'a'

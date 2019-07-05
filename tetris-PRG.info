@@ -95,7 +95,7 @@ LABEL { ADDR $00B3; NAME "oamStagingLength"; }; # canon
 LABEL { ADDR $00B5; NAME "newlyPressedButtons_mirror"; };
 LABEL { ADDR $00B6; NAME "pressedButtons_mirror"; };
 LABEL { ADDR $00B7; NAME "activePlayer"; COMMENT "Which player is being processed (data in $40)"; };
-LABEL { ADDR $00B9; NAME "leftPlayfield"; COMMENT "4=processing left, 5=processing right"; }; # canon
+LABEL { ADDR $00B8; NAME "playfieldAddr"; SIZE 2; COMMENT "HI byte is leftPlayfield in canon. Current playfield being processed: $0400 (left; 1st player) or $0500 (right; 2nd player)"; };
 LABEL { ADDR $00BB; NAME "totalGarbageInactivePlayer"; COMMENT "This is exchanged with totalGarbage when swapping players"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; }; # canon
 LABEL { ADDR $00BD; NAME "renderMode"; }; # canon
@@ -104,7 +104,7 @@ LABEL { ADDR $00BF; NAME "nextPiece"; COMMENT "Stored by its orientation ID"; };
 LABEL { ADDR $00C0; NAME "gameMode"; COMMENT "0=legal, 1=title, 2=type menu, 3=level menu, 4=play and ending and high score, 5=demo, 6=start demo"; }; # canon
 LABEL { ADDR $00C1; NAME "gameType"; COMMENT "A=0, B=1"; }; # canon
 LABEL { ADDR $00C2; NAME "musicType"; COMMENT "0-3; 3 is off"; };
-LABEL { ADDR $00C3; NAME "sleepCounter"; }; # canon is legalScreenCounter1
+LABEL { ADDR $00C3; NAME "sleepCounter"; COMMENT "canon is legalScreenCounter1"; };
 LABEL { ADDR $00C4; NAME "ending"; }; # canon
 LABEL { ADDR $00CE; NAME "heldButtons"; }; # canon
 LABEL { ADDR $00CF; NAME "repeats"; }; # canon
@@ -774,22 +774,26 @@ LABEL { ADDR $A609; NAME "@kidIcarus"; };
 LABEL { ADDR $A625; NAME "ending_typeBCathedral"; };
 LABEL { ADDR $A9A5; NAME "ending_selected"; };
 LABEL { ADDR $A9B1; NAME "ending_typeA"; };
-LABEL { ADDR $AA2F; NAME "waitForVerticalBlankingInterval"; }; # canon
-LABEL { ADDR $AA45; NAME "updateAudioAndWaitForVerticalBlankingInterval"; };
-LABEL { ADDR $AA52; NAME "setPPUColorControl"; };
-LABEL { ADDR $AA59; NAME "updatePpuMask"; };
-LABEL { ADDR $AA5F; NAME "updateAudioAndWaitForVBlankTwiceAndDisableNMI"; };
-LABEL { ADDR $AA6B; NAME "waitForVBlankAndDisableNMI"; };
+LABEL { ADDR $AA2F; NAME "updateAudioWaitForNmiAndResetOamStaging"; COMMENT "canon is waitForVerticalBlankingInterval"; };
+LABEL { ADDR $AA37; NAME "@checkForNmi"; };
+LABEL { ADDR $AA45; NAME "updateAudioAndWaitForNmi"; };
+LABEL { ADDR $AA4D; NAME "@checkForNmi"; };
+LABEL { ADDR $AA52; NAME "updateAudioWaitForNmiAndDisablePpuRendering"; };
+LABEL { ADDR $AA59; NAME "_updatePpuMask"; };
+LABEL { ADDR $AA5F; NAME "updateAudioWaitForNmiAndEnablePpuRendering"; };
+LABEL { ADDR $AA6B; NAME "waitForVBlankAndEnableNmi"; };
 LABEL { ADDR $AA78; NAME "disableNmi"; };
+LABEL { ADDR $AA7C; NAME "_updatePpuCtrl"; };
 LABEL { ADDR $AA8A; NAME "copyCurrentScrollAndCtrlToPPU"; };
 LABEL { ADDR $AA98; NAME "bulkCopyToPpu"; };
 LABEL { ADDR $AB21; NAME "copyAddrAtReturnAddressToTmp_incrReturnAddrBy2"; };
 LABEL { ADDR $AB47; NAME "generateNextPseudorandomNumber"; }; # canon
-LABEL { ADDR $AB5E; NAME "initializeOAM"; }; # canon
+LABEL { ADDR $AB5E; NAME "copyOamStagingToOam"; COMMENT "canon is initializeOAM"; };
 LABEL { ADDR $AB69; NAME "pollController_actualRead"; };
 LABEL { ADDR $AB9D; NAME "pollController"; }; # canon
 LABEL { ADDR $AC1C; NAME "memset_ppu_page_and_more"; };
-LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page"; };
+LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page (inclusive)"; };
+LABEL { ADDR $AC77; NAME "@setByte"; };
 LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; };
 LABEL { ADDR $ACA3; NAME "setMMC1Control"; };
 LABEL { ADDR $ACB7; NAME "changeCHRBank0"; };
@@ -799,7 +803,7 @@ LABEL { ADDR $BFFF; NAME "MMC1_CHR0"; };
 LABEL { ADDR $C000; NAME "dmc0"; COMMENT "Referenced from DMC_START. Size $71. Not actual DMC data"; };
 LABEL { ADDR $C080; NAME "dmc1"; COMMENT "Referenced from DMC_START. Size $F1. Not actual DMC data"; };
 LABEL { ADDR $DFFF; NAME "MMC1_CHR1"; };
-LABEL { ADDR $E000; NAME "updateAudio"; }; # canon
+LABEL { ADDR $E000; NAME "updateAudio_jmp"; COMMENT "canon is updateAudio"; };
 LABEL { ADDR $E003; NAME "updateAudio2"; COMMENT "canon is updateAudio"; };
 LABEL { ADDR $E04B; NAME "copyToSq1Channel"; COMMENT "input y: $E100+y source addr"; };
 LABEL { ADDR $E04F; NAME "copyToTriChannel"; };
@@ -824,6 +828,8 @@ LABEL { ADDR $E1C8; NAME "@computeAndExecute"; };
 LABEL { ADDR $E1CE; NAME "@primaryIsEmpty"; };
 LABEL { ADDR $E1D7; NAME "updateSoundEffectSlotShared_rts"; };
 LABEL { ADDR $E1E5; NAME "initAudioAndMarkInited"; };
+LABEL { ADDR $E216; NAME "updateAudio"; COMMENT "Disables APU frame interrupt"; };
+LABEL { ADDR $E23D; NAME "@clearSoundEffectSlotsInit"; };
 LABEL { ADDR $E244; NAME "soundEffectSlot2_makesNoSound"; };
 LABEL { ADDR $E247; NAME "muteAudioAndClearTriControl"; };
 LABEL { ADDR $E271; NAME "muteAudio"; };
