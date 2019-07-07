@@ -114,7 +114,7 @@ my_bulkCopyToPpu:
         sta     tmp1
         lda     palettes+1,x
         sta     tmp2
-        jsr     LAAF2
+        jsr     copyToPpu
         rts
 
 screens = 10

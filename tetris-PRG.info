@@ -789,6 +789,7 @@ LABEL { ADDR $AA78; NAME "disableNmi"; };
 LABEL { ADDR $AA7C; NAME "_updatePpuCtrl"; };
 LABEL { ADDR $AA8A; NAME "copyCurrentScrollAndCtrlToPPU"; };
 LABEL { ADDR $AA98; NAME "bulkCopyToPpu"; };
+LABEL { ADDR $AAF2; NAME "copyToPpu"; COMMENT "Address to read from stored in tmp1/2"; };
 LABEL { ADDR $AB21; NAME "copyAddrAtReturnAddressToTmp_incrReturnAddrBy2"; };
 LABEL { ADDR $AB47; NAME "generateNextPseudorandomNumber"; }; # canon
 LABEL { ADDR $AB5E; NAME "copyOamStagingToOam"; COMMENT "canon is initializeOAM"; };

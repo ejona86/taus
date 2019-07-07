@@ -6,7 +6,7 @@
 .include "ips.inc"
 .include "chart.inc"
 
-;CHART_TESTING = 1
+;TESTING_POST_GAME_STATS = 1
 
 .segment "HUNK1HDR"
         ips_hunkhdr     "HUNK1"
@@ -17,8 +17,10 @@
        jmp statsPerBlock
 afterJmpResetStatMod:
 
-.segment "CODEHDR"
-        ips_hunkhdr     "CODE"
+.segment "BSS"
+
+copyToPpuDuringRenderAddr:
+        .res    2
 
 .segment "GAMEBSS"
 
@@ -51,8 +53,27 @@ levelEffIdx:
         .res    1
 chartDrawn:
         .res    1
+defaultAttr = $AA
+
+.segment "CODEHDR"
+        ips_hunkhdr     "CODE"
 
 .segment "CODE"
+
+renderMod:
+        jsr     render
+
+        lda     copyToPpuDuringRenderAddr+1
+        beq     @ret
+        sta     tmp2
+        lda     copyToPpuDuringRenderAddr
+        sta     tmp1
+        jsr     copyToPpu
+        lda     #$00
+        sta     copyToPpuDuringRenderAddr
+        sta     copyToPpuDuringRenderAddr+1
+@ret:
+        rts
 
 initGameState_mod:
 .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
@@ -63,7 +84,10 @@ initGameState_mod:
         sta     __GAMEBSS_RUN__-1,x
         dex
         bne     @clearByte
-.ifdef CHART_TESTING
+
+.ifdef TESTING_POST_GAME_STATS
+        lda     #$0A
+        sta     player1_playState
         lda     #300/2
         jsr     chartEffConvert
         sta     levelEffs
@@ -242,14 +266,33 @@ binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
 scorePerLineTable: ; All values pre-divided by 2
         .byte   0, 40/1/2, 100/2/2, 300/3/2, 1200/4/2
 
-drawChart:
+postGameStats:
         lda     chartDrawn
-        bne     @done
+        bne     @chartOnPlayfield
         inc     chartDrawn
         jsr     drawChartBackground
-@done:
+
+@chartOnPlayfield:
         jsr     drawChartSprites
 
+        lda     frameCounter
+        and     #$03
+        bne     @checkInput
+        lda     #20
+        sec
+        sbc     chartDrawn
+        beq     @checkInput
+        sta     vramRow
+        inc     chartDrawn
+.import chart_attributetable_patch
+        cmp     #20-6-2
+        bne     @checkInput
+        lda     #<chart_attributetable_patch
+        sta     copyToPpuDuringRenderAddr
+        lda     #>chart_attributetable_patch
+        sta     copyToPpuDuringRenderAddr+1
+
+@checkInput:
         ; require pressing start independent of score
         lda     newlyPressedButtons
         cmp     #$10
@@ -383,7 +426,7 @@ multiplyBy100:
 
 .segment "GAME_BG"
 
-; gameBackground
+; game_nametable
 .byte   $20,$00,$20,$7A,$67,$77,$77,$72,$79,$7A,$78,$75,$7A,$67,$77,$78,$83,$78,$83,$77,$87,$67,$78,$73,$87,$70,$71,$67,$87,$78,$75,$7A,$72,$7A,$67
 .byte   $20,$20,$20,$72,$83,$87,$77,$87,$67,$78,$73,$87,$72,$83,$87,$78,$79,$79,$7A,$87,$78,$84,$7A,$82,$7A,$80,$81,$82,$79,$7A,$87,$78,$83,$78,$85
 .byte   $20,$40,$20,$87,$72,$7A,$87,$78,$84,$7A,$82,$7A,$87,$67,$38,$39,$39,$39,$39,$39,$39,$39,$39,$39,$39,$3A,$38,$39,$39,$39,$39,$39,$39,$3A,$87
@@ -452,15 +495,23 @@ multiplyBy100:
 ; at beginning of initGameState, replaces "jsr memset_page"
         jsr initGameState_mod
 
-.segment "JMP_DRAW_CHARTHDR"
-        ips_hunkhdr     "JMP_DRAW_CHART"
+.segment "JMP_POST_GAME_STATSHDR"
+        ips_hunkhdr     "JMP_POST_GAME_STATS"
 
-.segment "JMP_DRAW_CHART"
+.segment "JMP_POST_GAME_STATS"
 
 ; within @curtainFinished of playState_updateGameOverCurtain, replacing
 ; "lda player1_score+2; cmp #$03"
-        jmp     drawChart
+        jmp     postGameStats
         nop
+
+.segment "JMP_RENDER_MODHDR"
+        ips_hunkhdr     "JMP_RENDER_MOD"
+
+.segment "JMP_RENDER_MOD"
+
+; within nmi, replaces "jsr render"
+        jsr     renderMod
 
 .segment "IPSCHR"
 

@@ -1,16 +1,14 @@
-all: tetris taus screens custom build/chart-test.nes
+all: tetris taus screens custom
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
 build/taus.o: build/tetris.inc build/taus.chrs/
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/
-build/chart-test.o: build/tetris.inc
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
 build/screens.ips: build/screens.o build/ips.o
-build/chart-test.ips: build/chart-test.o build/chart.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips

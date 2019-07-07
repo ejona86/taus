@@ -21,7 +21,6 @@ levelEffs:
 
 ; Playfield is unused once curtain starts falling
 barScratch := playfield
-ppuCtrl_verticalAdv = $04
 .ifndef CHART_HORIZ
 barOffset = 0
 barLength = $06         ; 300/chartValuePerPixel/8, rounded up
@@ -31,15 +30,16 @@ barLength = $0A         ; 300/chartValuePerPixel/8, rounded up
 .endif
 
 drawChartBackground:
-        jsr     updateAudioWaitForNmiAndDisablePpuRendering
-        jsr     disableNmi
 .ifndef CHART_HORIZ
-        jsr     bulkCopyToPpu
-        .addr   chart_nametable_patch
-
-        lda     currentPpuCtrl
-        ora     #ppuCtrl_verticalAdv
-        sta     PPUCTRL
+        ldy     #playfieldLiteralRow*10
+        ldx     #$00
+@copyLiteral:
+        lda     playfieldLiteral,x
+        sta     playfield,y
+        iny
+        inx
+        cpx     #playfieldLiteralSize
+        bne     @copyLiteral
 .endif
 
         ldx     #chartBarCount/2
@@ -94,29 +94,6 @@ drawChartBackground:
 @skipSecond:
 
 .ifndef CHART_HORIZ
-        lda     vramPlayfieldRows+2*(20-barLength)+1
-        sta     PPUADDR
-        lda     vramPlayfieldRows+2*(20-barLength)
-        clc
-        adc     #$06
-        adc     #barOffset
-        adc     tmp1
-        sta     PPUADDR
-.else
-        lda     #barOffset
-        clc
-        adc     tmp1
-        asl
-        tax
-        lda     vramPlayfieldRows+1,x
-        sta     PPUADDR
-        lda     vramPlayfieldRows,x
-        clc
-        adc     #$06
-        sta     PPUADDR
-.endif
-
-.ifndef CHART_HORIZ
         lda     barScratch+1
         clc
         adc     #$F8-$EF
@@ -127,33 +104,46 @@ drawChartBackground:
         lda     barScratch+5
         adc     #$F8-$EF
         sta     barScratch+5
+.endif
+
+.ifndef CHART_HORIZ
+        lda     #(20-barLength)*10+barOffset
+        clc
+        adc     tmp1
 
         ldx     #barLength
+        tay
 @cellToPpu:
         lda     barScratch-1,x
-        sta     PPUDATA
+        sta     playfield,y
+        tya
+        adc     #10
+        tay
         dex
         bne     @cellToPpu
 .else
+        lda     #barOffset
+        clc
+        adc     tmp1
+        tax
+        lda     multBy10Table,x
+        sta     playfieldAddr
+
         ldx     #barLength
         ldy     #$00
 @cellToPpu:
         lda     barScratch,y
-        sta     PPUDATA
+        sta     (playfieldAddr),y
         iny
         dex
         bne     @cellToPpu
-.endif
 
+        lda     #$00
+        sta     playfieldAddr
+.endif
         lda     tmp1
         bne     @drawBar
 
-.ifndef CHART_HORIZ
-        lda     currentPpuCtrl
-        sta     PPUCTRL
-.endif
-        jsr     waitForVBlankAndEnableNmi
-        jsr     updateAudioWaitForNmiAndEnablePpuRendering
         rts
 
 ; stageSpriteForCurrentPiece for offsets
@@ -283,11 +273,17 @@ chartEffConvert := div2
 .endif
 
 .ifndef CHART_HORIZ
-chart_nametable_patch:
-.byte   $22,$4C,$0A,$FF,$0E,$0F,$0F,$FF,$15,$18,$10,$FF,$FF
-.byte   $22,$6C,$0A,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-; attributes
+playfieldLiteralRow = 20-6-3
+playfieldLiteralSize = 30
+playfieldLiteral:
+.byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+.byte   $FF,$0E,$0F,$0F,$FF,$15,$18,$10,$FF,$FF
+.byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+.export chart_attributetable_patch
+chart_attributetable_patch:
 .byte   $23,$E3,$03,$FA,$FA,$FE
+.byte   $FF
 .endif
 
 .segment "CHART_IPSCHR"
