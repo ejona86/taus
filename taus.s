@@ -4,6 +4,9 @@
 
 .include "build/tetris.inc"
 .include "ips.inc"
+.include "chart.inc"
+
+;CHART_TESTING = 1
 
 .segment "HUNK1HDR"
         ips_hunkhdr     "HUNK1"
@@ -17,7 +20,7 @@ afterJmpResetStatMod:
 .segment "CODEHDR"
         ips_hunkhdr     "CODE"
 
-.segment "CODE"
+.segment "GAMEBSS"
 
 DHT_index = $00
 DHT := statsByType + DHT_index * 2
@@ -27,12 +30,48 @@ EFF_index = $02
 EFF := statsByType + EFF_index * 2
 TRT_index = $03
 TRT := statsByType + TRT_index * 2
-tetrisClears = statsByType + $04 * 2
-lineClears = statsByType + $04 * 2 + 1
-lvl0ScoreIndex = $05 ; stored as little endian binary, divided by 2
-lvl0Score := statsByType + lvl0ScoreIndex * 2
-binaryLinesIndex = $06 ; stored as little endian binary; 9 bits
-binaryLines := statsByType + binaryLinesIndex * 2
+
+tetrisClears:
+        .res    1
+lineClears:
+        .res    1
+; stored as little endian binary, divided by 2
+lvl0Score:
+        .res    2
+; stored as little endian binary; 9 bits
+binaryLines:
+        .res    2
+
+; Maxes out at $0A, at which point gets set back to 0
+chartLevelLines:
+        .res    1
+chartLevelPoints:
+        .res    2
+levelEffIdx:
+        .res    1
+chartDrawn:
+        .res    1
+
+.segment "CODE"
+
+initGameState_mod:
+.import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
+        jsr     memset_page
+        lda     #$00
+        ldx     #<__GAMEBSS_SIZE__
+@clearByte:
+        sta     __GAMEBSS_RUN__-1,x
+        dex
+        bne     @clearByte
+.ifdef CHART_TESTING
+        lda     #300/2
+        jsr     chartEffConvert
+        sta     levelEffs
+        lda     #70/2
+        jsr     chartEffConvert
+        sta     levelEffs+1
+.endif
+        rts
 
 statsPerBlock:
         lda     tetriminoTypeFromOrientation,x
@@ -90,6 +129,52 @@ statsPerLineClear:
         lda     binaryPointsTable+1,x
         adc     lvl0Score+1
         sta     lvl0Score+1
+
+;updateLevelEff:
+        ldx     completedLines
+        ldy     scorePerLineTable,x
+@addToLevelScore:
+        tya
+        clc
+        adc     chartLevelPoints
+        sta     chartLevelPoints
+        lda     #$00
+        adc     chartLevelPoints+1
+        sta     chartLevelPoints+1
+        inc     chartLevelLines
+        lda     chartLevelLines
+        cmp     #$0A
+        bne     @addToLevelScore_iter
+        ; compute level EFF
+        txa
+        pha
+        tya
+        pha
+        lda     chartLevelPoints
+        sta     tmp1
+        lda     chartLevelPoints+1
+        sta     tmp2
+        lda     chartLevelLines
+        jsr     divmod
+        lda     tmp1
+        jsr     chartEffConvert
+        ldx     levelEffIdx
+        cpx     #chartBarCount
+        beq     @dontSave
+        sta     levelEffs,x
+        inc     levelEffIdx
+@dontSave:
+        lda     #$00
+        sta     chartLevelLines
+        sta     chartLevelPoints
+        sta     chartLevelPoints+1
+        pla
+        tay
+        pla
+        tax
+@addToLevelScore_iter:
+        dex
+        bne     @addToLevelScore
 
 @updateEff:
         lda     lvl0Score
@@ -154,6 +239,28 @@ statsPerLineClearDone:
 
 binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
         .word   0, 40/2, 100/2, 300/2, 1200/2
+scorePerLineTable: ; All values pre-divided by 2
+        .byte   0, 40/1/2, 100/2/2, 300/3/2, 1200/4/2
+
+drawChart:
+        lda     chartDrawn
+        bne     @done
+        inc     chartDrawn
+        jsr     drawChartBackground
+@done:
+        jsr     drawChartSprites
+
+        ; require pressing start independent of score
+        lda     newlyPressedButtons
+        cmp     #$10
+        bne     @ret
+        lda     player1_score+2
+        cmp     #$03
+        bcc     @exitGame
+        jsr     endingAnimation_maybe
+@exitGame:
+        jmp     $9A64
+@ret:   rts
 
 
 ; Convert 10 bit binary number (max 999) to bcd. Double dabble algorithm.
@@ -335,6 +442,24 @@ multiplyBy100:
 
 ; at end of addLineClearPoints, replaces "lda #0; sta completedLines"
         jsr statsPerLineClear
+        nop
+
+.segment "JMP_INIT_GAME_STATEHDR"
+        ips_hunkhdr     "JMP_INIT_GAME_STATE"
+
+.segment "JMP_INIT_GAME_STATE"
+
+; at beginning of initGameState, replaces "jsr memset_page"
+        jsr initGameState_mod
+
+.segment "JMP_DRAW_CHARTHDR"
+        ips_hunkhdr     "JMP_DRAW_CHART"
+
+.segment "JMP_DRAW_CHART"
+
+; within @curtainFinished of playState_updateGameOverCurtain, replacing
+; "lda player1_score+2; cmp #$03"
+        jmp     drawChart
         nop
 
 .segment "IPSCHR"

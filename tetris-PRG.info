@@ -193,6 +193,7 @@ LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; };
 LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE $C; };
 LABEL { ADDR $073C; NAME "highScoreScoresB"; SIZE $C; };
 LABEL { ADDR $0748; NAME "highScoreLevels"; SIZE $08; };
+LABEL { ADDR $0750; NAME "initMagic"; SIZE $05; COMMENT "Initialized to a hard-coded number. When resetting, if not correct number then it knows this is a cold boot"; };
 
 LABEL { ADDR $2000; NAME "PPUCTRL"; };
 LABEL { ADDR $2001; NAME "PPUMASK"; };
@@ -694,11 +695,13 @@ LABEL { ADDR $9969; NAME "incrementPieceStat"; };
 LABEL { ADDR $99A2; NAME "playState_triggerGameOverIfInvalid"; };
 LABEL { ADDR $99B8; NAME "updatePlayfield_jmp"; };
 LABEL { ADDR $9A11; NAME "playState_updateGameOverCurtain"; };
-LABEL { ADDR $9A2D; NAME "drawCurtainRow"; }; # canon
-LABEL { ADDR $9A3E; NAME "incrementCurtainRow"; }; # canon
-LABEL { ADDR $9A47; NAME "endGame"; }; # canon
-LABEL { ADDR $9A4D; NAME "check_for_ending_animation"; };
-LABEL { ADDR $9A64; NAME "select_ending"; };
+LABEL { ADDR $9A2D; NAME "@drawCurtainRow"; }; # canon
+LABEL { ADDR $9A3E; NAME "@incrementCurtainRow"; }; # canon
+LABEL { ADDR $9A46; NAME "@ret"; };
+LABEL { ADDR $9A47; NAME "@curtainFinished"; }; # canon
+LABEL { ADDR $9A5E; NAME "@checkForStartButton"; };
+LABEL { ADDR $9A64; NAME "@exitGame"; };
+LABEL { ADDR $9A6A; NAME "@ret2"; };
 LABEL { ADDR $9A6B; NAME "playState_checkForCompletedRows"; };
 LABEL { ADDR $9ACC; NAME "rowNotComplete"; }; # canon
 LABEL { ADDR $9AD2; NAME "incrementLineIndex"; }; # canon
