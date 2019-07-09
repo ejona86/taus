@@ -33,6 +33,9 @@ EFF := statsByType + EFF_index * 2
 TRT_index = $03
 TRT := statsByType + TRT_index * 2
 
+; stored as little endian bcd
+TRNS:
+        .res    3
 tetrisClears:
         .res    1
 lineClears:
@@ -53,7 +56,6 @@ levelEffIdx:
         .res    1
 chartDrawn:
         .res    1
-defaultAttr = $AA
 
 .segment "CODEHDR"
         ips_hunkhdr     "CODE"
@@ -256,6 +258,24 @@ doDiv:
         lda     tmp2
         sta     TRT+1
 
+;@checkForTrns:
+        lda     TRNS
+        bne     @doneCheckingTrns
+        lda     TRNS+1
+        bne     @doneCheckingTrns
+        lda     TRNS+2
+        bne     @doneCheckingTrns
+        lda     startLevel
+        cmp     levelNumber
+        beq     @doneCheckingTrns
+        lda     score
+        sta     TRNS
+        lda     score+1
+        sta     TRNS+1
+        lda     score+2
+        sta     TRNS+2
+@doneCheckingTrns:
+
 statsPerLineClearDone:
         lda     #$00
         sta     completedLines
@@ -265,6 +285,30 @@ binaryPointsTable: ; in binary, not bcd. All values pre-divided by 2
         .word   0, 40/2, 100/2, 300/2, 1200/2
 scorePerLineTable: ; All values pre-divided by 2
         .byte   0, 40/1/2, 100/2/2, 300/3/2, 1200/4/2
+
+renderStats:
+        lda     TRNS
+        bne     @hasTrns
+        lda     TRNS+1
+        bne     @hasTrns
+        lda     TRNS+2
+        bne     @hasTrns
+        beq     @ret
+@hasTrns:
+        lda     #$22
+        sta     PPUADDR
+        lda     #$C4
+        sta     PPUADDR
+        lda     TRNS+2
+        jsr     twoDigsToPPU
+        lda     TRNS+1
+        jsr     twoDigsToPPU
+        lda     TRNS
+        jsr     twoDigsToPPU
+@ret:
+        lda     #$00
+        sta     $B0
+        rts
 
 postGameStats:
         lda     chartDrawn
@@ -448,8 +492,8 @@ multiplyBy100:
 .byte   $22,$40,$20,$71,$3B,$1D,$1B,$1D,$FF,$00,$00,$00,$2A,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$35,$36,$36,$36,$36,$37,$87,$67,$77
 .byte   $22,$60,$20,$81,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$38,$39,$39,$39,$39,$39,$3A,$77,$87
 .byte   $22,$80,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3B,$15,$0E,$1F,$0E,$15,$3C,$77,$78
-.byte   $22,$A0,$20,$7A,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3B,$FF,$FF,$FF,$FF,$FF,$3C,$87,$67
-.byte   $22,$C0,$20,$67,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3D,$3E,$3E,$3E,$3E,$3E,$3F,$78,$85
+.byte   $22,$A0,$20,$7A,$3B,$1D,$1B,$17,$1C,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3B,$FF,$FF,$FF,$FF,$FF,$3C,$87,$67
+.byte   $22,$C0,$20,$67,$3B,$FF,$FF,$24,$24,$24,$24,$24,$24,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$3D,$3E,$3E,$3E,$3E,$3E,$3F,$78,$85
 .byte   $22,$E0,$20,$83,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$67,$78,$75,$7A,$67,$72,$79,$7A,$87
 .byte   $23,$00,$20,$73,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$74,$7A,$87,$78,$85,$87,$67,$78,$79
 .byte   $23,$20,$20,$77,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$33,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$34,$87,$78,$79,$73,$87,$72,$83,$72,$7A
@@ -464,7 +508,7 @@ multiplyBy100:
 .byte               $BF,$2F,$CF,$AA,$AA,$EE,$FF,$FF
 .byte               $FF,$33,$CC,$AA,$AA,$EE,$FF,$FF
 .byte   $23,$E0,$20,$FF,$33,$CC,$AA,$AA,$EE,$FF,$FF
-.byte               $BB,$22,$CC,$AA,$AA,$EE,$FF,$FF
+.byte               $BF,$03,$CC,$AA,$AA,$EE,$FF,$FF
 .byte               $FB,$F2,$FC,$FA,$FA,$FE,$FF,$FF
 .byte               $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 .byte   $FF
@@ -512,6 +556,15 @@ multiplyBy100:
 
 ; within nmi, replaces "jsr render"
         jsr     renderMod
+
+.segment "JMP_RENDER_STATSHDR"
+        ips_hunkhdr     "JMP_RENDER_STATS"
+
+.segment "JMP_RENDER_STATS"
+
+; within render_play_digits, after L9639, replaces "lda #$00; sta $B0"
+        jsr     renderStats
+        nop
 
 .segment "IPSCHR"
 

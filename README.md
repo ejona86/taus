@@ -6,13 +6,22 @@ building NES ips/nes files, and a LUA-based unit/integration test helpers.
 
 ## TAUS
 
-TAUS provides the statistics:
+TAUS provides the in-game statistics:
  * DHT: The drought. The number of pieces since the last line
  * BRN: The burn. The number of lines cleared since the last tetris
  * EFF: The efficiency. The score per lines as if on level 0. Individual
    clears have score per lines of: 40 for a single, 50 for a double, 100 for a
    triple, 300 for a tetris
  * TRT: The tetris rate. The percentage of clears that were tetrises
+ * TRNS: The transition score. The score achieved when leaving the starting
+   level
+
+TAUS provides the post-game statistics:
+ * EFF LOG: A chart for the EFF progression through the game with each bar
+   cooresponding to the EFF of 10 lines cleared. The EFF presented is not the
+   cumulative EFF to that point, but the EFF of the 10 lines in isolation.
+   It tracks each line clear separately, so if you have cleared 8 lines and
+   then clear a tetris that is considered two lines followed by two more lines
 
 The mod also allows skipping the legal screen.
 
