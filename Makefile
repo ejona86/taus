@@ -54,6 +54,7 @@ build/custom.nes: build/tetris.nes
 test: tetris.nes build/tetris.nes build/taus.nes
 	diff tetris.nes build/tetris.nes
 	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua taus-test.lua build/taus.nes
+	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua chart-test.lua build/taus.nes
 	# fceux saves some of the configuration, so restore what we can
 	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/taus.nes
 

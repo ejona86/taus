@@ -38,6 +38,11 @@ function test_demo ()
 	assertbyteoff("EFF", 1, 0x01)
 	assertbyteoff("TRT", 0, 0x25)
 	assertbyteoff("TRT", 1, 0x00)
+	assertbyteoff("TRNS", 0, 0x86)
+	assertbyteoff("TRNS", 1, 0x40)
+	assertbyteoff("TRNS", 2, 0x00)
+	assertbyteoff("levelEffs", 0, math.floor(195/2/3.125))
+	assertbyteoff("levelEffs", 1, 0x00)
 end
 
 function test_divmod ()

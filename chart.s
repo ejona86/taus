@@ -212,6 +212,7 @@ drawChartSprites:
 
         rts
 
+PRECISION = 1
 .ifndef CHART_HORIZ
 ; Divide 8 bit number by 3. Implemented via multiplying by a fixed-point 1/3.
 ; 1/3 is encoded as $55 in a binary byte, but since it is truncated the product
@@ -225,17 +226,21 @@ drawChartSprites:
 div3:
         sta     tmp1
         lsr
-        adc     tmp1
-        ror
-        adc     tmp1
-        ror
-        lsr
+.ifdef PRECISION
+        clc
         adc     tmp1
         ror
         lsr
+.endif
+        clc
         adc     tmp1
         ror
         lsr
+        clc
+        adc     tmp1
+        ror
+        lsr
+        clc
         adc     tmp1
         ror
         lsr
@@ -246,19 +251,56 @@ chartEffConvert := div3
 .else
 
 ; Divide by 3.125. Implemented by multiplying by fixed-point 1/3.125=0.32.
-; Encoded as binary it is $52
+; Encoded as binary it is $52. That produces quite acceptable results but
+; for 6 numbers it rounds up, like with 128 (the smallest failure) it produces
+; 41 when the precise answer is 40.96 (all the wrong answers are off by .04).
+; To fix those cases requires adding 4 more bits to have $51F.
+;
+; req a: (input) dividend
+;        (output) quotient
 div3125:
+.ifndef PRECISION
         sta     tmp1
         lsr
         lsr
         lsr
+        clc
         adc     tmp1
         ror
         lsr
+        clc
         adc     tmp1
         ror
         lsr
         rts
+.else
+        sta     tmp1
+        lsr
+        clc
+        adc     tmp1
+        ror
+        clc
+        adc     tmp1
+        ror
+        clc
+        adc     tmp1
+        ror
+        clc
+        adc     tmp1
+        ror
+        lsr
+        lsr
+        lsr
+        clc
+        adc     tmp1
+        ror
+        lsr
+        clc
+        adc     tmp1
+        ror
+        lsr
+        rts
+.endif
 
 chartEffConvert := div3125
 .endif
