@@ -10,8 +10,6 @@ function test_chartEffConvert ()
 		chartEffConvertDivisor = 3
 	elseif labels.chartEffConvert == labels.div3125 then
 		chartEffConvertDivisor = 3.125
-	elseif labels.chartEffConvert == labels.div2 then
-		chartEffConvertDivisor = 2
 	else
 		error("unknown chartEffConvert")
 	end

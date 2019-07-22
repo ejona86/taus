@@ -21,16 +21,10 @@ levelEffs:
 
 ; Playfield is unused once curtain starts falling
 barScratch := playfield
-.ifndef CHART_HORIZ
 barOffset = 0
 barLength = $06         ; 300/chartValuePerPixel/8, rounded up
-.else
-barOffset = 20-chartBarCount/2
-barLength = $0A         ; 300/chartValuePerPixel/8, rounded up
-.endif
 
 drawChartBackground:
-.ifndef CHART_HORIZ
         ldy     #playfieldLiteralRow*10
         ldx     #$00
 @copyLiteral:
@@ -40,7 +34,6 @@ drawChartBackground:
         inx
         cpx     #playfieldLiteralSize
         bne     @copyLiteral
-.endif
 
         ldx     #chartBarCount/2
         stx     tmp1
@@ -93,7 +86,6 @@ drawChartBackground:
 
 @skipSecond:
 
-.ifndef CHART_HORIZ
         lda     barScratch+1
         clc
         adc     #$F8-$EF
@@ -104,9 +96,7 @@ drawChartBackground:
         lda     barScratch+5
         adc     #$F8-$EF
         sta     barScratch+5
-.endif
 
-.ifndef CHART_HORIZ
         lda     #(20-barLength)*10+barOffset
         clc
         adc     tmp1
@@ -121,26 +111,7 @@ drawChartBackground:
         tay
         dex
         bne     @cellToPpu
-.else
-        lda     #barOffset
-        clc
-        adc     tmp1
-        tax
-        lda     multBy10Table,x
-        sta     playfieldAddr
 
-        ldx     #barLength
-        ldy     #$00
-@cellToPpu:
-        lda     barScratch,y
-        sta     (playfieldAddr),y
-        iny
-        dex
-        bne     @cellToPpu
-
-        lda     #$00
-        sta     playfieldAddr
-.endif
         lda     tmp1
         bne     @drawBar
 
@@ -150,11 +121,7 @@ drawChartBackground:
 drawChartSprites:
         ldx     #chartBarCount
 
-.ifndef CHART_HORIZ
         lda     #$60+(barOffset+chartBarCount/2)*8-4
-.else
-        lda     #$2F+20*8-4
-.endif
         sta     tmp1
 @barEndcap:
         dex
@@ -162,7 +129,6 @@ drawChartSprites:
         lda     levelEffs,x
         beq     @skip
 
-.ifndef CHART_HORIZ
         lda     #$2F+20*8
         sec
         sbc     levelEffs,x
@@ -170,9 +136,6 @@ drawChartSprites:
         bmi     @withinRange
         lda     #$2F+20*8-8
 @withinRange:
-.else
-        lda     tmp1
-.endif
         ldy     oamStagingLength
         sta     oamStaging,y
         inc     oamStagingLength
@@ -190,13 +153,7 @@ drawChartSprites:
         inc     oamStagingLength
         iny
 
-.ifndef CHART_HORIZ
         lda     tmp1
-.else
-        lda     #$60-8
-        clc
-        adc     levelEffs,x
-.endif
         ldy     oamStagingLength
         sta     oamStaging,y
         inc     oamStagingLength
@@ -213,7 +170,6 @@ drawChartSprites:
         rts
 
 PRECISION = 1
-.ifndef CHART_HORIZ
 ; Divide 8 bit number by 3. Implemented via multiplying by a fixed-point 1/3.
 ; 1/3 is encoded as $55 in a binary byte, but since it is truncated the product
 ; may be too small. This produces results like 3/3 = 0 and 6/3 = 1. So instead,
@@ -305,16 +261,6 @@ div3125:
 chartEffConvert := div3125
 .endif
 
-.else
-
-div2:
-        lsr
-        rts
-
-chartEffConvert := div2
-.endif
-
-.ifndef CHART_HORIZ
 playfieldLiteralRow = 20-6-3
 playfieldLiteralSize = 30
 playfieldLiteral:
@@ -326,11 +272,9 @@ playfieldLiteral:
 chart_attributetable_patch:
 .byte   $23,$E3,$03,$FA,$FA,$FE
 .byte   $FF
-.endif
 
 .segment "CHART_IPSCHR"
 
-.ifndef CHART_HORIZ
         ips_tilehdr CHR01+CHR_RIGHT,$EF
         ; blank
         .incbin "build/taus.chrs/20"
@@ -366,40 +310,3 @@ chart_attributetable_patch:
         ips_tilehdr CHR01+CHR_RIGHT,$FB
         ; ||, with gridline
         .incbin "build/taus.chrs/27"
-.else
-        ips_tilehdr CHR01+CHR_RIGHT,$EF
-        ; blank
-        .incbin "build/taus.chrs/30"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F0
-        ; _
-        .incbin "build/taus.chrs/31"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F1
-        ; -
-        .incbin "build/taus.chrs/32"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F2
-        ; =
-        .incbin "build/taus.chrs/33"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F7
-        ; endcap
-        .incbin "build/taus.chrs/34"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F8
-        ; blank
-        .incbin "build/taus.chrs/30"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$F9
-        ; _
-        .incbin "build/taus.chrs/31"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$FA
-        ; -
-        .incbin "build/taus.chrs/32"
-
-        ips_tilehdr CHR01+CHR_RIGHT,$FB
-        ; =
-        .incbin "build/taus.chrs/33"
-.endif
