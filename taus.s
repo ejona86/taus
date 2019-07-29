@@ -92,10 +92,62 @@ initGameState_mod:
         sta     player1_playState
         lda     #300/2
         jsr     chartEffConvert
+.if 1
+        ; Various test cases
+
+        ; separate; left larger, right larger
         sta     levelEffs
-        lda     #70/2
-        jsr     chartEffConvert
+        sta     levelEffs+3
+        lda     #14
         sta     levelEffs+1
+        sta     levelEffs+2
+
+        ; together; left larger, right larger
+        lda     #16
+        sta     levelEffs+4
+        sta     levelEffs+7
+        lda     #14
+        sta     levelEffs+5
+        sta     levelEffs+6
+
+        ; exactly a difference of 8; left larger, right larger
+        lda     #16
+        sta     levelEffs+8
+        sta     levelEffs+11
+        lda     #8
+        sta     levelEffs+9
+        sta     levelEffs+10
+
+        ; short
+        ; together, left larger
+        lda     #9
+        sta     levelEffs+12
+        lda     #8
+        sta     levelEffs+13
+        ; separate, right is zero
+        sta     levelEffs+14
+.elseif 0
+        ; All maxed out
+        ldx     #$00
+@initTestEffs:
+        sta     levelEffs,x
+        inx
+        cpx     #chartBarCount
+        bne     @initTestEffs
+.else
+        ; Descending
+        ldx     #$00
+        lda     #$30
+@initTestEffs:
+        sta     levelEffs,x
+        inx
+        sta     levelEffs,x
+        inx
+        sec
+        sbc     #$01
+        cpx     #chartBarCount
+        bne     @initTestEffs
+.endif
 .endif
         rts
 

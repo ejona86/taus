@@ -25,6 +25,20 @@ barOffset = 0
 barLength = $06         ; 300/chartValuePerPixel/8, rounded up
 
 drawChartBackground:
+        ; We can't draw anything less than 8 pixels high
+        ldx     #$00
+@checkRange:
+        lda     levelEffs,x
+        beq     @rangeOkay
+        cmp     #$08
+        bpl     @rangeOkay
+        lda     #$08
+        sta     levelEffs,x
+@rangeOkay:
+        inx
+        cpx     #chartBarCount
+        bne     @checkRange
+
         ldy     #playfieldLiteralRow*10
         ldx     #$00
 @copyLiteral:
@@ -117,55 +131,125 @@ drawChartBackground:
 
         rts
 
-; stageSpriteForCurrentPiece for offsets
+; We always use two sprites per pair of columns. If the columns are close in
+; size, then we use an offset double endcap plus a sprite of 7 pixels of bar.
+; If the columns have over a 7 pixel difference, then we use one lone endcap
+; per bar.
 drawChartSprites:
-        ldx     #chartBarCount
-
-        lda     #$60+(barOffset+chartBarCount/2)*8-4
-        sta     tmp1
+        ldx     #$00
 @barEndcap:
-        dex
-
         lda     levelEffs,x
         beq     @skip
 
-        lda     #$2F+20*8
+        lda     #$22    ; behind background; sprite palette 2
+        sta     tmp2
+
+        txa
+        asl     a
+        asl     a
+        sta     spriteXOffset
+
+        lda     levelEffs+1,x
+        beq     @diffTooLarge
+
         sec
         sbc     levelEffs,x
-        cmp     #$2F+20*8-8
-        bmi     @withinRange
-        lda     #$2F+20*8-8
-@withinRange:
-        ldy     oamStagingLength
-        sta     oamStaging,y
-        inc     oamStagingLength
-        iny
-
+        bmi     @negative
+        cmp     #$08
+        bmi     @positive
+@diffTooLarge:
+        ; Draw the two bars separately
         lda     #$F7
-        ldy     oamStagingLength
-        sta     oamStaging,y
-        inc     oamStagingLength
-        iny
+        sta     tmp1
+        lda     levelEffs,x
+        sta     spriteYOffset
+        jsr     stageChartSprite
 
-        lda     #$22    ; behind background; sprite palette 2
-        ldy     oamStagingLength
-        sta     oamStaging,y
-        inc     oamStagingLength
-        iny
+        lda     levelEffs+1,x
+        beq     @skip
+        sta     spriteYOffset
+        lda     #$62    ; behind background; sprite palette 2; flip horiz
+        sta     tmp2
+        jsr     stageChartSprite
 
-        lda     tmp1
-        ldy     oamStagingLength
-        sta     oamStaging,y
-        inc     oamStagingLength
-        iny
+        jmp     @skip
+@positive:
+        sta     tmp1
+        lda     levelEffs,x
+        sta     spriteYOffset
+        bne     @computedDiff   ; unconditional
+@negative:
+        cmp     #<(-$07)
+        bmi     @diffTooLarge
+
+        eor     #$FF
+        clc
+        adc     #$01
+        sta     tmp1
+        lda     levelEffs+1,x
+        sta     spriteYOffset
+
+        lda     #$62    ; behind background; sprite palette 2; flip horiz
+        sta     tmp2
+@computedDiff:
+
+        lda     #$07
+        clc
+        adc     spriteYOffset
+        sta     spriteYOffset
+        lda     #$E7
+        clc
+        adc     tmp1
+        sta     tmp1
+        jsr     stageChartSprite
+
+        lda     #$F6
+        sta     tmp1
+        lda     spriteYOffset
+        sec
+        sbc     #$08
+        sta     spriteYOffset
+        jsr     stageChartSprite
 
 @skip:
-        lda     tmp1
-        sec
-        sbc     #$04
-        sta     tmp1
-        txa
+        inx
+        inx
+        cpx     #chartBarCount
         bne     @barEndcap
+
+        rts
+
+
+; Stage sprite for chart. Does not use reg x.
+; spriteYOffset: (input) relative to playfield; positive is up
+; spriteXOffset: (input) relative to playfield
+; tmp1:          (input) tile index
+; tmp2:          (input) attributes
+stageChartSprite:
+        lda     #$2F+20*8
+        sec
+        sbc     spriteYOffset
+        ldy     oamStagingLength
+        sta     oamStaging,y
+        inc     oamStagingLength
+        iny
+
+        lda     tmp1
+        sta     oamStaging,y
+        inc     oamStagingLength
+        iny
+
+        lda     tmp2
+        sta     oamStaging,y
+        inc     oamStagingLength
+        iny
+
+        lda     spriteXOffset
+        clc
+        adc     #$60+barOffset*8
+        sta     oamStaging,y
+        inc     oamStagingLength
+        iny
 
         rts
 
@@ -275,6 +359,38 @@ chart_attributetable_patch:
 
 .segment "CHART_IPSCHR"
 
+        ips_tilehdr CHR01+CHR_RIGHT,$E7
+        ; endcap difference = 0
+        .incbin "build/taus.chrs/10"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$E8
+        ; endcap difference = 1
+        .incbin "build/taus.chrs/11"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$E9
+        ; endcap difference = 2
+        .incbin "build/taus.chrs/12"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$EA
+        ; endcap difference = 3
+        .incbin "build/taus.chrs/13"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$EB
+        ; endcap difference = 4
+        .incbin "build/taus.chrs/14"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$EC
+        ; endcap difference = 5
+        .incbin "build/taus.chrs/15"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$ED
+        ; endcap difference = 6
+        .incbin "build/taus.chrs/16"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$EE
+        ; endcap difference = 7
+        .incbin "build/taus.chrs/17"
+
         ips_tilehdr CHR01+CHR_RIGHT,$EF
         ; blank
         .incbin "build/taus.chrs/20"
@@ -290,6 +406,10 @@ chart_attributetable_patch:
         ips_tilehdr CHR01+CHR_RIGHT,$F2
         ; ||
         .incbin "build/taus.chrs/23"
+
+        ips_tilehdr CHR01+CHR_RIGHT,$F6
+        ; || 7 pixel high
+        .incbin "build/taus.chrs/19"
 
         ips_tilehdr CHR01+CHR_RIGHT,$F7
         ; endcap
