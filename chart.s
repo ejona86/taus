@@ -12,6 +12,34 @@ __CHARTSIMPORT = 1
 .export drawChartSprites
 .export chartEffConvert
 
+; The chart consists of 20 bars within the playfield. The bottom of each bar is
+; drawn using the nametable. The nametable tiles are coarse, so are only used
+; for each full 8 pixels of bar height. This uses 4 tiles (although we could
+; reuse 2 tiles). The topmost pixel of the bar is purposefully excluded since
+; it is a different color. The top of the bar (1-8 pixels) is drawn using a
+; sprite, which can be placed precisely in the proper position.  We make sure
+; to always have 8 pixels-worth of sprite height, since that is the maximum that
+; can be missed from the nametable. The nametable handles gridlines, so the
+; sprite is placed behind the nametable to let the gridline show on top of the
+; bars. The gridlines require a duplicate of each nametable tile, which uses 4
+; more tiles.
+;
+; We go well out of our way to reduce the number of sprites per scanline. For
+; every two bars (8 pixels of width) we "reserve" 1 sprite per scanline. Since
+; there is a maximum of 20 bars to display, this can reach the 8
+; sprite-per-scanline limit after 16 bars. But that's only in the worst-case.
+; Generally we can hope to "luck out" since games of 200 lines are uncommon
+; and are unlikely to have consistent enough EFF to cause 9+ sprites to share a
+; scanline.
+;
+; If we weren't concerned with the 8 sprite limit, we would only need one tile
+; for the sprite. However, we choose to use 9 more tiles to reduce the sprite
+; load per scanline. Eight of the tiles are for a relative difference between
+; the two bars, but they may only provide 1 pixel of bar height. So we have
+; another tile that provides 7 more pixels of height to both bars. Note that it
+; is important to only add 7 pixels, because any more would increase the
+; smallest bar size we could display.
+
 .segment "GAMEBSS"
 
 levelEffs:
