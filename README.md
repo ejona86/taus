@@ -51,9 +51,10 @@ Manual prep:
    SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
    header (`tail +17 tetris.nes > no-header.nes`), it has CRC32 1394f57e,
    MD5 5b0e571558c8c796937b96af469561c6, and
-   SHA1 fd9079cb5e8479eb06d93c2ae5175bfce871746a. Other roms are fine, but you
-   may need to adjust the iNES header in tetris.s. Ignore that for now. `$ make
-   test` will fail if this is a problem.
+   SHA1 fd9079cb5e8479eb06d93c2ae5175bfce871746a. If the iNES header is
+   different you can still use the ROM, but you need to adjust the header in
+   tetris.s. Ignore iNES header issues for now. `$ make test` will fail if this
+   is a problem.
 2. Use [taetae54321/ines](https://github.com/taotao54321/ines) to split the
    file: `$ ines.py split tetris.nes`
 3. Use `$ make` to build artifacts into `build/`, which includes disassembling
