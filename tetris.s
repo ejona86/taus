@@ -2,6 +2,9 @@
 ; iNES header
 ;
 
+; This iNES header is from Brad Smith (rainwarrior)
+; https://github.com/bbbradsmith/NES-ca65-example
+
 .segment "HEADER"
 
 INES_MAPPER = 1 ; 0 = NROM
