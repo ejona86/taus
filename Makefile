@@ -2,9 +2,9 @@ all: tetris taus screens custom
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
-build/taus.o: build/tetris.inc build/taus.chrs/
+build/taus.o: build/tetris.inc build/taus.chrs/fake
 build/screens.o: build/tetris.inc
-build/chart.o: build/tetris.inc build/taus.chrs/
+build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris.o: build/tetris-CHR-00.bin build/tetris-CHR-01.bin
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
@@ -34,8 +34,9 @@ build/%.nes: build/%.ips build/tetris.nes
 	flips --apply $< build/tetris.nes $@ > /dev/null || flips --apply $< build/tetris.nes $@
 	flips --create build/tetris.nes $@ build/$*.dist.ips > /dev/null
 
-build/%.chrs/: %.chr | build
+build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
+	touch $@
 	split -x -b 16 $< build/$*.chrs/
 
 # There are tools to split apart the iNES file, like
