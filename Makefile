@@ -5,6 +5,7 @@ all: tetris taus screens custom
 build/taus.o: build/tetris.inc build/taus.chrs/
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/
+build/tetris.o: build/tetris-CHR-00.bin build/tetris-CHR-01.bin
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
@@ -37,8 +38,18 @@ build/%.chrs/: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
 	split -x -b 16 $< build/$*.chrs/
 
-build/tetris-PRG.s: tetris-PRG.info tetris-PRG.bin Makefile | build
-	da65 -i tetris-PRG.info -o $@ tetris-PRG.bin
+# There are tools to split apart the iNES file, like
+# https://github.com/taotao54321/ines, but they would require an additional
+# setup step for the user to download/run.
+build/tetris-PRG.bin: tetris.nes | build
+	tail -c +17 $< | head -c 32768 > $@
+build/tetris-CHR-00.bin: tetris.nes | build
+	tail -c +32785 $< | head -c 8192 > $@
+build/tetris-CHR-01.bin: tetris.nes | build
+	tail -c +40977 $< | head -c 8192 > $@
+
+build/tetris-PRG.s: tetris-PRG.info build/tetris-PRG.bin Makefile | build
+	da65 -i tetris-PRG.info -o $@ build/tetris-PRG.bin
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.nes.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' > build/tetris.inc

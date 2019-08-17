@@ -58,12 +58,11 @@ Manual prep:
    different you can still use the ROM, but you need to adjust the header in
    tetris.s. Ignore iNES header issues for now. `$ make test` will fail if this
    is a problem.
-2. Use [taetae54321/ines](https://github.com/taotao54321/ines) to split the
-   file: `$ ines.py split tetris.nes`
-3. Use `$ make` to build artifacts into `build/`, which includes disassembling
-   into `build/tetris-PRG.s`. `$ make test` verifies the reassembled version
-   matches the original. The mod will be generated at `build/taus.ips` and will
-   have been applied to `build/taus.nes`.
+
+Use `$ make` to build artifacts into `build/`, which includes disassembling
+into `build/tetris-PRG.s`. `$ make test` verifies the reassembled version
+matches the original. The mod will be generated at `build/taus.ips` and will
+have been applied to `build/taus.nes`.
 
 ## Structure
 

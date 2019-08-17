@@ -23,5 +23,5 @@ INES_SRAM   = 0 ; 1 = battery backed SRAM at $6000-7FFF
 ;
 
 .segment "CHR"
-.incbin "tetris-CHR-00.bin"
-.incbin "tetris-CHR-01.bin"
+.incbin "build/tetris-CHR-00.bin"
+.incbin "build/tetris-CHR-01.bin"
