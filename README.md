@@ -6,6 +6,9 @@ building NES ips/nes files, and a LUA-based unit/integration test helpers.
 
 ## TAUS
 
+[![In-game stats](media/stats-ingame.thumb.png)](media/stats-ingame.aspect.png)
+[![Post-game stats](media/stats-postgame.thumb.png)](media/stats-postgame.aspect.png)
+
 TAUS provides the in-game statistics:
  * DHT: The drought. The number of pieces since the last line
  * BRN: The burn. The number of lines cleared since the last tetris
