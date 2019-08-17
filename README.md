@@ -44,13 +44,23 @@ and 214, respectively. If your EFF increases by 10%, then your score increases
 Dependencies (should be in PATH):
 1. [Flips](https://github.com/Alcaro/Flips). [Flips
    1.31](https://www.smwcentral.net/?p=section&a=details&id=11474) is fine
-2. [cc65](https://www.cc65.org/)
-3. Only Linux has been used to date. Mac OS would probably mostly work. Windows
-   with GNU make and UnxUtils may mostly work as well.
+2. [cc65](https://cc65.github.io)
+3. GNU Make. Windows users can use `make.exe` from
+   [UnxUpdates.zip](http://unxutils.sourceforge.net/) (just the one file) or
+   [GnuWin32 Make](http://gnuwin32.sourceforge.net/packages/make.htm).
+4. GNU Coreutils and Sed. These are standard on Linux. On Windows they are
+   provided by [Git for Windows](https://git-scm.com/download/win) when using
+   the "Git Bash" command line. Note that it uses a Unix directory structure;
+   the Windows directory structure is within the `/c/` directory.
+
+On Windows, to modify your PATH, run `SystemPropertiesAdvanced.exe`. On the
+"Advanced" tab click "Environment Variables" and then change `Path` in your
+"User variables" and hit Okay. You will need to restart any terminals for the
+changes to take effect.
 
 Manual prep:
-1. Copy tetris ROM to `tetris.nes`. I used a USA ROM with CRC32 6d72c53a,
-   MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
+1. Copy tetris ROM to `tetris.nes`. I used a USA ROM commonly known as "Tetris
+   (U) [!]" with CRC32 6d72c53a, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
    SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
    header (`tail +17 tetris.nes > no-header.nes`), it has CRC32 1394f57e,
    MD5 5b0e571558c8c796937b96af469561c6, and
