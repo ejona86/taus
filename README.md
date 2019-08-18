@@ -41,7 +41,11 @@ finishing with a tetris). In both cases your TRT is 50%, but your EFF was 248
 and 214, respectively. If your EFF increases by 10%, then your score increases
 ~10% for the same number of lines.
 
-## Set up
+## How to build
+
+There should be a pre-built IPS file for the most recent release. You only need
+to build if making changes or want to try out changes that have not yet been
+included in a release.
 
 Dependencies (should be in PATH):
 1. [Flips](https://github.com/Alcaro/Flips). [Flips
