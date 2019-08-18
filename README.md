@@ -1,5 +1,7 @@
 # TAUS, et al
 
+[Source Repository](https://github.com/ejona86/taus)
+
 The main project is the Actually Useful Statistics Tetris mod. However, the
 repository also contains disassembly knowledge for tetris, a structure for
 building NES ips/nes files, and a LUA-based unit/integration test helpers.
