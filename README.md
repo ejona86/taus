@@ -41,11 +41,21 @@ finishing with a tetris). In both cases your TRT is 50%, but your EFF was 248
 and 214, respectively. If your EFF increases by 10%, then your score increases
 ~10% for the same number of lines.
 
+## How to run
+
+There should be a pre-built IPS file for the most recent release. It should be
+applied to the USA Tetris ROM, commonly known as "Tetris (U) [!].nes". The ROM
+has CRC32 `6d72c53a`, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
+SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
+header (`tail -c +17 tetris.nes > no-header.nes`), it has CRC32 `1394f57e`,
+MD5 `5b0e571558c8c796937b96af469561c6`, and
+SHA1 `fd9079cb5e8479eb06d93c2ae5175bfce871746a`. It is generally okay if the
+iNES header is different.
+
 ## How to build
 
-There should be a pre-built IPS file for the most recent release. You only need
-to build if making changes or want to try out changes that have not yet been
-included in a release.
+You only need to build if you are making changes or want to try out changes
+that have not yet been included in a release.
 
 Dependencies (should be in PATH):
 1. [Flips](https://github.com/Alcaro/Flips). [Flips
@@ -53,11 +63,11 @@ Dependencies (should be in PATH):
 2. [cc65](https://cc65.github.io)
 3. GNU Make. Windows users can use `make.exe` from
    [UnxUpdates.zip](http://unxutils.sourceforge.net/) (just the one file) or
-   [GnuWin32 Make](http://gnuwin32.sourceforge.net/packages/make.htm).
+   [GnuWin32 Make](http://gnuwin32.sourceforge.net/packages/make.htm)
 4. GNU Coreutils and Sed. These are standard on Linux. On Windows they are
    provided by [Git for Windows](https://git-scm.com/download/win) when using
    the "Git Bash" command line. Note that it uses a Unix directory structure;
-   the Windows directory structure is within the `/c/` directory.
+   the Windows directory structure is within the `/c/` directory
 
 On Windows, to modify your PATH, run `SystemPropertiesAdvanced.exe`. On the
 "Advanced" tab click "Environment Variables" and then change `Path` in your
@@ -65,15 +75,9 @@ On Windows, to modify your PATH, run `SystemPropertiesAdvanced.exe`. On the
 changes to take effect.
 
 Manual prep:
-1. Copy tetris ROM to `tetris.nes`. I used a USA ROM commonly known as "Tetris
-   (U) [!]" with CRC32 6d72c53a, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
-   SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
-   header (`tail +17 tetris.nes > no-header.nes`), it has CRC32 1394f57e,
-   MD5 5b0e571558c8c796937b96af469561c6, and
-   SHA1 fd9079cb5e8479eb06d93c2ae5175bfce871746a. If the iNES header is
-   different you can still use the ROM, but you need to adjust the header in
-   tetris.s. Ignore iNES header issues for now. `$ make test` will fail if this
-   is a problem.
+1. Copy tetris ROM to `tetris.nes`. If the iNES header is different you can
+   still use the ROM, but you need to adjust the header in tetris.s. Ignore
+   iNES header issues for now. `$ make test` will fail if this is a problem.
 
 Use `$ make` to build artifacts into `build/`, which includes disassembling
 into `build/tetris-PRG.s`. `$ make test` verifies the reassembled version
