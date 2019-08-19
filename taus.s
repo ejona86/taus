@@ -36,9 +36,7 @@ TRT := statsByType + TRT_index * 2
 ; stored as little endian bcd
 TRNS:
         .res    3
-tetrisClears:
-        .res    1
-lineClears:
+tetrisLines:
         .res    1
 ; stored as little endian binary, divided by 2
 lvl0Score:
@@ -291,18 +289,20 @@ doDiv:
         sta     EFF+1
 
 @updateTrt:
-        inc     lineClears
         lda     completedLines
         cmp     #$04
         bne     @calcTrt
-        inc     tetrisClears
+        lda     tetrisLines
+        clc
+        adc     #$04
+        sta     tetrisLines
 @calcTrt:
-        lda     tetrisClears
+        lda     tetrisLines
         sta     tmp1
         lda     #$00
         sta     tmp2
         jsr     multiplyBy100
-        lda     lineClears
+        lda     binaryLines
         jsr     divmod
         lda     #$00
         jsr     binaryToBcd
