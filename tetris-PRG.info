@@ -96,6 +96,7 @@ LABEL { ADDR $00B5; NAME "newlyPressedButtons_mirror"; };
 LABEL { ADDR $00B6; NAME "pressedButtons_mirror"; };
 LABEL { ADDR $00B7; NAME "activePlayer"; COMMENT "Which player is being processed (data in $40)"; };
 LABEL { ADDR $00B8; NAME "playfieldAddr"; SIZE 2; COMMENT "HI byte is leftPlayfield in canon. Current playfield being processed: $0400 (left; 1st player) or $0500 (right; 2nd player)"; };
+LABEL { ADDR $00BA; NAME "allegro"; }; # canon
 LABEL { ADDR $00BB; NAME "totalGarbageInactivePlayer"; COMMENT "This is exchanged with totalGarbage when swapping players"; };
 LABEL { ADDR $00BC; NAME "totalGarbage"; }; # canon
 LABEL { ADDR $00BD; NAME "renderMode"; }; # canon
@@ -713,16 +714,25 @@ LABEL { ADDR $9BA8; NAME "incrementLines"; };
 LABEL { ADDR $9BFE; NAME "addHoldDownPoints"; };
 LABEL { ADDR $9C2D; NAME "addLineClearPoints"; };
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; }; # canon
+LABEL { ADDR $9CBE; NAME "@ret"; };
+LABEL { ADDR $9D17; NAME "updateMusicSpeed"; };
+LABEL { ADDR $9D1F; NAME "@checkForBlockInRow"; };
+LABEL { ADDR $9D3C; NAME "@foundBlockInRow"; }; # canon
+LABEL { ADDR $9D50; NAME "@ret"; };
 LABEL { ADDR $9D51; NAME "pollControllerButtons"; }; # canon
-LABEL { ADDR $9D73; NAME "finishedMove"; }; # canon
-LABEL { ADDR $9D9A; NAME "moveInProgress"; }; # canon
-LABEL { ADDR $9D9E; NAME "holdButtons"; }; # canon
-LABEL { ADDR $9DA3; NAME "startButtonPressed"; }; # canon
-LABEL { ADDR $9DB0; NAME "recording"; }; # canon
-LABEL { ADDR $9DE4; NAME "buttonsNotChanged"; }; # canon
+LABEL { ADDR $9D5B; NAME "@demoGameMode"; };
+LABEL { ADDR $9D73; NAME "@finishedMove"; }; # canon
+LABEL { ADDR $9D9A; NAME "@moveInProgress"; }; # canon
+LABEL { ADDR $9D9E; NAME "@holdButtons"; }; # canon
+LABEL { ADDR $9DA2; NAME "@ret"; };
+LABEL { ADDR $9DA3; NAME "@startButtonPressed"; }; # canon
+LABEL { ADDR $9DB0; NAME "@recording"; }; # canon
+LABEL { ADDR $9DE4; NAME "@buttonsNotChanged"; }; # canon
+LABEL { ADDR $9DE7; NAME "@ret2"; };
 LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; };
 LABEL { ADDR $9DF6; NAME "gameMode_startDemo"; };
-LABEL { ADDR $9E07; NAME "setMusicTrack"; };
+LABEL { ADDR $9E07; NAME "setMusicTrack"; COMMENT "canon is adjustMusicSpeed"; };
+LABEL { ADDR $9E15; NAME "@ret"; };
 LABEL { ADDR $9E2F; NAME "playState_unassignOrientationId"; };
 LABEL { ADDR $9E37; NAME "playState_incrementPlayState"; };
 LABEL { ADDR $9E39; NAME "playState_noop"; };
