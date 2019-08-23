@@ -15,6 +15,7 @@ SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 LABEL { ADDR $0000; NAME "tmp1"; };
 LABEL { ADDR $0001; NAME "tmp2"; };
 LABEL { ADDR $0002; NAME "tmp3"; };
+LABEL { ADDR $0014; NAME "patchToPpuAddr"; SIZE 2; };
 LABEL { ADDR $0017; NAME "rng_seed"; SIZE 2; };
 LABEL { ADDR $0019; NAME "spawnID"; }; # canon
 LABEL { ADDR $001A; NAME "spawnCount"; }; # canon
@@ -80,6 +81,7 @@ LABEL { ADDR $009A; NAME "player2_garbageHole"; };
 LABEL { ADDR $00A0; NAME "spriteXOffset"; };
 LABEL { ADDR $00A1; NAME "spriteYOffset"; };
 LABEL { ADDR $00A2; NAME "spriteIndexInOamContentLookup"; };
+LABEL { ADDR $00A3; NAME "outOfDateRenderFlags"; COMMENT "Bit 0-lines 1-level 2-score 6-stats 7-high score entry letter"; };
 LABEL { ADDR $00A4; NAME "twoPlayerPieceDelayCounter"; COMMENT "0 is not delaying"; };
 LABEL { ADDR $00A5; NAME "twoPlayerPieceDelayPlayer"; };
 LABEL { ADDR $00A6; NAME "nextPiece_2player"; COMMENT "Somehow used for two players, but seems broken"; };
@@ -92,6 +94,7 @@ LABEL { ADDR $00AC; NAME "generalCounter5"; };
 LABEL { ADDR $00AD; NAME "selectingLevelOrHeight"; COMMENT "0-level, 1-height"; };
 LABEL { ADDR $00AE; NAME "originalY"; }; # canon
 LABEL { ADDR $00AF; NAME "dropSpeed"; }; # canon
+LABEL { ADDR $00B0; NAME "tmpCurrentPiece"; COMMENT "Only used as a temporary"; };
 LABEL { ADDR $00B1; NAME "frameCounter"; SIZE 2; }; # canon
 LABEL { ADDR $00B3; NAME "oamStagingLength"; }; # canon
 LABEL { ADDR $00B5; NAME "newlyPressedButtons_mirror"; };
@@ -109,8 +112,9 @@ LABEL { ADDR $00C1; NAME "gameType"; COMMENT "A=0, B=1"; }; # canon
 LABEL { ADDR $00C2; NAME "musicType"; COMMENT "0-3; 3 is off"; };
 LABEL { ADDR $00C3; NAME "sleepCounter"; COMMENT "canon is legalScreenCounter1"; };
 LABEL { ADDR $00C4; NAME "ending"; }; # canon
-LABEL { ADDR $00C6; NAME "endingBSpriteX"; SIZE 6; };
-LABEL { ADDR $00CC; NAME "currentEndingBSprite"; };
+LABEL { ADDR $00C5; NAME "ending_customVars"; SIZE 7; COMMENT "Different usages depending on Type A and B and Type B concert"; };
+LABEL { ADDR $00CC; NAME "ending_currentSprite"; };
+LABEL { ADDR $00CD; NAME "ending_typeBCathedralFrameDelayCounter"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; }; # canon
 LABEL { ADDR $00CF; NAME "repeats"; }; # canon
 LABEL { ADDR $00D1; NAME "demoButtonsTable_index"; };
@@ -303,7 +307,10 @@ RANGE { START $A735; END $A738; TYPE BYTETABLE; }; # LOTS of tables
 RANGE { START $A739; END $A73C; TYPE BYTETABLE; NAME "domeNumberToXOffsetTable"; };
 RANGE { START $A73D; END $A740; TYPE BYTETABLE; }; # LOTS of tables
 RANGE { START $A741; END $A744; TYPE BYTETABLE; NAME "domeNumberToSpriteTable"; };
-RANGE { START $A745; END $A770; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A745; END $A748; TYPE BYTETABLE; }; # LOTS of tables
+RANGE { START $A749; END $A752; TYPE BYTETABLE; NAME "ending_typeBCathedralAnimSpeed"; COMMENT "Frames before changing to next frame's sprite"; };
+RANGE { START $A753; END $A75C; TYPE BYTETABLE; NAME "ending_typeBCathedralFrameDelayTable"; COMMENT "Number of frames to keep sprites in same position (inverse of vector table)"; };
+RANGE { START $A75D; END $A770; TYPE BYTETABLE; }; # LOTS of tables
 RANGE { START $A771; END $A77A; TYPE BYTETABLE; NAME "ending_typeBCathedralVectorTable"; };
 RANGE { START $A77B; END $A7B6; TYPE BYTETABLE; NAME "ending_typeBCathedralXTable"; };
 RANGE { START $A7B7; END $A7F2; TYPE BYTETABLE; NAME "ending_typeBCathedralYTable"; };
@@ -311,7 +318,16 @@ RANGE { START $A7F3; END $A7FC; TYPE BYTETABLE; NAME "ending_typeBCathedralSprit
 RANGE { START $A80A; END $A80D; TYPE BYTETABLE; NAME "marioFrameToYOffsetTable"; };
 RANGE { START $A80E; END $A817; TYPE BYTETABLE; NAME "luigiFrameToYOffsetTable"; };
 RANGE { START $A818; END $A821; TYPE BYTETABLE; NAME "luigiFrameToSpriteTable"; };
-RANGE { START $A822; END $A925; TYPE BYTETABLE; NAME "unreferenced_data6"; };
+RANGE { START $A822; END $A833; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeightUnused"; COMMENT "Used by patchToPpu. Address followed by bytes to write. $FE to start next address. $FD to end"; };
+RANGE { START $A834; END $A849; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeight0"; };
+RANGE { START $A84A; END $A861; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeight1"; };
+RANGE { START $A862; END $A879; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeight2"; };
+RANGE { START $A87A; END $A895; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeight3"; };
+RANGE { START $A896; END $A8A7; TYPE BYTETABLE; NAME "ending_patchToPpu_typeBConcertHeight4"; };
+RANGE { START $A8A8; END $A8B9; TYPE BYTETABLE; NAME "unreferenced_patchToPpu0"; };
+RANGE { START $A8BA; END $A8CB; TYPE BYTETABLE; NAME "unreferenced_patchToPpu1"; };
+RANGE { START $A8CC; END $A924; TYPE BYTETABLE; NAME "ending_patchToPpu_typeAOver120k"; };
+RANGE { START $A925; END $A925; TYPE BYTETABLE; NAME "unreferenced_data6"; };
 RANGE { START $A939; END $A93A; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $AA11; END $AA15; TYPE BYTETABLE; NAME "rocketToSpriteTable"; };
 RANGE { START $AA16; END $AA1F; TYPE BYTETABLE; NAME "rocketToJetSpriteTable"; };
@@ -677,8 +693,16 @@ LABEL { ADDR $9462; NAME "sprite55Penguin2"; };
 LABEL { ADDR $948B; NAME "is_position_valid"; };
 LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; };
 LABEL { ADDR $9522; NAME "@playStateNotDisplayLineClearingAnimation"; };
+LABEL { ADDR $953A; NAME "@renderPlayer2Playfield"; };
 LABEL { ADDR $9574; NAME "@player2PlayStateNotDisplayLineClearingAnimation"; };
-LABEL { ADDR $95B5; NAME "@render_play_digits"; };
+LABEL { ADDR $958C; NAME "@renderLines"; };
+LABEL { ADDR $95B5; NAME "@renderLinesTwoPlayers"; };
+LABEL { ADDR $95E3; NAME "@renderLevel"; };
+LABEL { ADDR $960E; NAME "@renderScore"; };
+LABEL { ADDR $9639; NAME "@renderStats"; };
+LABEL { ADDR $9649; NAME "@renderPieceStat"; };
+LABEL { ADDR $9673; NAME "@renderTetrisFlashAndSound"; };
+LABEL { ADDR $9698; NAME "@setPaletteColor"; };
 LABEL { ADDR $9712; NAME "twoDigsToPPU"; };
 LABEL { ADDR $9725; NAME "copyPlayfieldRowToVRAM"; }; # canon
 LABEL { ADDR $9752; NAME "@playerTwo"; };
@@ -785,9 +809,26 @@ LABEL { ADDR $A31D; NAME "@letterDoesNotOverflow"; };
 LABEL { ADDR $A322; NAME "@waitForVBlank"; };
 LABEL { ADDR $A337; NAME "@ret"; };
 LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; };
+LABEL { ADDR $A37E; NAME "@ret"; };
 LABEL { ADDR $A3F2; NAME "playState_bTypeGoalCheck"; };
+LABEL { ADDR $A44D; NAME "sleep_for_14_vblanks"; };
+LABEL { ADDR $A451; NAME "@loop"; };
 LABEL { ADDR $A459; NAME "sleep_for_a_vblanks"; };
-LABEL { ADDR $A507; NAME "ending_over_120k"; };
+LABEL { ADDR $A45B; NAME "@loop"; };
+LABEL { ADDR $A463; NAME "ending_initTypeBVars"; };
+LABEL { ADDR $A49A; NAME "@notLevel9"; };
+LABEL { ADDR $A4B1; NAME "ending_typeBConcertPatchToPpuForHeight"; };
+LABEL { ADDR $A4C4; NAME "@heightUnused"; };
+LABEL { ADDR $A4CF; NAME "@height0"; };
+LABEL { ADDR $A4DA; NAME "@height1"; };
+LABEL { ADDR $A4E5; NAME "@height2"; };
+LABEL { ADDR $A4F0; NAME "@height3"; };
+LABEL { ADDR $A4FB; NAME "@height4"; };
+LABEL { ADDR $A506; NAME "@height5"; };
+LABEL { ADDR $A507; NAME "patchToPpu"; };
+LABEL { ADDR $A509; NAME "@patchAddr"; };
+LABEL { ADDR $A515; NAME "@patchValue"; };
+LABEL { ADDR $A526; NAME "@ret"; };
 LABEL { ADDR $A527; NAME "render_ending"; };
 LABEL { ADDR $A52E; NAME "ending_typeB"; };
 LABEL { ADDR $A537; NAME "@typeBConcert"; };
@@ -802,7 +843,15 @@ LABEL { ADDR $A5D9; NAME "@samus"; };
 LABEL { ADDR $A5F1; NAME "@link"; };
 LABEL { ADDR $A609; NAME "@kidIcarus"; };
 LABEL { ADDR $A625; NAME "ending_typeBCathedral"; };
+LABEL { ADDR $A62E; NAME "@spriteLoop"; };
+LABEL { ADDR $A675; NAME "@continue"; };
+LABEL { ADDR $A682; NAME "@done"; };
+LABEL { ADDR $A68F; NAME "@ret"; };
+LABEL { ADDR $A690; NAME "ending_typeBCathedralSetSprite"; };
+LABEL { ADDR $A6A5; NAME "@skipAnimSpriteChange"; };
 LABEL { ADDR $A6AE; NAME "ending_computeTypeBCathedralYTableIndex"; COMMENT "levelNumber * 6 + currentEndingBSprite"; };
+LABEL { ADDR $A7FD; NAME "render_endingUnskippable"; };
+LABEL { ADDR $A7FF; NAME "@loopUntilEnoughFrames"; };
 LABEL { ADDR $A9A5; NAME "ending_selected"; };
 LABEL { ADDR $A9B1; NAME "ending_typeA"; };
 LABEL { ADDR $AA2F; NAME "updateAudioWaitForNmiAndResetOamStaging"; COMMENT "canon is waitForVerticalBlankingInterval"; };
