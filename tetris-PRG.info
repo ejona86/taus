@@ -15,6 +15,7 @@ SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 LABEL { ADDR $0000; NAME "tmp1"; };
 LABEL { ADDR $0001; NAME "tmp2"; };
 LABEL { ADDR $0002; NAME "tmp3"; };
+LABEL { ADDR $0005; NAME "tmpBulkCopyToPpuReturnAddr"; SIZE 2; };
 LABEL { ADDR $0014; NAME "patchToPpuAddr"; SIZE 2; };
 LABEL { ADDR $0017; NAME "rng_seed"; SIZE 2; };
 LABEL { ADDR $0019; NAME "spawnID"; }; # canon
@@ -28,7 +29,7 @@ LABEL { ADDR $0045; NAME "fallTimer"; }; # canon
 LABEL { ADDR $0046; NAME "autorepeatX"; }; # canon
 LABEL { ADDR $0047; NAME "startLevel"; };
 LABEL { ADDR $0048; NAME "playState"; }; # canon
-LABEL { ADDR $0049; NAME "vramRow"; }; # canon
+LABEL { ADDR $0049; NAME "vramRow"; COMMENT "Next playfield row to copy. Set to $20 when playfield copy is complete"; }; # canon
 LABEL { ADDR $004A; NAME "completedRow"; SIZE 4; COMMENT "Row which has been cleared. 0 if none complete"; };
 LABEL { ADDR $004E; NAME "autorepeatY"; }; # canon
 LABEL { ADDR $004F; NAME "holdDownPoints"; }; # canon
@@ -36,7 +37,7 @@ LABEL { ADDR $0050; NAME "lines"; SIZE 2; };
 LABEL { ADDR $0052; NAME "rowY"; }; # canon
 LABEL { ADDR $0053; NAME "score"; SIZE 3; }; # canon
 LABEL { ADDR $0056; NAME "completedLines"; }; # canon
-LABEL { ADDR $0057; NAME "lineIndex"; }; # canon
+LABEL { ADDR $0057; NAME "lineIndex"; COMMENT "Iteration count of playState_checkForCompletedRows"; }; # canon
 LABEL { ADDR $0058; NAME "curtainRow"; }; # canon
 LABEL { ADDR $0059; NAME "startHeight"; };
 LABEL { ADDR $005A; NAME "garbageHole"; COMMENT "Position of hole in received garbage"; };
@@ -85,7 +86,7 @@ LABEL { ADDR $00A3; NAME "outOfDateRenderFlags"; COMMENT "Bit 0-lines 1-level 2-
 LABEL { ADDR $00A4; NAME "twoPlayerPieceDelayCounter"; COMMENT "0 is not delaying"; };
 LABEL { ADDR $00A5; NAME "twoPlayerPieceDelayPlayer"; };
 LABEL { ADDR $00A6; NAME "nextPiece_2player"; COMMENT "Somehow used for two players, but seems broken"; };
-LABEL { ADDR $00A7; NAME "verticalBlankingWaitRequested_andSomethingElse"; };
+LABEL { ADDR $00A7; NAME "gameModeState"; COMMENT "For values, see playState_checkForCompletedRows"; };
 LABEL { ADDR $00A8; NAME "generalCounter"; COMMENT "canon is legalScreenCounter2"; };
 LABEL { ADDR $00A9; NAME "generalCounter2"; };
 LABEL { ADDR $00AA; NAME "generalCounter3"; };
@@ -265,9 +266,11 @@ RANGE { START $85D2; END $85D9; TYPE BYTETABLE; NAME "musicSelectionTable"; };
 RANGE { START $8603; END $8604; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $8608; END $8609; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $86B0; END $86DB; TYPE BYTETABLE; NAME "game_typeb_nametable_patch"; };
+RANGE { START $8876; END $887B; TYPE BYTETABLE; NAME "typeBBlankInitCountByHeightTable"; };
 RANGE { START $887C; END $8882; TYPE BYTETABLE; NAME "rngTable"; };
 RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; }; # canon
-RANGE { START $898E; END $89AA; TYPE BYTETABLE; NAME "framesPerDropTable"; }; # canon
+RANGE { START $898E; END $89AB; TYPE BYTETABLE; NAME "framesPerDropTable"; }; # canon
+RANGE { START $89AC; END $89AD; TYPE BYTETABLE; NAME "unreferenced_framesPerDropTable"; };
 RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; }; # canon
 RANGE { START $8BE5; END $8BF7; TYPE BYTETABLE; NAME "orientationToSpriteTable"; COMMENT "Only cares about orientations selected by spawnTable"; };
 RANGE { START $8BF8; END $8C0A; TYPE BYTETABLE; NAME "unreferenced_orientationToSpriteTable"; COMMENT "Same as orientationToSpriteTable except sprites have different offsets"; };
@@ -516,13 +519,15 @@ LABEL { ADDR $80BC; NAME "@continueWarmBootInit"; };
 LABEL { ADDR $8138; NAME "@mainLoop"; };
 LABEL { ADDR $8142; NAME "@notWaitingForVBlank"; };
 LABEL { ADDR $815A; NAME "@skipDemo"; };
-LABEL { ADDR $815D; NAME "gameMode_playAndEndingHighScore"; };
+LABEL { ADDR $815D; NAME "gameMode_playAndEndingHighScore_jmp"; };
 LABEL { ADDR $8161; NAME "branchOnGameMode"; }; # canon
+LABEL { ADDR $8174; NAME "gameModeState_updatePlayer1"; };
+LABEL { ADDR $8186; NAME "gameModeState_updatePlayer2"; };
 LABEL { ADDR $8198; NAME "@ret"; };
-LABEL { ADDR $819B; NAME "gameMode_playAndEndingHighScore2"; };
-LABEL { ADDR $81B2; NAME "branchOnPlayState"; };
+LABEL { ADDR $819B; NAME "gameMode_playAndEndingHighScore"; };
+LABEL { ADDR $81B2; NAME "branchOnPlayStatePlayer1"; };
 LABEL { ADDR $81CF; NAME "playState_playerControlsActiveTetrimino"; };
-LABEL { ADDR $81D9; NAME "branchOnPlayStateTwoPlayer"; };
+LABEL { ADDR $81D9; NAME "branchOnPlayStatePlayer2"; };
 LABEL { ADDR $81F6; NAME "playState_player2ControlsActiveTetrimino"; };
 LABEL { ADDR $8200; NAME "gameMode_legalScreen"; };
 LABEL { ADDR $823F; NAME "@waitForStartButton"; };
@@ -559,17 +564,21 @@ LABEL { ADDR $8534; NAME "@upPressedForHeightSelection"; };
 LABEL { ADDR $8540; NAME "@checkAPressed"; };
 LABEL { ADDR $8555; NAME "@showSelection"; };
 LABEL { ADDR $855F; NAME "@showSelectionLevel"; };
-LABEL { ADDR $8581; NAME "skipShowingSelectionLevel"; };
+LABEL { ADDR $857E; NAME "@stageLevelSelectCursor"; };
+LABEL { ADDR $8581; NAME "@skipShowingSelectionLevel"; };
 LABEL { ADDR $858F; NAME "@showSelectionHeight"; };
-LABEL { ADDR $85B1; NAME "gameMode_levelMenuReturn"; };
+LABEL { ADDR $85AE; NAME "@stageHeightSelectCursor"; };
+LABEL { ADDR $85B1; NAME "@ret"; };
 LABEL { ADDR $85DA; NAME "render_mode_menu_screens"; };
-LABEL { ADDR $85F0; NAME "initGameBackground"; };
+LABEL { ADDR $85F0; NAME "gameModeState_initGameBackground"; };
 LABEL { ADDR $863C; NAME "@typeB"; };
 LABEL { ADDR $865F; NAME "@nextPpuAddress"; };
 LABEL { ADDR $866D; NAME "@nextPpuData"; };
 LABEL { ADDR $867F; NAME "@endOfPpuPatching"; };
 LABEL { ADDR $8693; NAME "@finish"; };
-LABEL { ADDR $86DC; NAME "initGameState"; };
+LABEL { ADDR $86DC; NAME "gameModeState_initGameState"; };
+LABEL { ADDR $86E9; NAME "@initStatsByType"; COMMENT "statsByType"; };
+LABEL { ADDR $8761; NAME "@skipTypeBInit"; };
 LABEL { ADDR $8776; NAME "makePlayer1Active"; COMMENT "Copies $60 to $40"; };
 LABEL { ADDR $8788; NAME "@copyByteFromMirror"; };
 LABEL { ADDR $8792; NAME "makePlayer2Active"; COMMENT "Copies $80 to $40"; };
@@ -581,6 +590,9 @@ LABEL { ADDR $87C8; NAME "savePlayer2State"; COMMENT "Copies $40 to $80"; };
 LABEL { ADDR $87CA; NAME "@whileXNotNeg1"; };
 LABEL { ADDR $87DC; NAME "initPlayfieldIfTypeB"; };
 LABEL { ADDR $87E3; NAME "initPlayfieldForTypeB"; };
+LABEL { ADDR $8884; NAME "gameModeState_updateCountersAndNonPlayerState"; };
+LABEL { ADDR $889C; NAME "@checkSelectButtonPressed"; };
+LABEL { ADDR $88A8; NAME "@ret"; };
 LABEL { ADDR $88AB; NAME "rotate_tetrimino"; };
 LABEL { ADDR $88CF; NAME "@aNotPressed"; }; # canon
 LABEL { ADDR $88E9; NAME "@restoreOrientationID"; }; # canon
@@ -690,7 +702,9 @@ LABEL { ADDR $9427; NAME "sprite52CathedralDomeRocketJet2"; };
 LABEL { ADDR $9430; NAME "sprite53MusicTypeCursor"; };
 LABEL { ADDR $9439; NAME "sprite54Penguin1"; };
 LABEL { ADDR $9462; NAME "sprite55Penguin2"; };
-LABEL { ADDR $948B; NAME "is_position_valid"; };
+LABEL { ADDR $948B; NAME "isPositionValid"; };
+LABEL { ADDR $94AA; NAME "@checkSquare"; COMMENT "Checks one square within the tetrimino"; };
+LABEL { ADDR $94E9; NAME "@invalid"; };
 LABEL { ADDR $94EE; NAME "render_mode_play_and_demo"; };
 LABEL { ADDR $9522; NAME "@playStateNotDisplayLineClearingAnimation"; };
 LABEL { ADDR $953A; NAME "@renderPlayer2Playfield"; };
@@ -718,6 +732,9 @@ LABEL { ADDR $97BD; NAME "@updateVRAM"; }; # canon
 LABEL { ADDR $97EB; NAME "@nextRow"; };
 LABEL { ADDR $97FD; NAME "@ret"; };
 LABEL { ADDR $9808; NAME "updatePaletteForLevel"; COMMENT "Set Background palette 2 and Sprite palette 2"; };
+LABEL { ADDR $9874; NAME "noop_disabledVramRowIncr"; COMMENT "This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here"; };
+LABEL { ADDR $9881; NAME "@player2"; };
+LABEL { ADDR $988D; NAME "@ret"; };
 LABEL { ADDR $988E; NAME "playState_spawnNextTetrimino"; };
 LABEL { ADDR $98AE; NAME "@twoPlayerPieceDelay"; };
 LABEL { ADDR $98BA; NAME "@notDelaying"; };
@@ -730,8 +747,10 @@ LABEL { ADDR $9907; NAME "@realStart"; };
 LABEL { ADDR $991C; NAME "@invalidIndex"; }; # canon
 LABEL { ADDR $9938; NAME "useNewSpawnID"; }; # canon
 LABEL { ADDR $9969; NAME "incrementPieceStat"; };
-LABEL { ADDR $99A2; NAME "playState_triggerGameOverIfInvalid"; };
-LABEL { ADDR $99B8; NAME "updatePlayfield_jmp"; };
+LABEL { ADDR $99A2; NAME "playState_lockTetrimino"; };
+LABEL { ADDR $99B8; NAME "@notGameOver"; }; # canon is updatePlayfield
+LABEL { ADDR $99DD; NAME "@lockSquare"; COMMENT "Copies a single square of the tetrimino to the playfield"; };
+LABEL { ADDR $9A10; NAME "@ret"; };
 LABEL { ADDR $9A11; NAME "playState_updateGameOverCurtain"; };
 LABEL { ADDR $9A2D; NAME "@drawCurtainRow"; }; # canon
 LABEL { ADDR $9A3E; NAME "@incrementCurtainRow"; }; # canon
@@ -741,8 +760,15 @@ LABEL { ADDR $9A5E; NAME "@checkForStartButton"; };
 LABEL { ADDR $9A64; NAME "@exitGame"; };
 LABEL { ADDR $9A6A; NAME "@ret2"; };
 LABEL { ADDR $9A6B; NAME "playState_checkForCompletedRows"; };
-LABEL { ADDR $9ACC; NAME "rowNotComplete"; }; # canon
-LABEL { ADDR $9AD2; NAME "incrementLineIndex"; }; # canon
+LABEL { ADDR $9A74; NAME "@updatePlayfieldComplete"; };
+LABEL { ADDR $9A7D; NAME "@yInRange"; };
+LABEL { ADDR $9A8F; NAME "@checkIfRowComplete"; };
+LABEL { ADDR $9AA9; NAME "@movePlayfieldDownOneRow"; };
+LABEL { ADDR $9ABE; NAME "@clearRowTopRow"; };
+LABEL { ADDR $9ACC; NAME "@rowNotComplete"; }; # canon
+LABEL { ADDR $9AD2; NAME "@incrementLineIndex"; }; # canon
+LABEL { ADDR $9AF5; NAME "@skipTetrisSoundEffect"; };
+LABEL { ADDR $9B02; NAME "@ret"; };
 LABEL { ADDR $9B03; NAME "playState_execute2PlayerModeLogic"; COMMENT "unused; unfinished"; };
 LABEL { ADDR $9B3A; NAME "@garbageEmptySpace"; };
 LABEL { ADDR $9B3C; NAME "@placeGarbage"; };
@@ -755,7 +781,13 @@ LABEL { ADDR $9BA8; NAME "incrementLines"; };
 LABEL { ADDR $9BFE; NAME "addHoldDownPoints"; };
 LABEL { ADDR $9C2D; NAME "addLineClearPoints"; };
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; }; # canon
+LABEL { ADDR $9CB8; NAME "@rowInRange"; };
 LABEL { ADDR $9CBE; NAME "@ret"; };
+LABEL { ADDR $9CBF; NAME "gameModeState_handleGameOver"; };
+LABEL { ADDR $9CD9; NAME "@gameOver"; };
+LABEL { ADDR $9CE4; NAME "@onePlayerGameOver"; };
+LABEL { ADDR $9CF1; NAME "@resetGameState"; };
+LABEL { ADDR $9D14; NAME "@ret"; };
 LABEL { ADDR $9D17; NAME "updateMusicSpeed"; };
 LABEL { ADDR $9D1F; NAME "@checkForBlockInRow"; };
 LABEL { ADDR $9D3C; NAME "@foundBlockInRow"; }; # canon
@@ -774,6 +806,9 @@ LABEL { ADDR $9DE8; NAME "demoButtonsTable_indexIncr"; };
 LABEL { ADDR $9DF6; NAME "gameMode_startDemo"; };
 LABEL { ADDR $9E07; NAME "setMusicTrack"; COMMENT "canon is adjustMusicSpeed"; };
 LABEL { ADDR $9E15; NAME "@ret"; };
+LABEL { ADDR $9E16; NAME "gameModeState_checkForResetKeyCombo"; COMMENT "A+B+Select+Start"; };
+LABEL { ADDR $9E1F; NAME "@reset"; };
+LABEL { ADDR $9E27; NAME "gameModeState_vblankThenRunState2"; COMMENT "It looks like the jsr _must_ do nothing, otherwise reg a != gameModeState in mainLoop and there would not be any waiting on vsync"; };
 LABEL { ADDR $9E2F; NAME "playState_unassignOrientationId"; };
 LABEL { ADDR $9E37; NAME "playState_incrementPlayState"; };
 LABEL { ADDR $9E39; NAME "playState_noop"; };
@@ -810,6 +845,13 @@ LABEL { ADDR $A322; NAME "@waitForVBlank"; };
 LABEL { ADDR $A337; NAME "@ret"; };
 LABEL { ADDR $A344; NAME "render_mode_congratulations_screen"; };
 LABEL { ADDR $A37E; NAME "@ret"; };
+LABEL { ADDR $A37F; NAME "gameModeState_startButtonHandling"; COMMENT "Handles pausing and exiting demo"; };
+LABEL { ADDR $A392; NAME "@checkIfInGame"; };
+LABEL { ADDR $A3A1; NAME "@startPressed"; COMMENT "Do nothing if curtain is being lowered"; };
+LABEL { ADDR $A3AA; NAME "@pause"; };
+LABEL { ADDR $A3C4; NAME "@pauseLoop"; };
+LABEL { ADDR $A3DF; NAME "@resume"; };
+LABEL { ADDR $A3EF; NAME "@ret"; };
 LABEL { ADDR $A3F2; NAME "playState_bTypeGoalCheck"; };
 LABEL { ADDR $A44D; NAME "sleep_for_14_vblanks"; };
 LABEL { ADDR $A451; NAME "@loop"; };
