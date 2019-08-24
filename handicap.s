@@ -3,7 +3,7 @@
 ; handicapping Game Genie code that limits the playfield size.
 ;
 ; Use a tool like http://games.technoplaza.net/ggencoder/js/ to generate a Game
-; Genie code to change address 14B3. For example AOLPLG will reduce the
+; Genie code to change address 94B3. For example AOLPLG will reduce the
 ; playfield size by 6.
 ;
 
@@ -18,6 +18,7 @@
 playfieldSize := $94B3
 
 initGameState_mod:
+        jsr     memset_page
         lda     playfieldSize
         sec
         sbc     #$02
