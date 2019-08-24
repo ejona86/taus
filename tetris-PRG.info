@@ -118,8 +118,7 @@ LABEL { ADDR $00CC; NAME "ending_currentSprite"; };
 LABEL { ADDR $00CD; NAME "ending_typeBCathedralFrameDelayCounter"; };
 LABEL { ADDR $00CE; NAME "heldButtons"; }; # canon
 LABEL { ADDR $00CF; NAME "repeats"; }; # canon
-LABEL { ADDR $00D1; NAME "demoButtonsTable_index"; };
-LABEL { ADDR $00D2; NAME "demoButtonsTable_indexOverflowed"; };
+LABEL { ADDR $00D1; NAME "demoButtonsAddr"; SIZE 2; COMMENT "Current address within demoButtonsTable"; };
 LABEL { ADDR $00D3; NAME "demoIndex"; }; # canon
 LABEL { ADDR $00D4; NAME "highScoreEntryNameOffsetForLetter"; COMMENT "Relative to current row"; };
 LABEL { ADDR $00D5; NAME "highScoreEntryRawPos"; COMMENT "High score position 0=1st type A, 1=2nd... 4=1st type B... 7=4th/extra type B"; };
@@ -354,7 +353,8 @@ RANGE { START $C95D; END $C9A5; TYPE BYTETABLE; NAME "height_menu_nametablepalet
 RANGE { START $C9A6; END $CE06; TYPE BYTETABLE; NAME "type_b_lvl9_ending_nametable"; };
 RANGE { START $CE07; END $D267; TYPE BYTETABLE; NAME "type_b_ending_nametable"; };
 RANGE { START $D268; END $D6C8; TYPE BYTETABLE; NAME "type_a_ending_nametable"; };
-RANGE { START $D6C9; END $DEFF; TYPE BYTETABLE; NAME "unreferenced_data1"; };
+RANGE { START $D6C9; END $DCFF; TYPE BYTETABLE; NAME "unreferenced_data1"; };
+RANGE { START $DD00; END $DEFF; TYPE BYTETABLE; NAME "demoButtonsTable"; }; # canon
 RANGE { START $DF00; END $DFFF; TYPE BYTETABLE; NAME "demoTetriminoTypeTable"; COMMENT "unknown size"; }; # canon
 RANGE { START $E009; END $E00E; TYPE ADDRTABLE; NAME "soundEffectSlot0Init_table"; COMMENT "Referenced via updateSoundEffectSlotShared"; };
 RANGE { START $E00F; END $E014; TYPE ADDRTABLE; NAME "soundEffectSlot0Playing_table"; };
@@ -517,8 +517,8 @@ LABEL { ADDR $8095; NAME "@initHighScoreTable"; COMMENT "Only run on cold boot";
 LABEL { ADDR $80A3; NAME "@continueColdBootInit"; };
 LABEL { ADDR $80BC; NAME "@continueWarmBootInit"; };
 LABEL { ADDR $8138; NAME "@mainLoop"; };
-LABEL { ADDR $8142; NAME "@notWaitingForVBlank"; };
-LABEL { ADDR $815A; NAME "@skipDemo"; };
+LABEL { ADDR $8142; NAME "@checkForDemoDataExhaustion"; };
+LABEL { ADDR $815A; NAME "@continue"; };
 LABEL { ADDR $815D; NAME "gameMode_playAndEndingHighScore_jmp"; };
 LABEL { ADDR $8161; NAME "branchOnGameMode"; }; # canon
 LABEL { ADDR $8174; NAME "gameModeState_updatePlayer1"; };
@@ -1098,4 +1098,6 @@ LABEL { ADDR $EA21; NAME "@loadIntoDmc"; COMMENT "Note that bit 4 in SND_CHN is 
 LABEL { ADDR $EA40; NAME "@ret"; };
 LABEL { ADDR $EA41; NAME "musicGetNextInstructionByte"; COMMENT "input x: music channel. output a: next value"; };
 LABEL { ADDR $FF00; NAME "reset"; COMMENT "incremented to reset MMC1 reg"; };
+LABEL { ADDR $FF0A; NAME "@vsyncWait1"; };
+LABEL { ADDR $FF0F; NAME "@vsyncWait2"; };
 LABEL { ADDR $FFF0; NAME "MMC1_PRG"; };
