@@ -22,27 +22,32 @@ initGameState_mod:
         lda     playfieldSize
         sec
         sbc     #$02
+        ; 20 is too large for multBy10Table
         cmp     #20
-        beq     @ret
-        tax
-        ldy     multBy10Table,x
+        bpl     @ret
+        tay
+        ldx     multBy10Table,y
         lda     #$4F
-        ldx     #9
-@initialRow:
-        sta     playfield,y
-        iny
-        dex
-        bne     @initialRow
-        iny
-
-@laterRows:
-        cpy     #20*10
-        beq     @ret
-        sta     playfield,y
-        iny
-        bne     @laterRows
+@setRows:
+        sta     playfield,x
+        inx
+        cpx     #200
+        bne     @setRows
 @ret:
         rts
+
+checkForCompletedRows_mod:
+        lda     tetriminoY
+        clc
+        adc     lineIndex
+        cmp     playfieldSize
+        bpl     @skip
+        ; run replaced code
+        lda     tetriminoY
+        sec
+        jmp     afterCheckForCompletedRowsMod
+@skip:
+        jmp     $9ACC   ; @rowNotComplete
 
 .segment "JMP_INIT_GAME_STATEHDR"
         ips_hunkhdr     "JMP_INIT_GAME_STATE"
@@ -50,6 +55,13 @@ initGameState_mod:
 .segment "JMP_INIT_GAME_STATE"
 
 ; at beginning of initGameState, replaces "jsr memset_page"
-        jsr initGameState_mod
+        jsr     initGameState_mod
 
+.segment "JMP_CHECK_FOR_COMPLETED_ROWSHDR"
+        ips_hunkhdr     "JMP_CHECK_FOR_COMPLETED_ROWS"
 
+.segment "JMP_CHECK_FOR_COMPLETED_ROWS"
+
+; at @updatePlayfieldComplete in playState_checkForCompletedRows, replaces "lda tetriminoY; sec"
+        jmp     checkForCompletedRows_mod
+afterCheckForCompletedRowsMod:
