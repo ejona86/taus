@@ -27,6 +27,10 @@ function test_demo ()
 	memory.writebyte(labels.frameCounter+1, 5) -- force title screen timeout
 
 	asm.waitexecute(0x8158) -- wait for demo to end
+	-- Minus 255 because of fastlegal
+	if emu.framecount() ~= 5033-255 then
+		error("frame count changed: " .. emu.framecount())
+	end
 	assertbyteoff("score", 0, 0x90)
 	assertbyteoff("score", 1, 0x42)
 	assertbyteoff("score", 2, 0x00)
