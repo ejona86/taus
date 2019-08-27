@@ -1,10 +1,5 @@
 ;
-; Mod that draws into the blank area below the playfield when using a
-; handicapping Game Genie code that limits the playfield size.
-;
-; Use a tool like http://games.technoplaza.net/ggencoder/js/ to generate a Game
-; Genie code to change address 94B3. For example AOLPLG will reduce the
-; playfield size by 6.
+; Mod that draws into the blank area below the playfield when selecting a height; in Type A.
 ;
 
 .include "build/tetris.inc"
@@ -15,26 +10,31 @@
 
 .segment "CODE"
 
-playfieldSize := $94B3
+playfieldSize := $0003
 
 initGameState_mod:
         jsr     memset_page
-        lda     playfieldSize
-        sec
-        sbc     #$02
-        ; 20 is too large for multBy10Table
-        cmp     #20
-        bpl     @ret
-        tay
-        ldx     multBy10Table,y
+        lda     gameType
+        bne     @typeB
+        ldy     startHeight
+        lda     heightToSizeTable,y
+        sta     playfieldSize
+        ldx     typeBBlankInitCountByHeightTable,y
         lda     #$4F
 @setRows:
+        cpx     #200
+        beq     @ret
         sta     playfield,x
         inx
-        cpx     #200
         bne     @setRows
+@typeB:
+        lda     #$16
+        sta     playfieldSize
 @ret:
         rts
+
+heightToSizeTable:
+        .byte   20+2, 17+2, 15+2, 12+2, 10+2, 8+2
 
 checkForCompletedRows_mod:
         lda     tetriminoY
@@ -48,6 +48,16 @@ checkForCompletedRows_mod:
         jmp     afterCheckForCompletedRowsMod
 @skip:
         jmp     $9ACC   ; @rowNotComplete
+
+.segment "TYPE_A_MENU_PATCHHDR"
+        ips_hunkhdr     "TYPE_A_MENU_PATCH"
+
+.segment "TYPE_A_MENU_PATCH"
+
+; height_menu_nametablepalette_patch:
+        .byte   $3F,$0A,$01,$16
+        .byte   $20,$6D,$01,$0A
+        .byte   $FF
 
 .segment "JMP_INIT_GAME_STATEHDR"
         ips_hunkhdr     "JMP_INIT_GAME_STATE"
@@ -65,3 +75,27 @@ checkForCompletedRows_mod:
 ; at @updatePlayfieldComplete in playState_checkForCompletedRows, replaces "lda tetriminoY; sec"
         jmp     checkForCompletedRows_mod
 afterCheckForCompletedRowsMod:
+
+.segment "ENABLE_HEIGHT_IN_TYPE_AHDR"
+        ips_hunkhdr     "ENABLE_HEIGHT_IN_TYPE_A"
+
+.segment "ENABLE_HEIGHT_IN_TYPE_A"
+
+; at @checkAPressed in gameMode_levelMenu, replaces "lda gameType"
+        lda     #$01
+
+.segment "ENABLE_HEIGHT_IN_TYPE_A2HDR"
+        ips_hunkhdr     "ENABLE_HEIGHT_IN_TYPE_A2"
+
+.segment "ENABLE_HEIGHT_IN_TYPE_A2"
+
+; at @skipShowingSelectionLevel in gameMode_levelMenu, replaces "lda gameType"
+        lda     #$01
+
+.segment "IS_POSITION_VALID_MODHDR"
+        ips_hunkhdr     "IS_POSITION_VALID_MOD"
+
+.segment "IS_POSITION_VALID_MOD"
+
+; at @checkSquare in isPositionValid, replaces "cmp #$16"
+        cmp     playfieldSize
