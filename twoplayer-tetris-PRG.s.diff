@@ -1,0 +1,44 @@
+--- orig
++++ mod
+@@ -1550,13 +1550,13 @@
+         beq     L8A2C
+         lda     generalCounter3
+         sec
+-        sbc     #$40
++        sbc     #$50
+         sta     generalCounter3
+         lda     activePlayer
+         cmp     #$01
+         beq     L8A2C
+         lda     generalCounter3
+-        adc     #$6F
++        adc     #$8F
+         sta     generalCounter3
+ L8A2C:  clc
+         lda     tetriminoY
+@@ -2590,14 +2590,14 @@
+         beq     @playerTwo
+         lda     vramPlayfieldRows,x
+         sec
+-        sbc     #$02
++        sbc     #$04
+         sta     PPUADDR
+         jmp     @copyRow
+ 
+ @playerTwo:
+         lda     vramPlayfieldRows,x
+         clc
+-        adc     #$0C
++        adc     #$0E
+         sta     PPUADDR
+         jmp     @copyRow
+ 
+@@ -3820,7 +3820,7 @@
+         rts
+ 
+ showHighScores:
+-        lda     numberOfPlayers
++        lda     #$01
+         cmp     #$01
+         beq     L9FFB
+         jmp     LA085

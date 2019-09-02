@@ -1,4 +1,4 @@
-all: tetris taus screens custom handicap
+all: tetris taus screens custom handicap twoplayer
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
@@ -6,12 +6,14 @@ build/taus.o: build/tetris.inc build/taus.chrs/fake
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
+build/twoplayer.o: build/tetris.inc
 # List linker dependencies
 build/tetris.nes: build/tetris.o build/tetris-PRG.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
+build/twoplayer.ips: build/twoplayer.o build/ips.o build/fastlegal.o
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips
 
@@ -80,9 +82,10 @@ taus: build/taus.nes
 screens: build/screens.nes
 custom: build/custom.nes
 handicap: build/handicap.nes
+twoplayer: build/twoplayer.nes
 
 # These are simply aliases
-.PHONY: all dis tetris taus screens custom handicap
+.PHONY: all dis tetris taus screens custom handicap twoplayer
 # These are "true" phonies, and always execute something
 .PHONY: test clean
 
