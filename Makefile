@@ -1,19 +1,30 @@
-all: tetris taus screens custom handicap twoplayer
+all: tetris taus screens custom handicap twoplayer build/game_palette.pal build/game_nametable.nam
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
 build/taus.o: build/tetris.inc build/taus.chrs/fake
+build/playerid.o: build/tetris.inc
+build/handicap.o: build/tetris.inc
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
 build/twoplayer.o: build/tetris.inc
-# List linker dependencies
-build/tetris.nes: build/tetris.o build/tetris-PRG.o
+# .diff base files. There should be a .diff for each target
+build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
+# List linker dependencies. There should be a .cfg for each target
+build/tetris.nes: build/tetris.o build/tetris-PRG.o build/tetris-ram.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
+build/twoplayer.diff.nes: build/tetris.o build/twoplayer-tetris-PRG.o
 build/twoplayer.ips: build/twoplayer.o build/ips.o build/fastlegal.o
+# IPS base dependencies. There should be a .ips for each target
+build/taus.nes: build/tetris.nes
+build/screens.nes: build/tetris.nes
+build/highscores.nes: build/tetris.nes
+build/handicap.nes: build/tetris.nes
+build/twoplayer.nes: build/twoplayer.diff.nes
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips
 
@@ -28,14 +39,13 @@ build/%.o: %.s Makefile | build
 	ca65 $(CAFLAGS) --create-dep $@.d $< -o $@
 
 build/%: %.cfg
-	ld65 $(LDFLAGS) -Ln $@.lbl --dbgfile $@.dbg -o $@ -C $< $(filter %.o,$^)
+	ld65 $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(filter %.o,$^)
 
-build/%.nes: build/%.ips build/tetris.nes
-	cp $<.lbl build/$*.lbl
-	cp $<.dbg build/$*.dbg
+build/%.nes: build/%.ips
+	# Second prerequisite is assumed to be a .nes source
 	# If the first time fails, run it a second time to display output
-	flips --apply $< build/tetris.nes $@ > /dev/null || flips --apply $< build/tetris.nes $@
-	flips --create build/tetris.nes $@ build/$*.dist.ips > /dev/null
+	flips --apply $< $(word 2,$^) $@ > /dev/null || flips --apply $< $(word 2,$^) $@
+	flips --create $(word 2,$^) $@ build/$*.dist.ips > /dev/null
 
 build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
@@ -52,11 +62,20 @@ build/tetris-CHR-00.chr: tetris.nes | build
 build/tetris-CHR-01.chr: tetris.nes | build
 	tail -c +40977 $< | head -c 8192 > $@
 
-build/tetris-PRG.s: tetris-PRG.info build/tetris-PRG.bin Makefile | build
-	da65 -i tetris-PRG.info -o $@ build/tetris-PRG.bin
+build/game_palette.pal: build/tetris-PRG.bin
+	# +3 for buildCopyToPpu header
+	tail -c +$$((16#ACF3 - 16#8000 + 3 + 1)) $< | head -c 16 > $@
+build/game_nametable.nam: build/tetris-PRG.bin
+	tail -c +$$((16#BF3C - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
+
+build/%.s: %.bin %.info Makefile | build
+	da65 -i $(word 2,$^) -o $@ $<
 
 build/tetris.inc: build/tetris.nes
-	sort build/tetris.nes.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' > build/tetris.inc
+	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
+
+build/tetris-ram.s: tetris-PRG.info tetris-ram.awk | build
+	awk -f tetris-ram.awk $< > $@
 
 build/custom.nes: build/tetris.nes
 	cp $< $@.tmp
@@ -96,3 +115,22 @@ ifneq "$(V)" "1"
 endif
 
 include $(wildcard build/*.d)
+
+.SECONDEXPANSION:
+build/%: %.diff $$(wildcard build/diffhead-$$*)
+	# Last prerequisite is assumed to be basefile
+	###
+	# Sync diffhead and diff for manual edits
+	if [ build/diffhead-$* -nt $@ ]; then \
+		diff -u --label orig --label mod -U 5 -F : build/diffbase-$* build/diffhead-$* > $@.tmp \
+			|| [ $$? -eq 1 ] && mv $@.tmp $<; \
+	elif [ $< -nt $@ -a -e build/diffbase-$* ]; then \
+		cp build/diffbase-$* $@.tmp && patch -s $@.tmp $< && mv $@.tmp build/diffhead-$*; \
+	fi
+	# Now do build-triggered updates
+	if [ ! -e build/diffbase-$* -o $(word $(words $^),$^) -nt build/diffbase-$* ]; then \
+		cp $(word $(words $^),$^) $@.tmpbase && \
+		cp $(word $(words $^),$^) $@.tmphead && patch -s $@.tmphead $< && \
+		mv $@.tmpbase build/diffbase-$* && mv $@.tmphead build/diffhead-$*; \
+	fi
+	echo "; DO NOT MODIFY. Modify diffhead-$* instead" | cat - build/diffhead-$* > $@

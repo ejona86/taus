@@ -1,6 +1,8 @@
 --- orig
 +++ mod
-@@ -1550,13 +1550,13 @@
+@@ -1548,17 +1548,17 @@ stageSpriteForCurrentPiece:
+         lda     numberOfPlayers
+         cmp     #$01
          beq     L8A2C
          lda     generalCounter3
          sec
@@ -16,7 +18,37 @@
          sta     generalCounter3
  L8A2C:  clc
          lda     tetriminoY
-@@ -2590,14 +2590,14 @@
+         rol     a
+         rol     a
+@@ -2420,21 +2420,21 @@ @renderLines:
+         and     #$FE
+         sta     outOfDateRenderFlags
+         jmp     @renderLevel
+ 
+ @renderLinesTwoPlayers:
+-        lda     #$20
++        lda     #$21
+         sta     PPUADDR
+-        lda     #$68
++        lda     #$CF
+         sta     PPUADDR
+         lda     player1_lines+1
+         sta     PPUDATA
+         lda     player1_lines
+         jsr     twoDigsToPPU
+-        lda     #$20
++        lda     #$23
+         sta     PPUADDR
+-        lda     #$7A
++        lda     #$30
+         sta     PPUADDR
+         lda     player2_lines+1
+         sta     PPUDATA
+         lda     player2_lines
+         jsr     twoDigsToPPU
+@@ -2588,18 +2588,18 @@ copyPlayfieldRowToVRAM:
+         lda     playfieldAddr+1
+         cmp     #$05
          beq     @playerTwo
          lda     vramPlayfieldRows,x
          sec
@@ -33,7 +65,32 @@
          sta     PPUADDR
          jmp     @copyRow
  
-@@ -3820,7 +3820,7 @@
+ @onePlayer:
+         lda     vramPlayfieldRows,x
+@@ -2649,18 +2649,18 @@ @twoPlayers:
+         lda     playfieldAddr+1
+         cmp     #$04
+         bne     @player2
+         lda     generalCounter
+         sec
+-        sbc     #$02
++        sbc     #$04
+         sta     generalCounter
+         jmp     @updateVRAM
+ 
+ @player2:
+         lda     generalCounter
+         clc
+-        adc     #$0C
++        adc     #$0E
+         sta     generalCounter
+ @updateVRAM:
+         iny
+         lda     vramPlayfieldRows,y
+         sta     generalCounter2
+@@ -3818,11 +3818,11 @@ L9FE9:  ldy     #$00
+         sty     PPUSCROLL
+         sty     PPUSCROLL
          rts
  
  showHighScores:
@@ -42,3 +99,5 @@
          cmp     #$01
          beq     L9FFB
          jmp     LA085
+ 
+ L9FFB:  jsr     bulkCopyToPpu

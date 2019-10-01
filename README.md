@@ -122,3 +122,11 @@ want to include within your IPS/NES file. These will be in the form
 build/ORIGNAME.o corresponding to each ORIGINAL.s file. If your .cfg file was
 named `myfile.ext.cfg`, then run `$ make build/myfile.ext` to build the output.
 The extension used does not matter to the Makefile nor linker.
+
+For any modifications to the original ROM, creating the IPS hunks directly
+works well for 1) mods with few changes and 2) injecting a jsr to a custom
+function. If you need to make changes that don't reference any new labels, then
+you can manage a .diff file. The .diff is intended to be checked in and is
+applied to build/diffhead-YOURFILENAME. You can change the diffhead and `make`
+will re-generate the .diff. Similarly, changing the .diff will re-generate the
+diffhead.

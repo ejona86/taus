@@ -2,7 +2,11 @@ GLOBAL {
   STARTADDR $8000;
 };
 
-SEGMENT { START $8000; END $FFF9; NAME "PRG"; };
+SEGMENT { START $8000; END $D6C8; NAME "PRG_chunk1"; };
+SEGMENT { START $D6C9; END $DCFF; NAME "unreferenced_data1"; };
+SEGMENT { START $DD00; END $F9EA; NAME "PRG_chunk2"; };
+SEGMENT { START $F9EB; END $FEFF; NAME "unreferenced_data4"; };
+SEGMENT { START $FF00; END $FFF9; NAME "PRG_chunk3"; };
 SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 
 # "canon" names match those in https://meatfighter.com/nintendotetrisai/
@@ -143,7 +147,7 @@ LABEL { ADDR $00FC; NAME "ppuScrollY"; COMMENT "Set to 0 many places, but not re
 LABEL { ADDR $00FD; NAME "ppuScrollX"; COMMENT "Set to 0 many places, but not read"; };
 LABEL { ADDR $00FE; NAME "currentPpuMask"; };
 LABEL { ADDR $00FF; NAME "currentPpuCtrl"; };
-LABEL { ADDR $0100; NAME "stack"; SIZE $FF; };
+LABEL { ADDR $0100; NAME "stack"; SIZE $100; };
 LABEL { ADDR $0200; NAME "oamStaging"; SIZE $100; COMMENT "format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM"; };
 LABEL { ADDR $03F0; NAME "statsByType"; SIZE $0E; };
 LABEL { ADDR $0400; NAME "playfield"; SIZE $C8; }; # canon
@@ -194,12 +198,12 @@ LABEL { ADDR $06F1; NAME "soundEffectSlot1Init"; COMMENT "SQ1 sound effect. Menu
 LABEL { ADDR $06F2; NAME "soundEffectSlot2Init"; COMMENT "SQ2 sound effect. For mapping, see soundEffectSlot2Init_table"; };
 LABEL { ADDR $06F3; NAME "soundEffectSlot3Init"; COMMENT "TRI sound effect. For mapping, see soundEffectSlot3Init_table"; };
 LABEL { ADDR $06F4; NAME "soundEffectSlot4Init"; COMMENT "Unused. Assume meant for DMC sound effect. Uses some data from slot 2"; };
+LABEL { ADDR $06F5; NAME "musicTrack"; COMMENT "$FF turns off music. $00 continues selection. $01-$0A for new selection"; }; # canon says $0B is valid, but it is never used and makes musicDataTableIndex look wrong
 LABEL { ADDR $06F8; NAME "soundEffectSlot0Playing"; COMMENT "Used if init is zero"; };
 LABEL { ADDR $06F9; NAME "soundEffectSlot1Playing"; };
 LABEL { ADDR $06FA; NAME "soundEffectSlot2Playing"; };
 LABEL { ADDR $06FB; NAME "soundEffectSlot3Playing"; };
 LABEL { ADDR $06FC; NAME "soundEffectSlot4Playing"; };
-LABEL { ADDR $06F5; NAME "musicTrack"; COMMENT "$FF turns off music. $00 continues selection. $01-$0A for new selection"; }; # canon says $0B is valid, but it is never used and makes musicDataTableIndex look wrong
 LABEL { ADDR $06FD; NAME "currentlyPlayingMusicTrack"; COMMENT "Copied from musicTrack"; };
 LABEL { ADDR $0700; NAME "highScoreNames"; SIZE $30; };
 LABEL { ADDR $0730; NAME "highScoreScoresA"; SIZE $C; };

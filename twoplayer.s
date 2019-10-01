@@ -5,8 +5,9 @@
 
 ; TODO:
 ; Enable two players by second player pressing start on level-select screen. Start or (b) may turn it back to 1 player.
-; Fix on-screen display: score, level, next piece, lines
+; Fix on-screen display: score, level, next piece
 ; Fix palette. Palette is broken for both players now. Will need to use a separate palette for second player.
+; Disable/toggle garbage
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Separate RNG for both players. Keep current RNG updating, but don't draw pieces from it. Save another RNG to let the behind player catch up.
 ; Fix nextPiece usage for 2nd player. nextPiece_2player
@@ -54,6 +55,59 @@ initGameBackground_mod:
 @twoPlayers:
         jsr     copyNametableToPpu
         .addr   twoplayer_game_nametable
+        rts
+
+renderPlay_mod:
+        lda     numberOfPlayers
+        cmp     #$02
+        beq     @twoPlayers
+        rts
+
+@twoPlayers:
+        lda     outOfDateRenderFlags
+        and     #$02
+        beq     @renderScore
+;        lda     #$20
+;        sta     PPUADDR
+;        lda     #$EF
+;        sta     PPUADDR
+;        ldx     player1_levelNumber
+;        lda     levelDisplayTable,x
+;        jsr     twoDigsToPPU
+;        ;jsr     updatePaletteForLevel
+;        lda     #$22
+;        sta     PPUADDR
+;        lda     #$50
+;        sta     PPUADDR
+;        ldx     player2_levelNumber
+;        ldx     #$02
+;        lda     levelDisplayTable,x
+;        jsr     twoDigsToPPU
+;        ;jsr     updatePaletteForLevel
+        lda     outOfDateRenderFlags
+        and     #$FD
+        sta     outOfDateRenderFlags
+
+@renderScore:
+        lda     outOfDateRenderFlags
+        and     #$04
+        beq     @ret
+;        lda     #$20
+;        sta     PPUADDR
+;        lda     #$66
+;        sta     PPUADDR
+;        lda     player1_score+2
+;        jsr     twoDigsToPPU
+;        lda     player1_score+1
+;        jsr     twoDigsToPPU
+;        lda     player1_score
+;        jsr     twoDigsToPPU
+        lda     outOfDateRenderFlags
+        and     #$FB
+        sta     outOfDateRenderFlags
+
+@ret:
+        lda     #$00
         rts
 
 copyNametableToPpu:
@@ -110,14 +164,15 @@ twoplayer_game_nametable:
         nop
         nop
 
+.segment "JMP_RENDER_PLAYHDR"
+        ips_hunkhdr     "JMP_RENDER_PLAY"
 
-; TODO: in copyPlayfieldRowToVRAM
-; before @playerTwo, set sbc to #$04
-; at @playerTwo. Set adc to #$0E
+.segment "JMP_RENDER_PLAY"
+
+; in render_mode_play_and_demo after @renderScore, replaces "lda numberOfPlayers; cmp #$02"
+        jsr     renderPlay_mod
+        nop
+
+
+; TODO:
 ; unreferenced_orientationToSpriteTable is probably the player2 table
-
-; in stageSpriteForCurrentPiece
-; change #$40 to #$50
-; chang 6F to 8F
-
-; in showHighScores. change "lda numberOfPlayers" to "lda #$01"
