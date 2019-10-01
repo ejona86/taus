@@ -1,6 +1,68 @@
 --- orig
 +++ mod
-@@ -1548,17 +1548,17 @@ stageSpriteForCurrentPiece:
+@@ -381,11 +381,12 @@ @continueWarmBootInit:
+         lda     #$0E
+         sta     $34
+         lda     #$00
+         sta     gameModeState
+         sta     gameMode
+-        lda     #$01
++        ; TODO: Make this configurable in-game
++        lda     #$02
+         sta     numberOfPlayers
+         lda     #$00
+         sta     frameCounter+1
+ @mainLoop:
+         jsr     branchOnGameMode
+@@ -516,11 +517,12 @@ gameMode_legalScreen:
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         lda     #$00
+         ldx     #$02
+         ldy     #$02
+         jsr     memset_page
+-        lda     #$FF
++        ; TODO: split into separate mod file
++        lda     #$00
+         jsr     sleep_for_a_vblanks
+         lda     #$FF
+         sta     generalCounter
+ @waitForStartButton:
+         lda     newlyPressedButtons
+@@ -1023,12 +1025,16 @@ gameModeState_initGameBackground:
+         jsr     changeCHRBank0
+         lda     #$03
+         jsr     changeCHRBank1
+         jsr     bulkCopyToPpu
+         .addr   game_palette
+-        jsr     bulkCopyToPpu
+-        .addr   game_nametable
++        .import initGameBackground_mod
++        jsr     initGameBackground_mod
++        nop
++        nop
++        ;jsr     bulkCopyToPpu
++        ;.addr   game_nametable
+         lda     #$20
+         sta     PPUADDR
+         lda     #$83
+         sta     PPUADDR
+         lda     gameType
+@@ -1110,11 +1116,13 @@ game_typeb_nametable_patch:
+         .byte   $3E,$3E,$3F,$FD
+ gameModeState_initGameState:
+         lda     #$EF
+         ldx     #$04
+         ldy     #$04
+-        jsr     memset_page
++        .import initGameState_mod
++        jsr     initGameState_mod
++        ;jsr     memset_page
+         ldx     #$0F
+         lda     #$00
+ ; statsByType
+ @initStatsByType:
+         sta     $03EF,x
+@@ -1548,17 +1556,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
          beq     L8A2C
@@ -20,7 +82,7 @@
          lda     tetriminoY
          rol     a
          rol     a
-@@ -2420,21 +2420,21 @@ @renderLines:
+@@ -2420,21 +2428,21 @@ @renderLines:
          and     #$FE
          sta     outOfDateRenderFlags
          jmp     @renderLevel
@@ -46,7 +108,25 @@
          sta     PPUDATA
          lda     player2_lines
          jsr     twoDigsToPPU
-@@ -2588,18 +2588,18 @@ copyPlayfieldRowToVRAM:
+@@ -2460,12 +2468,15 @@ @renderLevel:
+         jsr     updatePaletteForLevel
+         lda     outOfDateRenderFlags
+         and     #$FD
+         sta     outOfDateRenderFlags
+ @renderScore:
+-        lda     numberOfPlayers
+-        cmp     #$02
++        .import renderPlay_mod
++        jsr     renderPlay_mod
++        nop
++        ;lda     numberOfPlayers
++        ;cmp     #$02
+         beq     @renderStats
+         lda     outOfDateRenderFlags
+         and     #$04
+         beq     @renderStats
+         lda     #$21
+@@ -2588,18 +2599,18 @@ copyPlayfieldRowToVRAM:
          lda     playfieldAddr+1
          cmp     #$05
          beq     @playerTwo
@@ -67,7 +147,7 @@
  
  @onePlayer:
          lda     vramPlayfieldRows,x
-@@ -2649,18 +2649,18 @@ @twoPlayers:
+@@ -2649,18 +2660,18 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -88,7 +168,7 @@
          iny
          lda     vramPlayfieldRows,y
          sta     generalCounter2
-@@ -3818,11 +3818,11 @@ L9FE9:  ldy     #$00
+@@ -3818,11 +3829,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts

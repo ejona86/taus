@@ -20,21 +20,18 @@
 ; No room for A/B-Type, high score
 
 .include "build/tetris.inc"
-.include "ips.inc"
 
-.segment "BSS"
+.bss
 
 
 .segment "GAMEBSS"
 
 
-.segment "CODEHDR"
-        ips_hunkhdr     "CODE"
-
-.segment "CODE"
+.code
 
 initGameState_mod:
-.import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
+        .export initGameState_mod
+        .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
         jsr     memset_page
         lda     #$00
         ldx     #<__GAMEBSS_SIZE__
@@ -46,6 +43,7 @@ initGameState_mod:
         rts
 
 initGameBackground_mod:
+        .export initGameBackground_mod
         lda     numberOfPlayers
         cmp     #$01
         bne     @twoPlayers
@@ -58,6 +56,7 @@ initGameBackground_mod:
         rts
 
 renderPlay_mod:
+        .export renderPlay_mod
         lda     numberOfPlayers
         cmp     #$02
         beq     @twoPlayers
@@ -137,42 +136,6 @@ copyPageToPpu:
 
 twoplayer_game_nametable:
         .incbin "twoplayer_game.nam"
-
-.segment "JMP_INIT_GAME_STATEHDR"
-        ips_hunkhdr     "JMP_INIT_GAME_STATE"
-
-.segment "JMP_INIT_GAME_STATE"
-
-; at beginning of initGameState, replaces "jsr memset_page"
-        jsr initGameState_mod
-
-.segment "SET_NUMBER_OF_PLAYERSHDR"
-        ips_hunkhdr     "SET_NUMBER_OF_PLAYERS"
-
-.segment "SET_NUMBER_OF_PLAYERS"
-
-; just before @mainLoop, replaces "lda #$01"
-        lda     #$02
-
-.segment "JMP_INIT_GAME_BACKGROUNDHDR"
-        ips_hunkhdr     "JMP_INIT_GAME_BACKGROUND"
-
-.segment "JMP_INIT_GAME_BACKGROUND"
-
-; in gameModeState_initGameBackground, replaces "jsr bulkCopyToPpu; .addr game_nametable"
-        jsr     initGameBackground_mod
-        nop
-        nop
-
-.segment "JMP_RENDER_PLAYHDR"
-        ips_hunkhdr     "JMP_RENDER_PLAY"
-
-.segment "JMP_RENDER_PLAY"
-
-; in render_mode_play_and_demo after @renderScore, replaces "lda numberOfPlayers; cmp #$02"
-        jsr     renderPlay_mod
-        nop
-
 
 ; TODO:
 ; unreferenced_orientationToSpriteTable is probably the player2 table

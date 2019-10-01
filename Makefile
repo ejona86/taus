@@ -17,14 +17,12 @@ build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o buil
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
-build/twoplayer.diff.nes: build/tetris.o build/twoplayer-tetris-PRG.o
-build/twoplayer.ips: build/twoplayer.o build/ips.o build/fastlegal.o
+build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o
 # IPS base dependencies. There should be a .ips for each target
 build/taus.nes: build/tetris.nes
 build/screens.nes: build/tetris.nes
 build/highscores.nes: build/tetris.nes
 build/handicap.nes: build/tetris.nes
-build/twoplayer.nes: build/twoplayer.diff.nes
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips
 
