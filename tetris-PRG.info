@@ -579,7 +579,7 @@ LABEL { ADDR $863C; NAME "@typeB"; };
 LABEL { ADDR $865F; NAME "@nextPpuAddress"; };
 LABEL { ADDR $866D; NAME "@nextPpuData"; };
 LABEL { ADDR $867F; NAME "@endOfPpuPatching"; };
-LABEL { ADDR $8693; NAME "@finish"; };
+LABEL { ADDR $8693; NAME "gameModeState_initGameBackground_finish"; };
 LABEL { ADDR $86DC; NAME "gameModeState_initGameState"; };
 LABEL { ADDR $86E9; NAME "@initStatsByType"; COMMENT "statsByType"; };
 LABEL { ADDR $8761; NAME "@skipTypeBInit"; };
@@ -736,6 +736,9 @@ LABEL { ADDR $97BD; NAME "@updateVRAM"; }; # canon
 LABEL { ADDR $97EB; NAME "@nextRow"; };
 LABEL { ADDR $97FD; NAME "@ret"; };
 LABEL { ADDR $9808; NAME "updatePaletteForLevel"; COMMENT "Set Background palette 2 and Sprite palette 2"; };
+LABEL { ADDR $980A; NAME "@mod10"; };
+LABEL { ADDR $9814; NAME "@copyPalettes"; };
+LABEL { ADDR $981B; NAME "@copyPalette"; };
 LABEL { ADDR $9874; NAME "noop_disabledVramRowIncr"; COMMENT "This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here"; };
 LABEL { ADDR $9881; NAME "@player2"; };
 LABEL { ADDR $988D; NAME "@ret"; };

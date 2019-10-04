@@ -14,7 +14,34 @@
          sta     frameCounter+1
  @mainLoop:
          jsr     branchOnGameMode
-@@ -516,11 +517,12 @@ gameMode_legalScreen:
+@@ -425,22 +426,24 @@ branchOnGameMode:
+ gameModeState_updatePlayer1:
+         jsr     makePlayer1Active
+         jsr     branchOnPlayStatePlayer1
+         jsr     stageSpriteForCurrentPiece
+         jsr     savePlayer1State
+-        jsr     stageSpriteForNextPiece
++        .import stageSpriteForNextPiece_player1_mod
++        jsr     stageSpriteForNextPiece_player1_mod
+         inc     gameModeState
+         rts
+ 
+ gameModeState_updatePlayer2:
+         lda     numberOfPlayers
+         cmp     #$02
+         bne     @ret
+         jsr     makePlayer2Active
+         jsr     branchOnPlayStatePlayer2
+         jsr     stageSpriteForCurrentPiece
+-        jsr     savePlayer2State
++        .import savePlayer2State_mod
++        jsr     savePlayer2State_mod
+ @ret:   inc     gameModeState
+         rts
+ 
+ gameMode_playAndEndingHighScore:
+         lda     gameModeState
+@@ -516,11 +519,12 @@ gameMode_legalScreen:
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
          ldx     #$02
@@ -28,7 +55,7 @@
          sta     generalCounter
  @waitForStartButton:
          lda     newlyPressedButtons
-@@ -1023,12 +1025,16 @@ gameModeState_initGameBackground:
+@@ -1023,12 +1027,18 @@ gameModeState_initGameBackground:
          jsr     changeCHRBank0
          lda     #$03
          jsr     changeCHRBank1
@@ -36,33 +63,48 @@
          .addr   game_palette
 -        jsr     bulkCopyToPpu
 -        .addr   game_nametable
-+        .import initGameBackground_mod
-+        jsr     initGameBackground_mod
-+        nop
-+        nop
 +        ;jsr     bulkCopyToPpu
 +        ;.addr   game_nametable
++        .import initGameBackground_mod
++        jmp     initGameBackground_mod
++.export after_initGameBackground_mod_player1
++after_initGameBackground_mod_player1:
++        nop
++        nop
          lda     #$20
          sta     PPUADDR
          lda     #$83
          sta     PPUADDR
          lda     gameType
-@@ -1110,11 +1116,13 @@ game_typeb_nametable_patch:
+@@ -1085,10 +1095,12 @@ @endOfPpuPatching:
+         lda     startHeight
+         and     #$0F
+         sta     PPUDATA
+         jmp     gameModeState_initGameBackground_finish
+ 
++.export after_initGameBackground_mod_player2
++after_initGameBackground_mod_player2:
+ gameModeState_initGameBackground_finish:
+         jsr     waitForVBlankAndEnableNmi
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         jsr     updateAudioWaitForNmiAndEnablePpuRendering
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+@@ -1111,11 +1123,13 @@ game_typeb_nametable_patch:
          .byte   $3E,$3E,$3F,$FD
  gameModeState_initGameState:
          lda     #$EF
          ldx     #$04
          ldy     #$04
 -        jsr     memset_page
++        ;jsr     memset_page
 +        .import initGameState_mod
 +        jsr     initGameState_mod
-+        ;jsr     memset_page
          ldx     #$0F
          lda     #$00
  ; statsByType
  @initStatsByType:
          sta     $03EF,x
-@@ -1548,17 +1556,17 @@ stageSpriteForCurrentPiece:
+@@ -1549,17 +1563,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
          beq     L8A2C
@@ -82,7 +124,111 @@
          lda     tetriminoY
          rol     a
          rol     a
-@@ -2420,21 +2428,21 @@ @renderLines:
+@@ -1593,11 +1607,12 @@ L8A4B:  lda     orientationTable,x
+         lda     orientationTable,x
+         sta     oamStaging,y
+         inc     oamStagingLength
+         iny
+         inx
+-        lda     #$02
++        ;lda     #$02
++        lda     activePlayer    ; palette
+         sta     oamStaging,y
+         lda     originalY
+         cmp     #$2F
+         bcs     L8A84
+         inc     oamStagingLength
+@@ -1879,36 +1894,36 @@ sprite03PausePalette6:
+ sprite05PausePalette4:
+         .byte   $00,$19,$00,$00,$00,$0A,$00,$08
+         .byte   $00,$1E,$00,$10,$00,$1C,$00,$18
+         .byte   $00,$0E,$00,$20,$FF
+ sprite06TPiece:
+-        .byte   $00,$7B,$02,$FC,$00,$7B,$02,$04
+-        .byte   $00,$7B,$02,$0C,$08,$7B,$02,$04
++        .byte   $00,$7B,$01,$FC,$00,$7B,$01,$04
++        .byte   $00,$7B,$01,$0C,$08,$7B,$01,$04
+         .byte   $FF
+ sprite07SPiece:
+-        .byte   $00,$7D,$02,$04,$00,$7D,$02,$0C
+-        .byte   $08,$7D,$02,$FC,$08,$7D,$02,$04
++        .byte   $00,$7D,$01,$04,$00,$7D,$01,$0C
++        .byte   $08,$7D,$01,$FC,$08,$7D,$01,$04
+         .byte   $FF
+ sprite08ZPiece:
+-        .byte   $00,$7C,$02,$FC,$00,$7C,$02,$04
+-        .byte   $08,$7C,$02,$04,$08,$7C,$02,$0C
++        .byte   $00,$7C,$01,$FC,$00,$7C,$01,$04
++        .byte   $08,$7C,$01,$04,$08,$7C,$01,$0C
+         .byte   $FF
+ sprite09JPiece:
+-        .byte   $00,$7D,$02,$FC,$00,$7D,$02,$04
+-        .byte   $00,$7D,$02,$0C,$08,$7D,$02,$0C
++        .byte   $00,$7D,$01,$FC,$00,$7D,$01,$04
++        .byte   $00,$7D,$01,$0C,$08,$7D,$01,$0C
+         .byte   $FF
+ sprite0ALPiece:
+-        .byte   $00,$7C,$02,$FC,$00,$7C,$02,$04
+-        .byte   $00,$7C,$02,$0C,$08,$7C,$02,$FC
++        .byte   $00,$7C,$01,$FC,$00,$7C,$01,$04
++        .byte   $00,$7C,$01,$0C,$08,$7C,$01,$FC
+         .byte   $FF
+ sprite0BOPiece:
+-        .byte   $00,$7B,$02,$00,$00,$7B,$02,$08
+-        .byte   $08,$7B,$02,$00,$08,$7B,$02,$08
++        .byte   $00,$7B,$01,$00,$00,$7B,$01,$08
++        .byte   $08,$7B,$01,$00,$08,$7B,$01,$08
+         .byte   $FF
+ sprite0CIPiece:
+-        .byte   $04,$7B,$02,$F8,$04,$7B,$02,$00
+-        .byte   $04,$7B,$02,$08,$04,$7B,$02,$10
++        .byte   $04,$7B,$01,$F8,$04,$7B,$01,$00
++        .byte   $04,$7B,$01,$08,$04,$7B,$01,$10
+         .byte   $FF
+ sprite0EHighScoreNameCursor:
+         .byte   $00,$FC,$21,$00,$FF
+ ; Unused, but referenced from unreferenced_orientationToSpriteTable
+ sprite0FTPieceOffset:
+@@ -2353,14 +2368,15 @@ render_mode_play_and_demo:
+ @playStateNotDisplayLineClearingAnimation:
+         lda     player1_vramRow
+         sta     vramRow
+         lda     #$04
+         sta     playfieldAddr+1
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
++        .import copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
+         lda     vramRow
+         sta     player1_vramRow
+ @renderPlayer2Playfield:
+         lda     numberOfPlayers
+         cmp     #$02
+@@ -2394,14 +2410,14 @@ @renderPlayer2Playfield:
+ @player2PlayStateNotDisplayLineClearingAnimation:
+         lda     player2_vramRow
+         sta     vramRow
+         lda     #$05
+         sta     playfieldAddr+1
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
+-        jsr     copyPlayfieldRowToVRAM
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
++        jsr     copyPlayfieldRowToVRAM_fast
+         lda     vramRow
+         sta     player2_vramRow
+ @renderLines:
+         lda     outOfDateRenderFlags
+         and     #$01
+@@ -2421,21 +2437,21 @@ @renderLines:
          and     #$FE
          sta     outOfDateRenderFlags
          jmp     @renderLevel
@@ -108,7 +254,7 @@
          sta     PPUDATA
          lda     player2_lines
          jsr     twoDigsToPPU
-@@ -2460,12 +2468,15 @@ @renderLevel:
+@@ -2461,12 +2477,15 @@ @renderLevel:
          jsr     updatePaletteForLevel
          lda     outOfDateRenderFlags
          and     #$FD
@@ -116,17 +262,17 @@
  @renderScore:
 -        lda     numberOfPlayers
 -        cmp     #$02
++        ;lda     numberOfPlayers
++        ;cmp     #$02
 +        .import renderPlay_mod
 +        jsr     renderPlay_mod
 +        nop
-+        ;lda     numberOfPlayers
-+        ;cmp     #$02
          beq     @renderStats
          lda     outOfDateRenderFlags
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2588,18 +2599,18 @@ copyPlayfieldRowToVRAM:
+@@ -2589,18 +2608,18 @@ copyPlayfieldRowToVRAM:
          lda     playfieldAddr+1
          cmp     #$05
          beq     @playerTwo
@@ -147,7 +293,7 @@
  
  @onePlayer:
          lda     vramPlayfieldRows,x
-@@ -2649,18 +2660,18 @@ @twoPlayers:
+@@ -2650,18 +2669,18 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -168,7 +314,48 @@
          iny
          lda     vramPlayfieldRows,y
          sta     generalCounter2
-@@ -3818,11 +3829,11 @@ L9FE9:  ldy     #$00
+@@ -2714,11 +2733,11 @@ @copyPalettes:
+         lda     #$00
+         sta     generalCounter
+ @copyPalette:
+         lda     #$3F
+         sta     PPUADDR
+-        lda     #$08
++        lda     #$04
+         clc
+         adc     generalCounter
+         sta     PPUADDR
+         lda     colorTable,x
+         sta     PPUDATA
+@@ -2764,11 +2783,12 @@ @ret:   rts
+ 
+ playState_spawnNextTetrimino:
+         lda     vramRow
+         cmp     #$20
+         bmi     @ret
+-        lda     numberOfPlayers
++        ;lda     numberOfPlayers
++        lda     #$01
+         cmp     #$01
+         beq     @notDelaying
+         lda     twoPlayerPieceDelayCounter
+         cmp     #$00
+         bne     @twoPlayerPieceDelay
+@@ -2797,11 +2817,12 @@ @notDelaying:
+         sta     tetriminoX
+         ldx     nextPiece
+         lda     spawnOrientationFromOrientation,x
+         sta     currentPiece
+         jsr     incrementPieceStat
+-        lda     numberOfPlayers
++        ;lda     numberOfPlayers
++        lda     #$01
+         cmp     #$01
+         beq     @onePlayerPieceSelection
+         lda     nextPiece_2player
+         sta     nextPiece
+         jmp     @resetDownHold
+@@ -3821,11 +3842,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
