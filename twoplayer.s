@@ -7,8 +7,9 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Fix nextPiece usage for 2nd player. nextPiece_2player. playState_spawnNextTetrimino
-; Separate RNG for both players. Keep current RNG updating, but don't draw pieces from it. Save another RNG to let the behind player catch up.
+; Fix RNG. It normally relies on frames to advance; pickRandomTetrimino doesn't run the RNG.
+; Rendering is exceeding the sprites-per-scanline limit
+; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Enable two players by second player pressing start on level-select screen. Start or (b) may turn it back to 1 player.
 ; Fix background tetrimino pattern
@@ -29,6 +30,7 @@
 
 .segment "GAMEBSS"
 
+.res 1 ; must be at least size 1 to prevent init loop from breaking
 
 .code
 
@@ -36,12 +38,39 @@ initGameState_mod:
         .export initGameState_mod
         .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
         jsr     memset_page
+
         lda     #$00
         ldx     #<__GAMEBSS_SIZE__
 @clearByte:
         sta     __GAMEBSS_RUN__-1,x
         dex
         bne     @clearByte
+
+        .importzp personal_rng
+        .importzp player1_rng
+        .importzp player2_rng
+; FIXME. reuses the seed at beginning of game
+        lda     rng_seed
+        sta     personal_rng
+        sta     player1_rng
+        sta     player2_rng
+        lda     rng_seed+1
+        sta     personal_rng+1
+        sta     player1_rng+1
+        sta     player2_rng+1
+
+        ldx     #player1_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #player1_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #player2_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #player2_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
 
         rts
 
@@ -271,12 +300,15 @@ stageSpriteForNextPiece_player1_mod:
         lda     #$53
         sta     spriteYOffset
 @stage:
+        .importzp player1_nextPiece
         ldx     player1_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
         jmp     loadSpriteIntoOamStaging
 
 @ret:   rts
+
+.segment "CODE2"
 
 savePlayer2State_mod:
         .export savePlayer2State_mod
@@ -291,6 +323,7 @@ stageSpriteForNextPiece_player2:
         sta     spriteXOffset
         lda     #$AB
         sta     spriteYOffset
+        .importzp player2_nextPiece
         ldx     player2_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup

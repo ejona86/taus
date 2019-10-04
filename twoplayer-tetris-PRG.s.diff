@@ -1,6 +1,59 @@
 --- orig
 +++ mod
-@@ -381,11 +381,12 @@ @continueWarmBootInit:
+@@ -33,10 +33,18 @@ score           := $0053
+ completedLines  := $0056
+ lineIndex       := $0057                        ; Iteration count of playState_checkForCompletedRows
+ curtainRow      := $0058
+ startHeight     := $0059
+ garbageHole     := $005A                        ; Position of hole in received garbage
++nextPiece_      := $005B
++.exportzp nextPiece_
++personal_rng    := $005C        ; size 2
++.exportzp personal_rng
++spawnID_        := $005E
++.exportzp spawnID_
++spawnCount_        := $005F
++.exportzp spawnCount_
+ player1_tetriminoX:= $0060
+ player1_tetriminoY:= $0061
+ player1_currentPiece:= $0062
+ player1_levelNumber:= $0064
+ player1_fallTimer:= $0065
+@@ -52,10 +60,16 @@ player1_rowY    := $0072
+ player1_score   := $0073
+ player1_completedLines:= $0076
+ player1_curtainRow:= $0078
+ player1_startHeight:= $0079
+ player1_garbageHole:= $007A
++player1_nextPiece:= $007B
++.exportzp player1_nextPiece
++player1_rng    := $007C        ; size 2
++.exportzp player1_rng
++player1_spawnID_:= $007E
++player1_spawnCount_:= $007F
+ player2_tetriminoX:= $0080
+ player2_tetriminoY:= $0081
+ player2_currentPiece:= $0082
+ player2_levelNumber:= $0084
+ player2_fallTimer:= $0085
+@@ -71,10 +85,16 @@ player2_rowY    := $0092
+ player2_score   := $0093
+ player2_completedLines:= $0096
+ player2_curtainRow:= $0098
+ player2_startHeight:= $0099
+ player2_garbageHole:= $009A
++player2_nextPiece:= $009B
++.exportzp player2_nextPiece
++player2_rng    := $009C        ; size 2
++.exportzp player2_rng
++player2_spawnID_:= $009E
++player2_spawnCount_:= $009F
+ spriteXOffset   := $00A0
+ spriteYOffset   := $00A1
+ spriteIndexInOamContentLookup:= $00A2
+ outOfDateRenderFlags:= $00A3                    ; Bit 0-lines 1-level 2-score 6-stats 7-high score entry letter
+ twoPlayerPieceDelayCounter:= $00A4              ; 0 is not delaying
+@@ -381,11 +401,12 @@ @continueWarmBootInit:
          lda     #$0E
          sta     $34
          lda     #$00
@@ -14,7 +67,7 @@
          sta     frameCounter+1
  @mainLoop:
          jsr     branchOnGameMode
-@@ -425,22 +426,24 @@ branchOnGameMode:
+@@ -425,22 +446,24 @@ branchOnGameMode:
  gameModeState_updatePlayer1:
          jsr     makePlayer1Active
          jsr     branchOnPlayStatePlayer1
@@ -41,7 +94,7 @@
  
  gameMode_playAndEndingHighScore:
          lda     gameModeState
-@@ -516,11 +519,12 @@ gameMode_legalScreen:
+@@ -516,11 +539,12 @@ gameMode_legalScreen:
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
          ldx     #$02
@@ -55,7 +108,7 @@
          sta     generalCounter
  @waitForStartButton:
          lda     newlyPressedButtons
-@@ -1023,12 +1027,18 @@ gameModeState_initGameBackground:
+@@ -1023,12 +1047,18 @@ gameModeState_initGameBackground:
          jsr     changeCHRBank0
          lda     #$03
          jsr     changeCHRBank1
@@ -76,7 +129,7 @@
          lda     #$83
          sta     PPUADDR
          lda     gameType
-@@ -1085,10 +1095,12 @@ @endOfPpuPatching:
+@@ -1085,10 +1115,12 @@ @endOfPpuPatching:
          lda     startHeight
          and     #$0F
          sta     PPUDATA
@@ -89,13 +142,15 @@
          jsr     updateAudioWaitForNmiAndResetOamStaging
          jsr     updateAudioWaitForNmiAndEnablePpuRendering
          jsr     updateAudioWaitForNmiAndResetOamStaging
-@@ -1111,11 +1123,13 @@ game_typeb_nametable_patch:
+@@ -1110,12 +1142,14 @@ game_typeb_nametable_patch:
+         .byte   $FE,$23,$57,$3D,$3E,$3E,$3E,$3E
          .byte   $3E,$3E,$3F,$FD
  gameModeState_initGameState:
          lda     #$EF
          ldx     #$04
-         ldy     #$04
+-        ldy     #$04
 -        jsr     memset_page
++        ldy     #$05
 +        ;jsr     memset_page
 +        .import initGameState_mod
 +        jsr     initGameState_mod
@@ -104,7 +159,28 @@
  ; statsByType
  @initStatsByType:
          sta     $03EF,x
-@@ -1549,17 +1563,17 @@ stageSpriteForCurrentPiece:
+@@ -1163,16 +1197,17 @@ @initStatsByType:
+         sta     player2_autorepeatY
+         jsr     chooseNextTetrimino
+         sta     player1_currentPiece
+         sta     player2_currentPiece
+         jsr     incrementPieceStat
+-        ldx     #$17
++        ;ldx     #$17
++        ldx     #personal_rng
+         ldy     #$02
+         jsr     generateNextPseudorandomNumber
+         jsr     chooseNextTetrimino
+-        sta     nextPiece
+-        sta     nextPiece_2player
++        sta     player1_nextPiece
++        sta     player2_nextPiece
+         lda     gameType
+         beq     @skipTypeBInit
+         lda     #$25
+         sta     player1_lines
+         sta     player2_lines
+@@ -1549,17 +1584,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
          beq     L8A2C
@@ -124,7 +200,7 @@
          lda     tetriminoY
          rol     a
          rol     a
-@@ -1593,11 +1607,12 @@ L8A4B:  lda     orientationTable,x
+@@ -1593,11 +1628,12 @@ L8A4B:  lda     orientationTable,x
          lda     orientationTable,x
          sta     oamStaging,y
          inc     oamStagingLength
@@ -138,7 +214,7 @@
          cmp     #$2F
          bcs     L8A84
          inc     oamStagingLength
-@@ -1879,36 +1894,36 @@ sprite03PausePalette6:
+@@ -1879,36 +1915,36 @@ sprite03PausePalette6:
  sprite05PausePalette4:
          .byte   $00,$19,$00,$00,$00,$0A,$00,$08
          .byte   $00,$1E,$00,$10,$00,$1C,$00,$18
@@ -189,7 +265,7 @@
          .byte   $00,$FC,$21,$00,$FF
  ; Unused, but referenced from unreferenced_orientationToSpriteTable
  sprite0FTPieceOffset:
-@@ -2353,14 +2368,15 @@ render_mode_play_and_demo:
+@@ -2353,14 +2389,15 @@ render_mode_play_and_demo:
  @playStateNotDisplayLineClearingAnimation:
          lda     player1_vramRow
          sta     vramRow
@@ -209,7 +285,7 @@
  @renderPlayer2Playfield:
          lda     numberOfPlayers
          cmp     #$02
-@@ -2394,14 +2410,14 @@ @renderPlayer2Playfield:
+@@ -2394,14 +2431,14 @@ @renderPlayer2Playfield:
  @player2PlayStateNotDisplayLineClearingAnimation:
          lda     player2_vramRow
          sta     vramRow
@@ -228,7 +304,7 @@
  @renderLines:
          lda     outOfDateRenderFlags
          and     #$01
-@@ -2421,21 +2437,21 @@ @renderLines:
+@@ -2421,21 +2458,21 @@ @renderLines:
          and     #$FE
          sta     outOfDateRenderFlags
          jmp     @renderLevel
@@ -254,7 +330,7 @@
          sta     PPUDATA
          lda     player2_lines
          jsr     twoDigsToPPU
-@@ -2461,12 +2477,15 @@ @renderLevel:
+@@ -2461,12 +2498,15 @@ @renderLevel:
          jsr     updatePaletteForLevel
          lda     outOfDateRenderFlags
          and     #$FD
@@ -272,7 +348,7 @@
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2589,18 +2608,18 @@ copyPlayfieldRowToVRAM:
+@@ -2589,18 +2629,18 @@ copyPlayfieldRowToVRAM:
          lda     playfieldAddr+1
          cmp     #$05
          beq     @playerTwo
@@ -293,7 +369,7 @@
  
  @onePlayer:
          lda     vramPlayfieldRows,x
-@@ -2650,18 +2669,18 @@ @twoPlayers:
+@@ -2650,18 +2690,18 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -314,7 +390,7 @@
          iny
          lda     vramPlayfieldRows,y
          sta     generalCounter2
-@@ -2714,11 +2733,11 @@ @copyPalettes:
+@@ -2714,11 +2754,11 @@ @copyPalettes:
          lda     #$00
          sta     generalCounter
  @copyPalette:
@@ -327,7 +403,7 @@
          sta     PPUADDR
          lda     colorTable,x
          sta     PPUDATA
-@@ -2764,11 +2783,12 @@ @ret:   rts
+@@ -2764,11 +2804,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -341,9 +417,14 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2797,11 +2817,12 @@ @notDelaying:
+@@ -2793,24 +2834,25 @@ @notDelaying:
+         sta     tetriminoY
+         lda     #$01
+         sta     playState
+         lda     #$05
          sta     tetriminoX
-         ldx     nextPiece
+-        ldx     nextPiece
++        ldx     nextPiece_
          lda     spawnOrientationFromOrientation,x
          sta     currentPiece
          jsr     incrementPieceStat
@@ -355,7 +436,66 @@
          lda     nextPiece_2player
          sta     nextPiece
          jmp     @resetDownHold
-@@ -3821,11 +3842,11 @@ L9FE9:  ldy     #$00
+ 
+ @onePlayerPieceSelection:
+         jsr     chooseNextTetrimino
+-        sta     nextPiece
++        sta     nextPiece_
+ @resetDownHold:
+         lda     #$00
+         sta     autorepeatY
+ @ret:   rts
+ 
+@@ -2833,39 +2875,40 @@ chooseNextTetrimino:
+ pickRandomTetrimino:
+         jsr     @realStart
+         rts
+ 
+ @realStart:
+-        inc     spawnCount
+-        lda     rng_seed
++        inc     spawnCount_
++        lda     personal_rng
+         clc
+-        adc     spawnCount
++        adc     spawnCount_
+         and     #$07
+         cmp     #$07
+         beq     @invalidIndex
+         tax
+         lda     spawnTable,x
+-        cmp     spawnID
++        cmp     spawnID_
+         bne     useNewSpawnID
+ @invalidIndex:
+-        ldx     #$17
++        ;ldx     #$17
++        ldx     #personal_rng
+         ldy     #$02
+         jsr     generateNextPseudorandomNumber
+-        lda     rng_seed
++        lda     personal_rng
+         and     #$07
+         clc
+-        adc     spawnID
++        adc     spawnID_
+ L992A:  cmp     #$07
+         bcc     L9934
+         sec
+         sbc     #$07
+         jmp     L992A
+ 
+ L9934:  tax
+         lda     spawnTable,x
+ useNewSpawnID:
+-        sta     spawnID
++        sta     spawnID_
+         rts
+ 
+ tetriminoTypeFromOrientation:
+         .byte   $00,$00,$00,$00,$01,$01,$01,$01
+         .byte   $02,$02,$03,$04,$04,$05,$05,$05
+@@ -3821,11 +3864,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
