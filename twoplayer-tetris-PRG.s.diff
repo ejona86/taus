@@ -504,21 +504,38 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3387,11 +3433,12 @@ gameModeState_handleGameOver:
+@@ -3385,18 +3431,25 @@ gameModeState_handleGameOver:
+         beq     @ret
+         lda     #$04
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
-         bne     @ret
+-        bne     @ret
++        bne     @clearAAndRet
  @gameOver:
 -        lda     numberOfPlayers
 +        ;lda     numberOfPlayers
 +        lda     #$01
          cmp     #$01
          beq     @onePlayerGameOver
-         lda     #$09
-         sta     gameModeState
-         rts
-@@ -3821,11 +3868,11 @@ L9FE9:  ldy     #$00
+-        lda     #$09
+-        sta     gameModeState
+-        rts
++        ;lda     #$09
++        ;sta     gameModeState
++        ;rts
++@clearAAndRet:
++; put known data in a, to avoid it from matching "cmp gameModeState" in
++; @mainLoop. In 1 player mode, numberOfPlayers will be in a.
++        lda     #$00
++        beq     @ret
++        nop
+ 
+ @onePlayerGameOver:
+         lda     #$03
+         sta     renderMode
+         lda     numberOfPlayers
+@@ -3821,11 +3874,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
