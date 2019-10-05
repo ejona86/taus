@@ -26,6 +26,9 @@ build/handicap.nes: build/tetris.nes
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips
 
+build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
+	flips --create $^ $@ > /dev/null
+
 CAFLAGS = -g
 LDFLAGS =
 VPATH = build
@@ -104,7 +107,7 @@ taus: build/taus.nes
 screens: build/screens.nes
 custom: build/custom.nes
 handicap: build/handicap.nes
-twoplayer: build/twoplayer.nes
+twoplayer: build/twoplayer.nes build/twoplayer.dist.ips
 
 # These are simply aliases
 .PHONY: all dis tetris taus screens custom handicap twoplayer
