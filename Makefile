@@ -1,4 +1,4 @@
-all: tetris taus screens custom handicap twoplayer build/game_palette.pal build/game_nametable.nam
+all: tetris taus screens custom handicap twoplayer build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
@@ -63,8 +63,13 @@ build/tetris-CHR-01.chr: tetris.nes | build
 build/game_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
 	tail -c +$$((16#ACF3 - 16#8000 + 3 + 1)) $< | head -c 16 > $@
+build/menu_palette.pal: build/tetris-PRG.bin
+	# +3 for buildCopyToPpu header
+	tail -c +$$((16#AD2B - 16#8000 + 3 + 1)) $< | head -c 16 > $@
 build/game_nametable.nam: build/tetris-PRG.bin
 	tail -c +$$((16#BF3C - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
+build/level_menu_nametable.nam: build/tetris-PRG.bin
+	tail -c +$$((16#BADB - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 
 build/%.s: %.bin %.info Makefile | build
 	da65 -i $(word 2,$^) -o $@ $<

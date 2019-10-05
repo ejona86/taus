@@ -58,7 +58,7 @@ playerId := $0003
 showSelectionLevel := $855F
 
 level_menu_check_select_pressed:
-        lda     newlyPressedButtons_mirror
+        lda     newlyPressedButtons
         cmp     #$20
         bne     level_menu_check_select_pressed_render
         lda     playerId

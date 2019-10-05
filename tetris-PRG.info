@@ -102,8 +102,8 @@ LABEL { ADDR $00AF; NAME "dropSpeed"; }; # canon
 LABEL { ADDR $00B0; NAME "tmpCurrentPiece"; COMMENT "Only used as a temporary"; };
 LABEL { ADDR $00B1; NAME "frameCounter"; SIZE 2; }; # canon
 LABEL { ADDR $00B3; NAME "oamStagingLength"; }; # canon
-LABEL { ADDR $00B5; NAME "newlyPressedButtons_mirror"; };
-LABEL { ADDR $00B6; NAME "pressedButtons_mirror"; };
+LABEL { ADDR $00B5; NAME "newlyPressedButtons"; COMMENT "Active player's buttons"; };
+LABEL { ADDR $00B6; NAME "heldButtons"; COMMENT "Active player's buttons"; };
 LABEL { ADDR $00B7; NAME "activePlayer"; COMMENT "Which player is being processed (data in $40)"; };
 LABEL { ADDR $00B8; NAME "playfieldAddr"; SIZE 2; COMMENT "HI byte is leftPlayfield in canon. Current playfield being processed: $0400 (left; 1st player) or $0500 (right; 2nd player)"; };
 LABEL { ADDR $00BA; NAME "allegro"; }; # canon
@@ -120,8 +120,8 @@ LABEL { ADDR $00C4; NAME "ending"; }; # canon
 LABEL { ADDR $00C5; NAME "ending_customVars"; SIZE 7; COMMENT "Different usages depending on Type A and B and Type B concert"; };
 LABEL { ADDR $00CC; NAME "ending_currentSprite"; };
 LABEL { ADDR $00CD; NAME "ending_typeBCathedralFrameDelayCounter"; };
-LABEL { ADDR $00CE; NAME "heldButtons"; }; # canon
-LABEL { ADDR $00CF; NAME "repeats"; }; # canon
+LABEL { ADDR $00CE; NAME "demo_heldButtons"; }; # canon is heldButtons
+LABEL { ADDR $00CF; NAME "demo_repeats"; }; # canon is repeats
 LABEL { ADDR $00D1; NAME "demoButtonsAddr"; SIZE 2; COMMENT "Current address within demoButtonsTable"; };
 LABEL { ADDR $00D3; NAME "demoIndex"; }; # canon
 LABEL { ADDR $00D4; NAME "highScoreEntryNameOffsetForLetter"; COMMENT "Relative to current row"; };
@@ -139,9 +139,10 @@ LABEL { ADDR $00E6; NAME "musicChanTmpAddr"; SIZE 2; };
 LABEL { ADDR $00ED; NAME "currentSoundEffectSlot"; COMMENT "Temporary"; };
 LABEL { ADDR $00EE; NAME "musicChannelOffset"; COMMENT "Temporary. Added to $4000-3 for MMIO"; };
 LABEL { ADDR $00EF; NAME "currentAudioSlot"; COMMENT "Temporary"; };
-LABEL { ADDR $00F5; NAME "newlyPressedButtons"; COMMENT "$80-a $40-b $20-select $10-start $08-up $04-down $02-left $01-right"; };
-LABEL { ADDR $00F6; NAME "pressedButtons"; };
-LABEL { ADDR $00F7; NAME "getHeldButtons"; }; # canon
+LABEL { ADDR $00F5; NAME "newlyPressedButtons_player1"; COMMENT "$80-a $40-b $20-select $10-start $08-up $04-down $02-left $01-right"; };
+LABEL { ADDR $00F6; NAME "newlyPressedButtons_player2"; };
+LABEL { ADDR $00F7; NAME "heldButtons_player1"; }; # canon is getHeldButtons
+LABEL { ADDR $00F8; NAME "heldButtons_player2"; };
 LABEL { ADDR $00FB; NAME "joy1Location"; COMMENT "normal=0; 1 or 3 for expansion"; };
 LABEL { ADDR $00FC; NAME "ppuScrollY"; COMMENT "Set to 0 many places, but not read"; };
 LABEL { ADDR $00FD; NAME "ppuScrollX"; COMMENT "Set to 0 many places, but not read"; };
@@ -553,11 +554,12 @@ LABEL { ADDR $83CE; NAME "@flickerCursorPair2"; };
 LABEL { ADDR $83D7; NAME "gameMode_levelMenu"; };
 LABEL { ADDR $8409; NAME "@skipTypeBHeightDisplay"; };
 LABEL { ADDR $8428; NAME "@forceStartLevelToRange"; };
+LABEL { ADDR $8436; NAME "gameMode_levelMenu_processPlayer1Navigation"; };
 LABEL { ADDR $846C; NAME "@startAndANotPressed"; };
 LABEL { ADDR $8478; NAME "@checkBPressed"; };
-LABEL { ADDR $8486; NAME "@chooseRandom"; };
-LABEL { ADDR $8497; NAME "@chooseRandom2"; };
-LABEL { ADDR $84AE; NAME "@checkRightPressed"; };
+LABEL { ADDR $8486; NAME "@chooseRandomHole_player1"; };
+LABEL { ADDR $8497; NAME "@chooseRandomHole_player2"; };
+LABEL { ADDR $84AE; NAME "gameMode_levelMenu_handleLevelHeightNavigation"; COMMENT "Starts by checking if right pressed"; };
 LABEL { ADDR $84C8; NAME "@rightPressedForHeightSelection"; };
 LABEL { ADDR $84D0; NAME "@checkLeftPressed"; };
 LABEL { ADDR $84E8; NAME "@leftPressedForHeightSelection"; };
@@ -918,9 +920,15 @@ LABEL { ADDR $AA98; NAME "bulkCopyToPpu"; };
 LABEL { ADDR $AAF2; NAME "copyToPpu"; COMMENT "Address to read from stored in tmp1/2"; };
 LABEL { ADDR $AB21; NAME "copyAddrAtReturnAddressToTmp_incrReturnAddrBy2"; };
 LABEL { ADDR $AB47; NAME "generateNextPseudorandomNumber"; }; # canon
+LABEL { ADDR $AB57; NAME "@updateNextByteInSeed"; };
 LABEL { ADDR $AB5E; NAME "copyOamStagingToOam"; COMMENT "canon is initializeOAM"; };
 LABEL { ADDR $AB69; NAME "pollController_actualRead"; };
+LABEL { ADDR $AB75; NAME "@readNextBit"; };
+LABEL { ADDR $AB8B; NAME "addExpansionPortInputAsControllerInput"; };
 LABEL { ADDR $AB9D; NAME "pollController"; }; # canon
+LABEL { ADDR $ABBD; NAME "diffOldAndNewButtons"; };
+LABEL { ADDR $ABBF; NAME "@diffForPlayer"; };
+LABEL { ADDR $ABCE; NAME "unreferenced_func1"; };
 LABEL { ADDR $AC1C; NAME "memset_ppu_page_and_more"; };
 LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page (inclusive)"; };
 LABEL { ADDR $AC77; NAME "@setByte"; };

@@ -390,7 +390,7 @@ postGameStats:
 
 @checkInput:
         ; require pressing start independent of score
-        lda     newlyPressedButtons
+        lda     newlyPressedButtons_player1
         cmp     #$10
         bne     @ret
         lda     player1_score+2

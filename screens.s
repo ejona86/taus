@@ -33,7 +33,7 @@ screenToDisplay := levelNumber
 backgroundRendered := levelNumber+1
 
 mainLoopIterMod:
-        lda     newlyPressedButtons
+        lda     newlyPressedButtons_player1
         beq     @checkForRender
         lda     #$00
         sta     backgroundRendered

@@ -9,11 +9,10 @@
 ; TODO:
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
-; Enable two players by second player pressing start on level-select screen. Start or (b) may turn it back to 1 player.
 ; Fix background tetrimino pattern
 ; Figure out what's up with twoPlayerPieceDelayCounter
 ; Disable/toggle garbage
-; Let player2 hold down (a) when player1 presses start to start on level+10
+; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
 ; Allow second player to disable next piece display (minor)
 
 ; Integrations:
@@ -302,6 +301,7 @@ stageSpriteForNextPiece_player1_mod:
         lda     displayNextPiece
         bne     @ret
         lda     numberOfPlayers
+        cmp     #$01
         bne     @twoPlayers
         lda     #$C8
         sta     spriteXOffset
@@ -385,3 +385,200 @@ pickRandomTetrimino_mod:
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         rts
+
+gameMode_levelMenu_nametable_mod:
+        .export gameMode_levelMenu_nametable_mod
+        jsr     bulkCopyToPpu
+        .addr   level_menu_nametable
+        lda     numberOfPlayers
+        cmp     #$01
+        bne     @twoPlayers
+
+        jsr     bulkCopyToPpu
+        .addr   player2PressStartPatch
+        jmp     @ret
+
+@twoPlayers:
+        jsr     bulkCopyToPpu
+        .addr   player1ActivePatch
+@ret:
+        rts
+
+gameMode_levelMenu_processPlayer1Navigation_processPlayer2:
+        .export gameMode_levelMenu_processPlayer1Navigation_processPlayer2
+        lda     newlyPressedButtons_player2
+        cmp     #$10
+        bne     @checkBPressed
+        lda     numberOfPlayers
+        cmp     #$01
+        bne     @checkBPressed
+        inc     numberOfPlayers
+        lda     #$08
+        sta     soundEffectSlot1Init
+        jmp     gameMode_levelMenu
+@checkBPressed:
+        lda     newlyPressedButtons_player2
+        cmp     #$40
+        bne     @ret
+        lda     numberOfPlayers
+        cmp     #$02
+        bne     @ret
+        dec     numberOfPlayers
+        lda     #$01
+        sta     soundEffectSlot3Init
+        jmp     gameMode_levelMenu
+@ret:
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        jmp     gameMode_levelMenu_processPlayer1Navigation
+
+player2PressStartPatch:
+        .byte   $20,$A4,$18
+        .byte   $FF,$FF,$FF,$FF,$FF
+        .byte   $19,$02,$FF ; P2
+        .byte   $19,$1B,$0E,$1C,$1C,$FF ; PRESS
+        .byte   $1C,$1D,$0A,$1B,$1D,$52 ; START!
+        .byte   $FF,$FF,$FF,$FF
+        .byte   $FF
+player1ActivePatch:
+        .byte   $20,$A4,$18
+        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   $19,$15,$0A,$22,$0E,$1B,$FF,$01
+        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   $FF
+player2ActivePatch:
+        .byte   $20,$A4,$18
+        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   $19,$15,$0A,$22,$0E,$1B,$FF,$02
+        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   $FF
+
+;player1ActiveSprite:
+;        .byte   8
+;        .byte   5*8,$19,$00,12*8
+;        .byte   5*8,$15,$00,13*8
+;        .byte   5*8,$0A,$00,14*8
+;        .byte   5*8,$22,$00,15*8
+;        .byte   5*8,$0E,$00,16*8
+;        .byte   5*8,$1B,$00,17*8
+;        .byte   5*8,$01,$00,19*8
+;player2ActiveSprite:
+;        .byte   8
+;        .byte   5*8,$19,$00,12*8
+;        .byte   5*8,$15,$00,13*8
+;        .byte   5*8,$0A,$00,14*8
+;        .byte   5*8,$22,$00,15*8
+;        .byte   5*8,$0E,$00,16*8
+;        .byte   5*8,$1B,$00,17*8
+;        .byte   5*8,$02,$00,19*8
+;player2PressStartSprite:
+;        .byte   17
+;        .byte   5*8,$19,$00, 5*8
+;        .byte   5*8,$15,$00, 6*8
+;        .byte   5*8,$0A,$00, 7*8
+;        .byte   5*8,$22,$00, 8*8
+;        .byte   5*8,$0E,$00, 9*8
+;        .byte   5*8,$1B,$00,10*8
+;        .byte   5*8,$02,$00,12*8
+;
+;        .byte   5*8,$19,$00,14*8
+;        .byte   5*8,$19,$00,16*8
+;        .byte   5*8,$19,$00,17*8
+;        .byte   5*8,$19,$00,18*8
+;        .byte   5*8,$19,$00,19*8
+;
+;        .byte   5*8,$19,$00,21*8
+;        .byte   5*8,$19,$00,22*8
+;        .byte   5*8,$19,$00,23*8
+;        .byte   5*8,$19,$00,24*8
+;        .byte   5*8,$19,$00,25*8
+
+gameMode_levelMenu_processPlayer2Navigation:
+        .export gameMode_levelMenu_processPlayer2Navigation
+        lda     numberOfPlayers
+        cmp     #$01
+        bne     @twoPlayers
+        inc     gameMode
+        rts
+
+@twoPlayers:
+        jsr     updateAudioWaitForNmiAndDisablePpuRendering
+        jsr     disableNmi
+        jsr     bulkCopyToPpu
+        .addr   player2ActivePatch
+        jsr     waitForVBlankAndEnableNmi
+        jsr     updateAudioWaitForNmiAndEnablePpuRendering
+
+@afterPatch:
+        lda     #$00
+        sta     activePlayer
+        lda     player2_startLevel
+        sta     startLevel
+        lda     player2_startHeight
+        sta     startHeight
+        lda     originalY
+        sta     selectingLevelOrHeight
+        lda     newlyPressedButtons_player2
+        sta     newlyPressedButtons
+        jsr     gameMode_levelMenu_handleLevelHeightNavigation
+        lda     startLevel
+        sta     player2_startLevel
+        lda     startHeight
+        sta     player2_startHeight
+        lda     selectingLevelOrHeight
+        sta     originalY
+        lda     newlyPressedButtons_player2
+        cmp     #$10
+        bne     @checkBPressed
+        lda     heldButtons_player2
+        cmp     #$90
+        bne     @startAndANotPressed
+        lda     player2_startLevel
+        clc
+        adc     #$0A
+        sta     player2_startLevel
+@startAndANotPressed:
+        lda     #$00
+        sta     gameModeState
+        lda     #$02
+        sta     soundEffectSlot1Init
+        inc     gameMode
+        rts
+
+@checkBPressed:
+        lda     newlyPressedButtons_player2
+        cmp     #$40
+        bne     @doneProcessing
+        lda     #$02
+        sta     soundEffectSlot1Init
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        jmp     gameMode_levelMenu
+
+@doneProcessing:
+        ;jsr     updateAudioWaitForNmiAndDisablePpuRendering
+        ;jsr     disableNmi
+        ;jsr     bulkCopyToPpu
+        ;.addr   player2ActivePatch
+        ;jsr     waitForVBlankAndEnableNmi
+        ;jsr     updateAudioWaitForNmiAndEnablePpuRendering
+
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        jmp     @afterPatch
+
+; Sprite encoded as length followed by data
+;stageSpriteAddr:
+;        jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
+;        ldy     #$00
+;        lda     (tmp1),y
+;        asl     a
+;        asl     a
+;        sta     tmp3
+;        iny
+;        ldx     oamStagingLength
+;@copyByte:
+;        lda     (tmp1),y
+;        sta     oamStaging,x
+;        iny
+;        inx
+;        cpy     tmp3
+;        bne     @copyByte
+;        rts
