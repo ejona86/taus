@@ -452,46 +452,6 @@ player2ActivePatch:
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF
 
-;player1ActiveSprite:
-;        .byte   8
-;        .byte   5*8,$19,$00,12*8
-;        .byte   5*8,$15,$00,13*8
-;        .byte   5*8,$0A,$00,14*8
-;        .byte   5*8,$22,$00,15*8
-;        .byte   5*8,$0E,$00,16*8
-;        .byte   5*8,$1B,$00,17*8
-;        .byte   5*8,$01,$00,19*8
-;player2ActiveSprite:
-;        .byte   8
-;        .byte   5*8,$19,$00,12*8
-;        .byte   5*8,$15,$00,13*8
-;        .byte   5*8,$0A,$00,14*8
-;        .byte   5*8,$22,$00,15*8
-;        .byte   5*8,$0E,$00,16*8
-;        .byte   5*8,$1B,$00,17*8
-;        .byte   5*8,$02,$00,19*8
-;player2PressStartSprite:
-;        .byte   17
-;        .byte   5*8,$19,$00, 5*8
-;        .byte   5*8,$15,$00, 6*8
-;        .byte   5*8,$0A,$00, 7*8
-;        .byte   5*8,$22,$00, 8*8
-;        .byte   5*8,$0E,$00, 9*8
-;        .byte   5*8,$1B,$00,10*8
-;        .byte   5*8,$02,$00,12*8
-;
-;        .byte   5*8,$19,$00,14*8
-;        .byte   5*8,$19,$00,16*8
-;        .byte   5*8,$19,$00,17*8
-;        .byte   5*8,$19,$00,18*8
-;        .byte   5*8,$19,$00,19*8
-;
-;        .byte   5*8,$19,$00,21*8
-;        .byte   5*8,$19,$00,22*8
-;        .byte   5*8,$19,$00,23*8
-;        .byte   5*8,$19,$00,24*8
-;        .byte   5*8,$19,$00,25*8
-
 gameMode_levelMenu_processPlayer2Navigation:
         .export gameMode_levelMenu_processPlayer2Navigation
         lda     numberOfPlayers
@@ -554,31 +514,5 @@ gameMode_levelMenu_processPlayer2Navigation:
         jmp     gameMode_levelMenu
 
 @doneProcessing:
-        ;jsr     updateAudioWaitForNmiAndDisablePpuRendering
-        ;jsr     disableNmi
-        ;jsr     bulkCopyToPpu
-        ;.addr   player2ActivePatch
-        ;jsr     waitForVBlankAndEnableNmi
-        ;jsr     updateAudioWaitForNmiAndEnablePpuRendering
-
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     @afterPatch
-
-; Sprite encoded as length followed by data
-;stageSpriteAddr:
-;        jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
-;        ldy     #$00
-;        lda     (tmp1),y
-;        asl     a
-;        asl     a
-;        sta     tmp3
-;        iny
-;        ldx     oamStagingLength
-;@copyByte:
-;        lda     (tmp1),y
-;        sta     oamStaging,x
-;        iny
-;        inx
-;        cpy     tmp3
-;        bne     @copyByte
-;        rts
