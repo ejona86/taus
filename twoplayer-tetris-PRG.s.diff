@@ -504,6 +504,19 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
+@@ -3152,11 +3198,11 @@ L9B31:  cpx     garbageHole
+         beq     @garbageEmptySpace
+         lda     #$78
+         jmp     @placeGarbage
+ 
+ @garbageEmptySpace:
+-        lda     #$FF
++        lda     #$EF
+ @placeGarbage:
+         sta     (playfieldAddr),y
+         inx
+         cpx     #$0A
+         bne     L9B45
 @@ -3385,18 +3431,25 @@ gameModeState_handleGameOver:
          beq     @ret
          lda     #$04
