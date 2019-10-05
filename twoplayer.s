@@ -7,7 +7,6 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Add player 2 score rendering
 ; Rendering is exceeding the sprites-per-scanline limit
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
@@ -129,6 +128,7 @@ renderPlay_mod:
         lda     outOfDateRenderFlags
         and     #$02
         beq     @renderScore
+        ; Only update level on odd frames
         lda     frameCounter
         and     #$01
         bne     @renderScore
@@ -156,10 +156,11 @@ renderPlay_mod:
         lda     outOfDateRenderFlags
         and     #$04
         beq     @ret
-        ; Only update score on 
+        ; Only update score on even frames
         lda     frameCounter
         and     #$01
         beq     @ret
+
         lda     #$20
         sta     PPUADDR
         lda     #$66
@@ -170,6 +171,18 @@ renderPlay_mod:
         jsr     twoDigsToPPU
         lda     player1_score
         jsr     twoDigsToPPU
+
+        lda     #$20
+        sta     PPUADDR
+        lda     #$78
+        sta     PPUADDR
+        lda     player2_score+2
+        jsr     twoDigsToPPU
+        lda     player2_score+1
+        jsr     twoDigsToPPU
+        lda     player2_score
+        jsr     twoDigsToPPU
+
         lda     outOfDateRenderFlags
         and     #$FB
         sta     outOfDateRenderFlags
@@ -283,6 +296,8 @@ copyPlayfieldRowToVRAM_fast:
 @ret:   rts
 
 
+.segment "CODE2"
+
 stageSpriteForNextPiece_player1_mod:
         .export stageSpriteForNextPiece_player1_mod
         lda     displayNextPiece
@@ -307,8 +322,6 @@ stageSpriteForNextPiece_player1_mod:
         jmp     loadSpriteIntoOamStaging
 
 @ret:   rts
-
-.segment "CODE2"
 
 savePlayer2State_mod:
         .export savePlayer2State_mod
