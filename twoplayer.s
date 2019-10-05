@@ -7,7 +7,6 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Rendering is exceeding the sprites-per-scanline limit
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Enable two players by second player pressing start on level-select screen. Start or (b) may turn it back to 1 player.
@@ -319,7 +318,23 @@ stageSpriteForNextPiece_player1_mod:
         ldx     player1_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
+
+        ; Alternate draw order to flicker on conflict
+        lda     frameCounter
+        and     #$01
+        beq     @currentGoesLast
         jmp     loadSpriteIntoOamStaging
+
+@currentGoesLast:
+        ; Place sprite at end of oamStaging, to make it fail to render when
+        ; sprites align, instead of player2's current piece
+        lda     oamStagingLength
+        sta     tmp1
+        lda     #$100-4*4
+        sta     oamStagingLength
+        jsr     loadSpriteIntoOamStaging
+        lda     tmp1
+        sta     oamStagingLength
 
 @ret:   rts
 
