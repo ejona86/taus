@@ -446,10 +446,19 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2833,39 +2875,40 @@ chooseNextTetrimino:
- pickRandomTetrimino:
-         jsr     @realStart
+@@ -2829,43 +2871,47 @@ chooseNextTetrimino:
+         tax
+         lda     spawnTable,x
          rts
+ 
+ pickRandomTetrimino:
+-        jsr     @realStart
+-        rts
++        ;jsr     @realStart
++        ;rts
++        .import pickRandomTetrimino_mod
++        jsr     pickRandomTetrimino_mod
++        nop
  
  @realStart:
 -        inc     spawnCount
@@ -495,20 +504,21 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3387,11 +3430,11 @@ gameModeState_handleGameOver:
+@@ -3387,11 +3433,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
          bne     @ret
  @gameOver:
 -        lda     numberOfPlayers
++        ;lda     numberOfPlayers
 +        lda     #$01
          cmp     #$01
          beq     @onePlayerGameOver
          lda     #$09
          sta     gameModeState
          rts
-@@ -3821,11 +3864,11 @@ L9FE9:  ldy     #$00
+@@ -3821,11 +3868,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts

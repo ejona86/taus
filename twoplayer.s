@@ -7,7 +7,7 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Fix RNG. It normally relies on frames to advance; pickRandomTetrimino doesn't run the RNG.
+; Add player 2 score rendering
 ; Rendering is exceeding the sprites-per-scanline limit
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
@@ -345,4 +345,15 @@ loadSpriteIntoOamStaging_player2:
         inx
         cpx     oamStagingLength
         bne     @adjustSprite
+        rts
+
+
+pickRandomTetrimino_mod:
+        .export pickRandomTetrimino_mod
+        ldx     #rng_seed
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #personal_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
         rts
