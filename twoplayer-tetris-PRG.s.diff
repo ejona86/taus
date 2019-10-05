@@ -53,7 +53,7 @@
  spriteIndexInOamContentLookup:= $00A2
  outOfDateRenderFlags:= $00A3                    ; Bit 0-lines 1-level 2-score 6-stats 7-high score entry letter
  twoPlayerPieceDelayCounter:= $00A4              ; 0 is not delaying
-@@ -426,22 +446,25 @@ branchOnGameMode:
+@@ -426,32 +446,36 @@ branchOnGameMode:
  gameModeState_updatePlayer1:
          jsr     makePlayer1Active
          jsr     branchOnPlayStatePlayer1
@@ -79,9 +79,21 @@
  @ret:   inc     gameModeState
          rts
  
++.import gameModeState_handleGameOver_mod
  gameMode_playAndEndingHighScore:
          lda     gameModeState
-@@ -517,11 +540,12 @@ gameMode_legalScreen:
+         jsr     switch_s_plus_2a
+         .addr   gameModeState_initGameBackground
+         .addr   gameModeState_initGameState
+         .addr   gameModeState_updateCountersAndNonPlayerState
+-        .addr   gameModeState_handleGameOver
++        .addr   gameModeState_handleGameOver_mod
+         .addr   gameModeState_updatePlayer1
+         .addr   gameModeState_updatePlayer2
+         .addr   gameModeState_checkForResetKeyCombo
+         .addr   gameModeState_startButtonHandling
+         .addr   gameModeState_vblankThenRunState2
+@@ -517,11 +541,12 @@ gameMode_legalScreen:
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
          ldx     #$02
@@ -95,7 +107,7 @@
          sta     generalCounter
  @waitForStartButton:
          lda     newlyPressedButtons_player1
-@@ -753,12 +777,16 @@ gameMode_levelMenu:
+@@ -753,12 +778,16 @@ gameMode_levelMenu:
          jsr     changeCHRBank0
          lda     #$00
          jsr     changeCHRBank1
@@ -114,7 +126,7 @@
          jsr     bulkCopyToPpu
          .addr   height_menu_nametablepalette_patch
  @skipTypeBHeightDisplay:
-@@ -814,12 +842,14 @@ gameMode_levelMenu_processPlayer1Navigat
+@@ -814,12 +843,14 @@ gameMode_levelMenu_processPlayer1Navigat
  @startAndANotPressed:
          lda     #$00
          sta     gameModeState
@@ -131,7 +143,7 @@
          lda     newlyPressedButtons_player1
          cmp     #$40
          bne     @chooseRandomHole_player1
-@@ -844,11 +874,13 @@ @chooseRandomHole_player2:
+@@ -844,11 +875,13 @@ @chooseRandomHole_player2:
          lda     rng_seed
          and     #$0F
          cmp     #$0A
@@ -146,7 +158,7 @@
  ; Starts by checking if right pressed
  gameMode_levelMenu_handleLevelHeightNavigation:
          lda     newlyPressedButtons
-@@ -1026,12 +1058,18 @@ gameModeState_initGameBackground:
+@@ -1026,12 +1059,18 @@ gameModeState_initGameBackground:
          jsr     changeCHRBank0
          lda     #$03
          jsr     changeCHRBank1
@@ -167,7 +179,7 @@
          lda     #$83
          sta     PPUADDR
          lda     gameType
-@@ -1088,10 +1126,12 @@ @endOfPpuPatching:
+@@ -1088,10 +1127,12 @@ @endOfPpuPatching:
          lda     startHeight
          and     #$0F
          sta     PPUDATA
@@ -180,7 +192,7 @@
          jsr     updateAudioWaitForNmiAndResetOamStaging
          jsr     updateAudioWaitForNmiAndEnablePpuRendering
          jsr     updateAudioWaitForNmiAndResetOamStaging
-@@ -1113,12 +1153,14 @@ game_typeb_nametable_patch:
+@@ -1113,12 +1154,14 @@ game_typeb_nametable_patch:
          .byte   $FE,$23,$57,$3D,$3E,$3E,$3E,$3E
          .byte   $3E,$3E,$3F,$FD
  gameModeState_initGameState:
@@ -197,7 +209,7 @@
  ; statsByType
  @initStatsByType:
          sta     $03EF,x
-@@ -1166,16 +1208,17 @@ @initStatsByType:
+@@ -1166,16 +1209,17 @@ @initStatsByType:
          sta     player2_autorepeatY
          jsr     chooseNextTetrimino
          sta     player1_currentPiece
@@ -218,7 +230,7 @@
          lda     #$25
          sta     player1_lines
          sta     player2_lines
-@@ -1552,17 +1595,17 @@ stageSpriteForCurrentPiece:
+@@ -1552,17 +1596,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
          beq     L8A2C
@@ -238,7 +250,7 @@
          lda     tetriminoY
          rol     a
          rol     a
-@@ -1596,11 +1639,12 @@ L8A4B:  lda     orientationTable,x
+@@ -1596,11 +1640,12 @@ L8A4B:  lda     orientationTable,x
          lda     orientationTable,x
          sta     oamStaging,y
          inc     oamStagingLength
@@ -252,7 +264,7 @@
          cmp     #$2F
          bcs     L8A84
          inc     oamStagingLength
-@@ -1882,36 +1926,36 @@ sprite03PausePalette6:
+@@ -1882,36 +1927,36 @@ sprite03PausePalette6:
  sprite05PausePalette4:
          .byte   $00,$19,$00,$00,$00,$0A,$00,$08
          .byte   $00,$1E,$00,$10,$00,$1C,$00,$18
@@ -303,7 +315,7 @@
          .byte   $00,$FC,$21,$00,$FF
  ; Unused, but referenced from unreferenced_orientationToSpriteTable
  sprite0FTPieceOffset:
-@@ -2356,14 +2400,15 @@ render_mode_play_and_demo:
+@@ -2356,14 +2401,15 @@ render_mode_play_and_demo:
  @playStateNotDisplayLineClearingAnimation:
          lda     player1_vramRow
          sta     vramRow
@@ -323,7 +335,7 @@
  @renderPlayer2Playfield:
          lda     numberOfPlayers
          cmp     #$02
-@@ -2397,14 +2442,14 @@ @renderPlayer2Playfield:
+@@ -2397,14 +2443,14 @@ @renderPlayer2Playfield:
  @player2PlayStateNotDisplayLineClearingAnimation:
          lda     player2_vramRow
          sta     vramRow
@@ -342,7 +354,7 @@
  @renderLines:
          lda     outOfDateRenderFlags
          and     #$01
-@@ -2424,21 +2469,21 @@ @renderLines:
+@@ -2424,21 +2470,21 @@ @renderLines:
          and     #$FE
          sta     outOfDateRenderFlags
          jmp     @renderLevel
@@ -368,7 +380,7 @@
          sta     PPUDATA
          lda     player2_lines
          jsr     twoDigsToPPU
-@@ -2464,12 +2509,15 @@ @renderLevel:
+@@ -2464,12 +2510,15 @@ @renderLevel:
          jsr     updatePaletteForLevel
          lda     outOfDateRenderFlags
          and     #$FD
@@ -386,7 +398,7 @@
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2592,18 +2640,18 @@ copyPlayfieldRowToVRAM:
+@@ -2592,18 +2641,18 @@ copyPlayfieldRowToVRAM:
          lda     playfieldAddr+1
          cmp     #$05
          beq     @playerTwo
@@ -407,7 +419,7 @@
  
  @onePlayer:
          lda     vramPlayfieldRows,x
-@@ -2653,18 +2701,18 @@ @twoPlayers:
+@@ -2653,18 +2702,18 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -428,7 +440,7 @@
          iny
          lda     vramPlayfieldRows,y
          sta     generalCounter2
-@@ -2717,11 +2765,11 @@ @copyPalettes:
+@@ -2717,11 +2766,11 @@ @copyPalettes:
          lda     #$00
          sta     generalCounter
  @copyPalette:
@@ -441,7 +453,7 @@
          sta     PPUADDR
          lda     colorTable,x
          sta     PPUDATA
-@@ -2767,11 +2815,12 @@ @ret:   rts
+@@ -2767,11 +2816,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -455,7 +467,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2796,24 +2845,25 @@ @notDelaying:
+@@ -2796,24 +2846,25 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -484,7 +496,7 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2832,43 +2882,47 @@ chooseNextTetrimino:
+@@ -2832,43 +2883,47 @@ chooseNextTetrimino:
          tax
          lda     spawnTable,x
          rts
@@ -542,7 +554,7 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3128,11 +3182,12 @@ @ret:   rts
+@@ -3128,11 +3183,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -556,7 +568,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3209,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3210,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -569,38 +581,21 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3387,18 +3442,25 @@ gameModeState_handleGameOver:
-         beq     @ret
-         lda     #$04
+@@ -3389,11 +3445,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
--        bne     @ret
-+        bne     @clearAAndRet
+         bne     @ret
  @gameOver:
 -        lda     numberOfPlayers
 +        ;lda     numberOfPlayers
 +        lda     #$01
          cmp     #$01
          beq     @onePlayerGameOver
--        lda     #$09
--        sta     gameModeState
--        rts
-+        ;lda     #$09
-+        ;sta     gameModeState
-+        ;rts
-+@clearAAndRet:
-+; put known data in a, to avoid it from matching "cmp gameModeState" in
-+; @mainLoop. In 1 player mode, numberOfPlayers will be in a.
-+        lda     #$00
-+        beq     @ret
-+        nop
- 
- @onePlayerGameOver:
-         lda     #$03
-         sta     renderMode
-         lda     numberOfPlayers
-@@ -3823,11 +3885,11 @@ L9FE9:  ldy     #$00
+         lda     #$09
+         sta     gameModeState
+         rts
+@@ -3823,11 +3880,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -613,7 +608,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6266,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6261,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67

@@ -516,3 +516,25 @@ gameMode_levelMenu_processPlayer2Navigation:
 @doneProcessing:
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     @afterPatch
+
+
+gameModeState_handleGameOver_mod:
+        .export gameModeState_handleGameOver_mod
+        lda     numberOfPlayers
+        cmp     #$01
+        bne     @twoPlayers
+        jmp     gameModeState_handleGameOver
+
+@twoPlayers:
+        lda     player1_playState
+        ora     player2_playState
+        cmp     #$00
+        beq     @gameOver
+        ; put known data in a, to avoid it from matching "cmp gameModeState" in
+        ; @mainLoop. In 1 player mode, numberOfPlayers will be in a.
+        lda     #$00
+        inc     gameModeState
+        rts
+
+@gameOver:
+        jmp     gameModeState_handleGameOver
