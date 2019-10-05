@@ -542,7 +542,21 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3155,11 +3209,11 @@ L9B31:  cpx     garbageHole
+@@ -3128,11 +3182,12 @@ @ret:   rts
+ 
+ playState_receiveGarbage:
+         lda     numberOfPlayers
+         cmp     #$01
+         beq     L9B50
+-        ldy     totalGarbageInactivePlayer
++        ;ldy     totalGarbageInactivePlayer
++        bne     L9B50
+         beq     L9B50
+         lda     vramRow
+         cmp     #$20
+         bmi     L9B52
+         lda     multBy10Table,y
+@@ -3154,11 +3209,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -555,7 +569,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3388,18 +3442,25 @@ gameModeState_handleGameOver:
+@@ -3387,18 +3442,25 @@ gameModeState_handleGameOver:
          beq     @ret
          lda     #$04
          sta     generalCounter2
@@ -586,7 +600,7 @@
          lda     #$03
          sta     renderMode
          lda     numberOfPlayers
-@@ -3824,11 +3885,11 @@ L9FE9:  ldy     #$00
+@@ -3823,11 +3885,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -599,7 +613,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6205,17 +6266,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6266,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67

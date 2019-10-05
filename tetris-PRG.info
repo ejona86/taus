@@ -778,7 +778,7 @@ LABEL { ADDR $9ACC; NAME "@rowNotComplete"; }; # canon
 LABEL { ADDR $9AD2; NAME "@incrementLineIndex"; }; # canon
 LABEL { ADDR $9AF5; NAME "@skipTetrisSoundEffect"; };
 LABEL { ADDR $9B02; NAME "@ret"; };
-LABEL { ADDR $9B03; NAME "playState_execute2PlayerModeLogic"; COMMENT "unused; unfinished"; };
+LABEL { ADDR $9B03; NAME "playState_receiveGarbage"; };
 LABEL { ADDR $9B3A; NAME "@garbageEmptySpace"; };
 LABEL { ADDR $9B3C; NAME "@placeGarbage"; };
 LABEL { ADDR $9B58; NAME "playState_updateLinesAndStatistics"; };
