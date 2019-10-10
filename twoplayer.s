@@ -7,6 +7,9 @@
 ; "current player" as the palette value.
 
 ; TODO:
+; Music speed fights between whoever locked the last piece
+; Fix no flashing when p1 tetrises
+; Fix different sound when P1 tetrises
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Fix background tetrimino pattern
@@ -408,12 +411,20 @@ gameMode_levelMenu_nametable_mod:
 
         jsr     bulkCopyToPpu
         .addr   player2PressStartPatch
-        jmp     @ret
+        jmp     @levelMenuInit
 
 @twoPlayers:
         jsr     bulkCopyToPpu
         .addr   player1ActivePatch
-@ret:
+
+@levelMenuInit:
+        lda     player2_startLevel
+@forceStartLevelToRange:
+        sta     player2_startLevel
+        sec
+        sbc     #$0A
+        bcs     @forceStartLevelToRange
+
         rts
 
 gameMode_levelMenu_processPlayer1Navigation_processPlayer2:
