@@ -8,8 +8,6 @@
 
 ; TODO:
 ; Music speed fights between whoever locked the last piece
-; Fix no flashing when p1 tetrises
-; Fix different sound when P1 tetrises
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Fix background tetrimino pattern
@@ -308,6 +306,16 @@ copyPlayfieldRowToVRAM_fast:
         sta     vramRow
 @ret:   rts
 
+
+renderTetrisFlashAndSound_mod:
+        .export renderTetrisFlashAndSound_mod
+        lda     player1_completedLines
+        cmp     #$04
+        beq     @ret
+        lda     player2_completedLines
+        cmp     #$04
+@ret:
+        rts
 
 .segment "CODE2"
 

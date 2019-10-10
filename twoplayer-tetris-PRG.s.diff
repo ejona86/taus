@@ -402,7 +402,25 @@
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2592,18 +2645,18 @@ copyPlayfieldRowToVRAM:
+@@ -2517,12 +2570,15 @@ @renderTetrisFlashAndSound:
+         lda     #$3F
+         sta     PPUADDR
+         lda     #$0E
+         sta     PPUADDR
+         ldx     #$00
+-        lda     completedLines
+-        cmp     #$04
++        ;lda     completedLines
++        ;cmp     #$04
++        .import renderTetrisFlashAndSound_mod
++        jsr     renderTetrisFlashAndSound_mod
++        nop
+         bne     @setPaletteColor
+         lda     frameCounter
+         and     #$03
+         bne     @setPaletteColor
+         ldx     #$30
+@@ -2592,18 +2648,18 @@ copyPlayfieldRowToVRAM:
          lda     playfieldAddr+1
          cmp     #$05
          beq     @playerTwo
@@ -423,7 +441,7 @@
  
  @onePlayer:
          lda     vramPlayfieldRows,x
-@@ -2653,18 +2706,18 @@ @twoPlayers:
+@@ -2653,18 +2709,18 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -444,7 +462,7 @@
          iny
          lda     vramPlayfieldRows,y
          sta     generalCounter2
-@@ -2717,11 +2770,11 @@ @copyPalettes:
+@@ -2717,11 +2773,11 @@ @copyPalettes:
          lda     #$00
          sta     generalCounter
  @copyPalette:
@@ -457,7 +475,7 @@
          sta     PPUADDR
          lda     colorTable,x
          sta     PPUDATA
-@@ -2767,11 +2820,12 @@ @ret:   rts
+@@ -2767,11 +2823,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -471,7 +489,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2796,24 +2850,25 @@ @notDelaying:
+@@ -2796,24 +2853,25 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -500,7 +518,7 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2832,43 +2887,47 @@ chooseNextTetrimino:
+@@ -2832,43 +2890,47 @@ chooseNextTetrimino:
          tax
          lda     spawnTable,x
          rts
@@ -558,7 +576,7 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3128,11 +3187,12 @@ @ret:   rts
+@@ -3128,11 +3190,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -572,7 +590,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3214,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3217,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -585,7 +603,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3389,11 +3449,12 @@ gameModeState_handleGameOver:
+@@ -3389,11 +3452,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -599,7 +617,7 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3823,11 +3884,11 @@ L9FE9:  ldy     #$00
+@@ -3823,11 +3887,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -612,7 +630,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6265,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6268,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67
