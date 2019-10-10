@@ -44,8 +44,14 @@ initGameState_mod:
         bne     @clearByte
 
         .importzp personal_rng
+        .importzp spawnID_
+        .importzp spawnCount_
         .importzp player1_rng
+        .importzp player1_spawnID_
+        .importzp player1_spawnCount_
         .importzp player2_rng
+        .importzp player2_spawnID_
+        .importzp player2_spawnCount_
 ; FIXME. reuses the seed at beginning of game
         lda     rng_seed
         sta     personal_rng
@@ -55,6 +61,12 @@ initGameState_mod:
         sta     personal_rng+1
         sta     player1_rng+1
         sta     player2_rng+1
+        lda     spawnID_
+        sta     player1_spawnID_
+        sta     player2_spawnID_
+        lda     spawnCount_
+        sta     player1_spawnCount_
+        sta     player2_spawnCount_
 
         ldx     #player1_rng
         ldy     #$02
