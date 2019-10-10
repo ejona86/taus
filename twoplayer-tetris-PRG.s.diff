@@ -576,7 +576,25 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3128,11 +3190,12 @@ @ret:   rts
+@@ -3028,12 +3090,15 @@ @checkForStartButton:
+         lda     newlyPressedButtons_player1
+         cmp     #$10
+         bne     @ret2
+ @exitGame:
+         lda     #$00
+-        sta     playState
+-        sta     newlyPressedButtons_player1
++        ;sta     playState
++        ;sta     newlyPressedButtons_player1
++        .import playState_updateGameOverCurtain_curtainFinished_mod
++        jsr     playState_updateGameOverCurtain_curtainFinished_mod
++        nop
+ @ret2:  rts
+ 
+ playState_checkForCompletedRows:
+         lda     vramRow
+         cmp     #$20
+@@ -3128,11 +3193,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -590,7 +608,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3217,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3220,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -603,7 +621,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3389,11 +3452,12 @@ gameModeState_handleGameOver:
+@@ -3389,11 +3455,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -617,7 +635,44 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3823,11 +3887,11 @@ L9FE9:  ldy     #$00
+@@ -3438,23 +3505,31 @@ @checkForBlockInRow:
+         bne     @foundBlockInRow
+         iny
+         dex
+         bne     @checkForBlockInRow
+         lda     allegro
+-        beq     @ret
+-        lda     #$00
+-        sta     allegro
++        ;beq     @ret
++        ;lda     #$00
++        ;sta     allegro
++        .import updateMusicSpeed_noBlockInRow_mod
++        jsr     updateMusicSpeed_noBlockInRow_mod
++        bne     @ret
++        nop
+         ldx     musicType
+         lda     musicSelectionTable,x
+         jsr     setMusicTrack
+         jmp     @ret
+ 
+ @foundBlockInRow:
+         lda     allegro
++        ;bne     @ret
++        ;lda     #$FF
++        ;sta     allegro
++        .import updateMusicSpeed_foundBlockInRow_mod
++        jsr     updateMusicSpeed_foundBlockInRow_mod
+         bne     @ret
+-        lda     #$FF
+-        sta     allegro
++        nop
+         lda     musicType
+         clc
+         adc     #$04
+         tax
+         lda     musicSelectionTable,x
+@@ -3823,11 +3898,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -630,7 +685,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6268,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6279,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67

@@ -7,7 +7,6 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Music speed fights between whoever locked the last piece
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Fix background tetrimino pattern
@@ -559,7 +558,6 @@ gameModeState_handleGameOver_mod:
 @twoPlayers:
         lda     player1_playState
         ora     player2_playState
-        cmp     #$00
         beq     @gameOver
         ; put known data in a, to avoid it from matching "cmp gameModeState" in
         ; @mainLoop. In 1 player mode, numberOfPlayers will be in a.
@@ -569,3 +567,70 @@ gameModeState_handleGameOver_mod:
 
 @gameOver:
         jmp     gameModeState_handleGameOver
+
+
+updateMusicSpeed_noBlockInRow_mod:
+        .export updateMusicSpeed_noBlockInRow_mod
+        tax
+        and     activePlayer
+        eor     allegro
+        sta     allegro
+        txa
+        cmp     activePlayer
+        rts
+
+updateMusicSpeed_foundBlockInRow_mod:
+        .export updateMusicSpeed_foundBlockInRow_mod
+        tax
+        ora     activePlayer
+        sta     allegro
+        txa
+        cmp     #$00
+        rts
+
+playState_updateGameOverCurtain_curtainFinished_mod:
+        .export playState_updateGameOverCurtain_curtainFinished_mod
+        sta     playState
+        sta     newlyPressedButtons_player1
+
+        lda     numberOfPlayers
+        cmp     #$02
+        bne     @ret
+
+        ; playState has not yet been copied to player*_playState
+        lda     activePlayer
+        cmp     #$01
+        bne     @playerTwoActive
+        lda     player2_playState
+        beq     @ret
+        bne     @resumeMusic
+@playerTwoActive:
+        lda     player1_playState
+        beq     @ret
+
+@resumeMusic:
+        jsr     updateMusicSpeed_playerDied
+
+@ret:
+        rts
+
+updateMusicSpeed_playerDied:
+        lda     allegro
+        and     activePlayer
+        eor     allegro
+        sta     allegro
+        bne     @fast
+
+        ldx     musicType
+        lda     musicSelectionTable,x
+        jsr     setMusicTrack
+        rts
+
+@fast:
+        lda     musicType
+        clc
+        adc     #$04
+        tax
+        lda     musicSelectionTable,x
+        jsr     setMusicTrack
+        rts
