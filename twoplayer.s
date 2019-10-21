@@ -203,40 +203,9 @@ renderPlay_mod:
 
 updatePaletteForLevel_player2:
         lda     player2_levelNumber
-@mod10: cmp     #$0A
-        bmi     @copyPalettes
-        sec
-        sbc     #$0A
-        jmp     @mod10
-
-@copyPalettes:
-        asl     a
-        asl     a
-        tax
-        lda     #$00
-        sta     generalCounter
-@copyPalette:
-        lda     #$3F
-        sta     PPUADDR
-        lda     #$08
-        clc
-        adc     generalCounter
-        sta     PPUADDR
-        lda     colorTable,x
-        sta     PPUDATA
-        lda     colorTable+1,x
-        sta     PPUDATA
-        lda     colorTable+1+1,x
-        sta     PPUDATA
-        lda     colorTable+1+1+1,x
-        sta     PPUDATA
-        lda     generalCounter
-        clc
-        adc     #$10
-        sta     generalCounter
-        cmp     #$20
-        bne     @copyPalette
-        rts
+        ldy     #$08
+        .import updatePaletteForLevel_mod10
+        jmp     updatePaletteForLevel_mod10
 
 ; A faster implementation of copying to the VRAM, by 75 cycles.
 ; An unmodified implementation of render_mode_play_and_demo, but with 2 players
