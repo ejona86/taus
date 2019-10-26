@@ -136,13 +136,17 @@ renderPlay_mod:
         jmp     after_renderPlay_mod
 
 @twoPlayers:
-        ; Only update level on odd frames
-        lda     frameCounter
-        and     #$01
-        bne     @renderScore
+        ; Update level/palette on a different frame than score (and implicitly
+        ; lines) is updated. This reduces the number of updates on the same
+        ; frame to help squeeze updates within vsync. The wrong palette is not
+        ; visible the first frame of the game in two-player because the game
+        ; logic runs after rendering, so the first frame has no sprites. In
+        ; one-player the statistics will have the wrong palette for an extra
+        ; frame.
         lda     outOfDateRenderFlags
-        and     #$02
-        beq     @renderScore
+        eor     #$02
+        and     #$06
+        bne     @renderScore
         lda     #$20
         sta     PPUADDR
         lda     #$EF
@@ -164,10 +168,6 @@ renderPlay_mod:
         sta     outOfDateRenderFlags
 
 @renderScore:
-        ; Only update score on even frames
-        lda     frameCounter
-        and     #$01
-        beq     @ret
         lda     outOfDateRenderFlags
         and     #$04
         beq     @ret
