@@ -132,16 +132,17 @@ renderPlay_mod:
         lda     numberOfPlayers
         cmp     #$02
         beq     @twoPlayers
-        rts
+        .import after_renderPlay_mod
+        jmp     after_renderPlay_mod
 
 @twoPlayers:
-        lda     outOfDateRenderFlags
-        and     #$02
-        beq     @renderScore
         ; Only update level on odd frames
         lda     frameCounter
         and     #$01
         bne     @renderScore
+        lda     outOfDateRenderFlags
+        and     #$02
+        beq     @renderScore
         lda     #$20
         sta     PPUADDR
         lda     #$EF
@@ -163,12 +164,12 @@ renderPlay_mod:
         sta     outOfDateRenderFlags
 
 @renderScore:
-        lda     outOfDateRenderFlags
-        and     #$04
-        beq     @ret
         ; Only update score on even frames
         lda     frameCounter
         and     #$01
+        beq     @ret
+        lda     outOfDateRenderFlags
+        and     #$04
         beq     @ret
 
         lda     #$20
@@ -199,7 +200,7 @@ renderPlay_mod:
 
 @ret:
         lda     #$00
-        rts
+        jmp     after_renderPlay_mod
 
 updatePaletteForLevel_player2:
         lda     player2_levelNumber
@@ -355,7 +356,8 @@ renderTetrisFlashAndSound_mod:
         lda     player2_completedLines
         cmp     #$04
 @ret:
-        rts
+        .import after_renderTetrisFlashAndSound_mod
+        jmp     after_renderTetrisFlashAndSound_mod
 
 .segment "CODE2"
 
