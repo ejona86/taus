@@ -57,13 +57,17 @@
  spriteIndexInOamContentLookup:= $00A2
  outOfDateRenderFlags:= $00A3                    ; Bit 0-lines 1-level 2-score 6-stats 7-high score entry letter
  twoPlayerPieceDelayCounter:= $00A4              ; 0 is not delaying
-@@ -244,17 +268,17 @@ nmi:    pha
+@@ -241,20 +265,20 @@ initRam:ldx     #$00
+ nmi:    pha
+         txa
+         pha
          tya
          pha
++        jsr     render
++        jsr     copyOamStagingToOam
          lda     #$00
          sta     oamStagingLength
-         jsr     render
-+        jsr     copyOamStagingToOam
+-        jsr     render
          dec     sleepCounter
          lda     sleepCounter
          cmp     #$FF
