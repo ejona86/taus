@@ -207,45 +207,42 @@ updatePaletteForLevel_player2:
         .import updatePaletteForLevel_mod10
         jmp     updatePaletteForLevel_mod10
 
-; A faster implementation of copying to the VRAM, by 75 cycles.
+.import vramPlayfieldRowsHi
+.import vramPlayfieldRowsLo
+.define FASTROWTOVRAM 2
+.if FASTROWTOVRAM = 1
+; A faster implementation of copying to the VRAM, by 92 cycles (from 246
+; cycles down to 154).
+;
 ; An unmodified implementation of render_mode_play_and_demo, but with 2 players
-; enabled, would not fit within a vsync, because this method is run 8 times.
-; After some additions, it was taking 2549 cycles, which is well over the 2270
-; cycles available per vsync and that is even before it starts the OAMDMA. This
-; implementation reduces number of cycles by 75, saving 600 overall per frame.
-; For the moment, that lends a much more comfortable 1949 cycles.
+; enabled, does not fit within a vsync because 8 rows are copied which totals
+; 1968 cycles by itself. The optimization here brings it down to 1232 cycles
+; which may still be tight but isn't too much more than the 984 cycles
+; normally used for 1 player.
 copyPlayfieldRowToVRAM_fast:
         .export copyPlayfieldRowToVRAM_fast
-        lda     #$04
-        sta     generalCounter
         ldx     vramRow
         cpx     #$15
         bmi     @skipRts
         rts
 @skipRts:
-        lda     multBy10Table,x
-        tay
-        txa
-        asl     a
-        tax
-        inx
-        lda     vramPlayfieldRows,x
+        ldy     multBy10Table,x
+        lda     vramPlayfieldRowsHi,x
         sta     PPUADDR
-        dex
         lda     numberOfPlayers
         cmp     #$01
         beq     @onePlayer
         lda     playfieldAddr+1
         cmp     #$05
         beq     @playerTwo
-        lda     vramPlayfieldRows,x
+        lda     vramPlayfieldRowsLo,x
         sec
         sbc     #$04
         sta     PPUADDR
         jmp     @copyRowForPlayer1
 
 @playerTwo:
-        lda     vramPlayfieldRows,x
+        lda     vramPlayfieldRowsLo,x
         clc
         adc     #$0E
         sta     PPUADDR
@@ -256,7 +253,7 @@ copyPlayfieldRowToVRAM_fast:
         jmp     @doneWithRow
 
 @onePlayer:
-        lda     vramPlayfieldRows,x
+        lda     vramPlayfieldRowsLo,x
         clc
         adc     #$06
         sta     PPUADDR
@@ -273,6 +270,81 @@ copyPlayfieldRowToVRAM_fast:
         lda     #$20
         sta     vramRow
 @ret:   rts
+
+.elseif FASTROWTOVRAM = 2
+; A batched implementation of copying playfield to the VRAM, saving 76 cycles
+; compared to copying each row individually (from 635 cycles down to 559,
+; including boilerplate in caller).
+;
+; reg x: (input/output) vramRow
+; reg a: (input) 0=player 1, 1=player 2
+;
+copyPlayfieldRowToVRAM4:
+        .export copyPlayfieldRowToVRAM4
+        cpx     #$20
+        bmi     @skipRts
+        rts
+@skipRts:
+        sta     generalCounter3
+        tay
+        beq     @playerOne
+;playerTwo:
+        lda     #$0E
+        sta     generalCounter2
+        bne     @continueSetup
+
+@playerOne:
+        ldy     numberOfPlayers
+        lda     @offsetTable-1,y
+        sta     generalCounter2
+
+@continueSetup:
+        lda     #$04
+        sta     generalCounter
+; reg x: vramRow
+; reg y: playfield offset for row
+; generalCounter: loop counter
+; generalCounter2: VRAM LO offset
+; generalCounter3: 0=player 1, 1=player 2
+@loop:
+        lda     vramPlayfieldRowsHi,x
+        sta     PPUADDR
+        lda     vramPlayfieldRowsLo,x
+        clc
+        adc     generalCounter2
+        sta     PPUADDR
+
+        ldy     multBy10Table,x
+        lda     generalCounter3
+        bne     @playerTwoCopy
+        .repeat 10,I
+        lda     playfield+I,y
+        sta     PPUDATA
+        .endrepeat
+        jmp     @nextIter
+@playerTwoCopy:
+        .repeat 10,I
+        lda     playfieldForSecondPlayer+I,y
+        sta     PPUDATA
+        .endrepeat
+
+@nextIter:
+        inx
+        cpx     #$14
+        bpl     @doneWithAllRows
+@vramInRange:
+        dec     generalCounter
+        beq     @ret
+        jmp     @loop
+
+@doneWithAllRows:
+        ldx     #$20
+@ret:
+        rts
+
+@offsetTable:
+        .byte   $06,(-$04)&$FF
+.endif
 
 
 renderTetrisFlashAndSound_mod:
