@@ -205,8 +205,8 @@ renderPlay_mod:
 updatePaletteForLevel_player2:
         lda     player2_levelNumber
         ldy     #$08
-        .import updatePaletteForLevel_mod10
-        jmp     updatePaletteForLevel_mod10
+        .import updatePaletteForLevel_postConf
+        jmp     updatePaletteForLevel_postConf
 
 .import vramPlayfieldRowsHi
 .import vramPlayfieldRowsLo

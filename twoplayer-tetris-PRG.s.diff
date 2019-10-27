@@ -675,22 +675,23 @@
          ldx     rowY
          lda     leftColumns,x
          clc
-@@ -2702,45 +2817,53 @@ leftColumns:
+@@ -2702,45 +2817,47 @@ leftColumns:
  rightColumns:
          .byte   $05,$06,$07,$08,$09
  ; Set Background palette 2 and Sprite palette 2
  updatePaletteForLevel:
          lda     player1_levelNumber
 -@mod10: cmp     #$0A
+-        bmi     @copyPalettes
 +        ldy     #$04
-+.export updatePaletteForLevel_mod10
-+updatePaletteForLevel_mod10:
-+        cmp     #$0A
-         bmi     @copyPalettes
++.export updatePaletteForLevel_postConf
++updatePaletteForLevel_postConf:
          sec
++@mod10:
          sbc     #$0A
 -        jmp     @mod10
-+        jmp     updatePaletteForLevel_mod10
++        bcs     @mod10
++        adc     #$0A
  
  @copyPalettes:
          asl     a
@@ -725,22 +726,16 @@
 +        bmi     @copyPalette
          rts
  
++.repeat 12
 +        nop
-+        nop
-+        nop
-+        nop
-+        nop
-+        nop
-+        nop
-+        nop
-+        nop
++.endrepeat
 +
  ; 4 bytes per level (bg, fg, c3, c4)
  colorTable:
          .dbyt   $0F30,$2112,$0F30,$291A
          .dbyt   $0F30,$2414,$0F30,$2A12
          .dbyt   $0F30,$2B15,$0F30,$222B
-@@ -2767,11 +2890,12 @@ @ret:   rts
+@@ -2767,11 +2884,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -754,7 +749,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2796,24 +2920,25 @@ @notDelaying:
+@@ -2796,24 +2914,25 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -783,7 +778,7 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2832,43 +2957,47 @@ chooseNextTetrimino:
+@@ -2832,43 +2951,47 @@ chooseNextTetrimino:
          tax
          lda     spawnTable,x
          rts
@@ -841,7 +836,7 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3028,12 +3157,15 @@ @checkForStartButton:
+@@ -3028,12 +3151,15 @@ @checkForStartButton:
          lda     newlyPressedButtons_player1
          cmp     #$10
          bne     @ret2
@@ -859,7 +854,7 @@
  playState_checkForCompletedRows:
          lda     vramRow
          cmp     #$20
-@@ -3128,11 +3260,12 @@ @ret:   rts
+@@ -3128,11 +3254,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -873,7 +868,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3287,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3281,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -886,7 +881,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3389,11 +3522,12 @@ gameModeState_handleGameOver:
+@@ -3389,11 +3516,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -900,7 +895,7 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3438,23 +3572,31 @@ @checkForBlockInRow:
+@@ -3438,23 +3566,31 @@ @checkForBlockInRow:
          bne     @foundBlockInRow
          iny
          dex
@@ -937,7 +932,7 @@
          adc     #$04
          tax
          lda     musicSelectionTable,x
-@@ -3823,11 +3965,11 @@ L9FE9:  ldy     #$00
+@@ -3823,11 +3959,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -950,7 +945,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6346,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6340,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67
