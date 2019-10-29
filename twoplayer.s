@@ -162,7 +162,11 @@ renderPlay_mod:
         ldx     player2_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU
-        jsr     updatePaletteForLevel_player2
+        ; updatePaletteForLevel_player2
+        lda     player2_levelNumber
+        ldy     #$08
+        .import updatePaletteForLevel_postConf
+        jsr     updatePaletteForLevel_postConf
         lda     outOfDateRenderFlags
         and     #$FD
         sta     outOfDateRenderFlags
@@ -201,12 +205,6 @@ renderPlay_mod:
 @ret:
         lda     #$00
         jmp     after_renderPlay_mod
-
-updatePaletteForLevel_player2:
-        lda     player2_levelNumber
-        ldy     #$08
-        .import updatePaletteForLevel_postConf
-        jmp     updatePaletteForLevel_postConf
 
 .import vramPlayfieldRowsHi
 .import vramPlayfieldRowsLo
