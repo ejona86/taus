@@ -57,14 +57,17 @@
  spriteIndexInOamContentLookup:= $00A2
  outOfDateRenderFlags:= $00A3                    ; Bit 0-lines 1-level 2-score 6-stats 7-high score entry letter
  twoPlayerPieceDelayCounter:= $00A4              ; 0 is not delaying
-@@ -241,20 +265,20 @@ initRam:ldx     #$00
+@@ -241,20 +265,23 @@ initRam:ldx     #$00
  nmi:    pha
          txa
          pha
          tya
          pha
 +        jsr     render
-+        jsr     copyOamStagingToOam
++        .import copyOamStagingToOam_mod
++        jmp     copyOamStagingToOam_mod
++.export after_copyOamStagingToOam_mod
++after_copyOamStagingToOam_mod:
          lda     #$00
          sta     oamStagingLength
 -        jsr     render
@@ -80,7 +83,7 @@
          adc     #$01
          sta     frameCounter
          lda     #$00
-@@ -426,32 +450,36 @@ branchOnGameMode:
+@@ -426,32 +453,36 @@ branchOnGameMode:
  gameModeState_updatePlayer1:
          jsr     makePlayer1Active
          jsr     branchOnPlayStatePlayer1
@@ -120,7 +123,7 @@
          .addr   gameModeState_checkForResetKeyCombo
          .addr   gameModeState_startButtonHandling
          .addr   gameModeState_vblankThenRunState2
-@@ -517,11 +545,12 @@ gameMode_legalScreen:
+@@ -517,11 +548,12 @@ gameMode_legalScreen:
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
          ldx     #$02
@@ -134,7 +137,7 @@
          sta     generalCounter
  @waitForStartButton:
          lda     newlyPressedButtons_player1
-@@ -753,12 +782,16 @@ gameMode_levelMenu:
+@@ -753,12 +785,16 @@ gameMode_levelMenu:
          jsr     changeCHRBank0
          lda     #$00
          jsr     changeCHRBank1
@@ -153,7 +156,7 @@
          jsr     bulkCopyToPpu
          .addr   height_menu_nametablepalette_patch
  @skipTypeBHeightDisplay:
-@@ -814,12 +847,14 @@ gameMode_levelMenu_processPlayer1Navigat
+@@ -814,12 +850,14 @@ gameMode_levelMenu_processPlayer1Navigat
  @startAndANotPressed:
          lda     #$00
          sta     gameModeState
@@ -170,7 +173,7 @@
          lda     newlyPressedButtons_player1
          cmp     #$40
          bne     @chooseRandomHole_player1
-@@ -844,11 +879,13 @@ @chooseRandomHole_player2:
+@@ -844,11 +882,13 @@ @chooseRandomHole_player2:
          lda     rng_seed
          and     #$0F
          cmp     #$0A
@@ -185,7 +188,7 @@
  ; Starts by checking if right pressed
  gameMode_levelMenu_handleLevelHeightNavigation:
          lda     newlyPressedButtons
-@@ -1026,12 +1063,18 @@ gameModeState_initGameBackground:
+@@ -1026,12 +1066,18 @@ gameModeState_initGameBackground:
          jsr     changeCHRBank0
          lda     #$03
          jsr     changeCHRBank1
@@ -206,7 +209,7 @@
          lda     #$83
          sta     PPUADDR
          lda     gameType
-@@ -1088,10 +1131,12 @@ @endOfPpuPatching:
+@@ -1088,10 +1134,12 @@ @endOfPpuPatching:
          lda     startHeight
          and     #$0F
          sta     PPUDATA
@@ -219,7 +222,7 @@
          jsr     updateAudioWaitForNmiAndResetOamStaging
          jsr     updateAudioWaitForNmiAndEnablePpuRendering
          jsr     updateAudioWaitForNmiAndResetOamStaging
-@@ -1113,12 +1158,14 @@ game_typeb_nametable_patch:
+@@ -1113,12 +1161,14 @@ game_typeb_nametable_patch:
          .byte   $FE,$23,$57,$3D,$3E,$3E,$3E,$3E
          .byte   $3E,$3E,$3F,$FD
  gameModeState_initGameState:
@@ -236,7 +239,7 @@
  ; statsByType
  @initStatsByType:
          sta     $03EF,x
-@@ -1166,16 +1213,17 @@ @initStatsByType:
+@@ -1166,16 +1216,17 @@ @initStatsByType:
          sta     player2_autorepeatY
          jsr     chooseNextTetrimino
          sta     player1_currentPiece
@@ -257,7 +260,7 @@
          lda     #$25
          sta     player1_lines
          sta     player2_lines
-@@ -1552,17 +1600,17 @@ stageSpriteForCurrentPiece:
+@@ -1552,17 +1603,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
          beq     L8A2C
@@ -277,7 +280,7 @@
          lda     tetriminoY
          rol     a
          rol     a
-@@ -1596,11 +1644,12 @@ L8A4B:  lda     orientationTable,x
+@@ -1596,11 +1647,12 @@ L8A4B:  lda     orientationTable,x
          lda     orientationTable,x
          sta     oamStaging,y
          inc     oamStagingLength
@@ -291,7 +294,7 @@
          cmp     #$2F
          bcs     L8A84
          inc     oamStagingLength
-@@ -1882,36 +1931,36 @@ sprite03PausePalette6:
+@@ -1882,36 +1934,36 @@ sprite03PausePalette6:
  sprite05PausePalette4:
          .byte   $00,$19,$00,$00,$00,$0A,$00,$08
          .byte   $00,$1E,$00,$10,$00,$1C,$00,$18
@@ -342,7 +345,7 @@
          .byte   $00,$FC,$21,$00,$FF
  ; Unused, but referenced from unreferenced_orientationToSpriteTable
  sprite0FTPieceOffset:
-@@ -2352,20 +2401,38 @@ render_mode_play_and_demo:
+@@ -2352,20 +2404,38 @@ render_mode_play_and_demo:
          lda     #$00
          sta     player1_vramRow
          jmp     @renderPlayer2Playfield
@@ -381,7 +384,7 @@
          cmp     #$02
          bne     @renderLines
          lda     player2_playState
-@@ -2393,20 +2460,34 @@ @renderPlayer2Playfield:
+@@ -2393,20 +2463,34 @@ @renderPlayer2Playfield:
          lda     #$00
          sta     player2_vramRow
          jmp     @renderLines
@@ -416,7 +419,7 @@
          and     #$01
          beq     @renderLevel
          lda     numberOfPlayers
-@@ -2424,36 +2505,36 @@ @renderLines:
+@@ -2424,36 +2508,36 @@ @renderLines:
          and     #$FE
          sta     outOfDateRenderFlags
          jmp     @renderLevel
@@ -460,7 +463,7 @@
          sta     generalCounter
          lda     #$22
          sta     PPUADDR
-@@ -2464,12 +2545,17 @@ @renderLevel:
+@@ -2464,12 +2548,17 @@ @renderLevel:
          jsr     updatePaletteForLevel
          lda     outOfDateRenderFlags
          and     #$FD
@@ -480,7 +483,7 @@
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2517,13 +2603,14 @@ @renderTetrisFlashAndSound:
+@@ -2517,13 +2606,14 @@ @renderTetrisFlashAndSound:
          lda     #$3F
          sta     PPUADDR
          lda     #$0E
@@ -498,7 +501,7 @@
          bne     @setPaletteColor
          ldx     #$30
          lda     frameCounter
-@@ -2532,17 +2619,28 @@ @renderTetrisFlashAndSound:
+@@ -2532,17 +2622,28 @@ @renderTetrisFlashAndSound:
          lda     #$09
          sta     soundEffectSlot1Init
  @setPaletteColor:
@@ -530,7 +533,7 @@
          .dbyt   $2286,$22C6,$2306
  levelDisplayTable:
          .byte   $00,$01,$02,$03,$04,$05,$06,$07
-@@ -2552,63 +2650,74 @@ levelDisplayTable:
+@@ -2552,63 +2653,74 @@ levelDisplayTable:
  multBy10Table:
          .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
          .byte   $50,$5A,$64,$6E,$78,$82,$8C,$96
@@ -624,7 +627,7 @@
          sta     PPUADDR
  @copyRow:
          ldx     #$0A
-@@ -2632,15 +2741,15 @@ updateLineClearingAnimation:
+@@ -2632,15 +2744,15 @@ updateLineClearingAnimation:
          bne     @ret
          lda     #$00
          sta     generalCounter3
@@ -644,7 +647,7 @@
          cmp     #$01
          bne     @twoPlayers
          lda     generalCounter
-@@ -2653,22 +2762,22 @@ @twoPlayers:
+@@ -2653,22 +2765,22 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -671,7 +674,7 @@
          ldx     rowY
          lda     leftColumns,x
          clc
-@@ -2702,45 +2811,47 @@ leftColumns:
+@@ -2702,45 +2814,47 @@ leftColumns:
  rightColumns:
          .byte   $05,$06,$07,$08,$09
  ; Set Background palette 2 and Sprite palette 2
@@ -731,7 +734,7 @@
          .dbyt   $0F30,$2112,$0F30,$291A
          .dbyt   $0F30,$2414,$0F30,$2A12
          .dbyt   $0F30,$2B15,$0F30,$222B
-@@ -2767,11 +2878,12 @@ @ret:   rts
+@@ -2767,11 +2881,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -745,7 +748,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2796,24 +2908,25 @@ @notDelaying:
+@@ -2796,24 +2911,25 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -774,7 +777,7 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2832,43 +2945,47 @@ chooseNextTetrimino:
+@@ -2832,43 +2948,47 @@ chooseNextTetrimino:
          tax
          lda     spawnTable,x
          rts
@@ -832,7 +835,7 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3028,12 +3145,15 @@ @checkForStartButton:
+@@ -3028,12 +3148,15 @@ @checkForStartButton:
          lda     newlyPressedButtons_player1
          cmp     #$10
          bne     @ret2
@@ -850,7 +853,7 @@
  playState_checkForCompletedRows:
          lda     vramRow
          cmp     #$20
-@@ -3128,11 +3248,12 @@ @ret:   rts
+@@ -3128,11 +3251,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -864,7 +867,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3275,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3278,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -877,7 +880,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3389,11 +3510,12 @@ gameModeState_handleGameOver:
+@@ -3389,11 +3513,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -891,7 +894,7 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3438,23 +3560,31 @@ @checkForBlockInRow:
+@@ -3438,23 +3563,31 @@ @checkForBlockInRow:
          bne     @foundBlockInRow
          iny
          dex
@@ -928,7 +931,7 @@
          adc     #$04
          tax
          lda     musicSelectionTable,x
-@@ -3823,11 +3953,11 @@ L9FE9:  ldy     #$00
+@@ -3823,11 +3956,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -941,7 +944,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6334,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6337,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67

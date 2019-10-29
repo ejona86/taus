@@ -345,6 +345,14 @@ copyPlayfieldRowToVRAM4:
         .byte   $06,(-$04)&$FF
 .endif
 
+copyOamStagingToOam_mod:
+        .export copyOamStagingToOam_mod
+        lda     #$00
+        sta     OAMADDR
+        lda     #$02
+        sta     OAMDMA
+        .import after_copyOamStagingToOam_mod
+        jmp     after_copyOamStagingToOam_mod
 
 .segment "CODE2"
 
