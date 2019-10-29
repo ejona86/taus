@@ -348,17 +348,6 @@ copyPlayfieldRowToVRAM4:
 .endif
 
 
-renderTetrisFlashAndSound_mod:
-        .export renderTetrisFlashAndSound_mod
-        lda     player1_completedLines
-        cmp     #$04
-        beq     @ret
-        lda     player2_completedLines
-        cmp     #$04
-@ret:
-        .import after_renderTetrisFlashAndSound_mod
-        jmp     after_renderTetrisFlashAndSound_mod
-
 .segment "CODE2"
 
 stageSpriteForNextPiece_player1_mod:

@@ -480,7 +480,7 @@
          and     #$04
          beq     @renderStats
          lda     #$21
-@@ -2517,12 +2603,17 @@ @renderTetrisFlashAndSound:
+@@ -2517,13 +2603,14 @@ @renderTetrisFlashAndSound:
          lda     #$3F
          sta     PPUADDR
          lda     #$0E
@@ -488,19 +488,17 @@
          ldx     #$00
 -        lda     completedLines
 -        cmp     #$04
-+        ;lda     completedLines
-+        ;cmp     #$04
-+        .import renderTetrisFlashAndSound_mod
-+        jmp     renderTetrisFlashAndSound_mod
-+        nop
-+.export after_renderTetrisFlashAndSound_mod
-+after_renderTetrisFlashAndSound_mod:
-         bne     @setPaletteColor
+-        bne     @setPaletteColor
++        lda     player1_completedLines
++        ora     player2_completedLines
++        and     #$04
++        beq     @setPaletteColor
          lda     frameCounter
          and     #$03
          bne     @setPaletteColor
          ldx     #$30
-@@ -2532,17 +2623,30 @@ @renderTetrisFlashAndSound:
+         lda     frameCounter
+@@ -2532,17 +2619,28 @@ @renderTetrisFlashAndSound:
          lda     #$09
          sta     soundEffectSlot1Init
  @setPaletteColor:
@@ -520,8 +518,6 @@
 +        nop
 +        nop
 +        nop
-+        nop
-+        nop
 +
 +.if FASTROWTOVRAM = 2
 +.repeat 2*15
@@ -534,7 +530,7 @@
          .dbyt   $2286,$22C6,$2306
  levelDisplayTable:
          .byte   $00,$01,$02,$03,$04,$05,$06,$07
-@@ -2552,63 +2656,74 @@ levelDisplayTable:
+@@ -2552,63 +2650,74 @@ levelDisplayTable:
  multBy10Table:
          .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
          .byte   $50,$5A,$64,$6E,$78,$82,$8C,$96
@@ -628,7 +624,7 @@
          sta     PPUADDR
  @copyRow:
          ldx     #$0A
-@@ -2632,15 +2747,15 @@ updateLineClearingAnimation:
+@@ -2632,15 +2741,15 @@ updateLineClearingAnimation:
          bne     @ret
          lda     #$00
          sta     generalCounter3
@@ -648,7 +644,7 @@
          cmp     #$01
          bne     @twoPlayers
          lda     generalCounter
-@@ -2653,22 +2768,22 @@ @twoPlayers:
+@@ -2653,22 +2762,22 @@ @twoPlayers:
          lda     playfieldAddr+1
          cmp     #$04
          bne     @player2
@@ -675,7 +671,7 @@
          ldx     rowY
          lda     leftColumns,x
          clc
-@@ -2702,45 +2817,47 @@ leftColumns:
+@@ -2702,45 +2811,47 @@ leftColumns:
  rightColumns:
          .byte   $05,$06,$07,$08,$09
  ; Set Background palette 2 and Sprite palette 2
@@ -735,7 +731,7 @@
          .dbyt   $0F30,$2112,$0F30,$291A
          .dbyt   $0F30,$2414,$0F30,$2A12
          .dbyt   $0F30,$2B15,$0F30,$222B
-@@ -2767,11 +2884,12 @@ @ret:   rts
+@@ -2767,11 +2878,12 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
@@ -749,7 +745,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2796,24 +2914,25 @@ @notDelaying:
+@@ -2796,24 +2908,25 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -778,7 +774,7 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2832,43 +2951,47 @@ chooseNextTetrimino:
+@@ -2832,43 +2945,47 @@ chooseNextTetrimino:
          tax
          lda     spawnTable,x
          rts
@@ -836,7 +832,7 @@
  tetriminoTypeFromOrientation:
          .byte   $00,$00,$00,$00,$01,$01,$01,$01
          .byte   $02,$02,$03,$04,$04,$05,$05,$05
-@@ -3028,12 +3151,15 @@ @checkForStartButton:
+@@ -3028,12 +3145,15 @@ @checkForStartButton:
          lda     newlyPressedButtons_player1
          cmp     #$10
          bne     @ret2
@@ -854,7 +850,7 @@
  playState_checkForCompletedRows:
          lda     vramRow
          cmp     #$20
-@@ -3128,11 +3254,12 @@ @ret:   rts
+@@ -3128,11 +3248,12 @@ @ret:   rts
  
  playState_receiveGarbage:
          lda     numberOfPlayers
@@ -868,7 +864,7 @@
          cmp     #$20
          bmi     L9B52
          lda     multBy10Table,y
-@@ -3154,11 +3281,11 @@ L9B31:  cpx     garbageHole
+@@ -3154,11 +3275,11 @@ L9B31:  cpx     garbageHole
          beq     @garbageEmptySpace
          lda     #$78
          jmp     @placeGarbage
@@ -881,7 +877,7 @@
          inx
          cpx     #$0A
          bne     L9B45
-@@ -3389,11 +3516,12 @@ gameModeState_handleGameOver:
+@@ -3389,11 +3510,12 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -895,7 +891,7 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3438,23 +3566,31 @@ @checkForBlockInRow:
+@@ -3438,23 +3560,31 @@ @checkForBlockInRow:
          bne     @foundBlockInRow
          iny
          dex
@@ -932,7 +928,7 @@
          adc     #$04
          tax
          lda     musicSelectionTable,x
-@@ -3823,11 +3959,11 @@ L9FE9:  ldy     #$00
+@@ -3823,11 +3953,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
          rts
@@ -945,7 +941,7 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
-@@ -6204,17 +6340,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
+@@ -6204,17 +6334,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
          .byte   $80,$81,$77,$67,$82,$79,$7A,$67
