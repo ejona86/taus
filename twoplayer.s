@@ -397,22 +397,7 @@ stageSpriteForNextPiece_player1_mod:
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
 
-        ; Alternate draw order to flicker on conflict
-        lda     frameCounter
-        and     #$01
-        beq     @currentGoesLast
         jmp     loadSpriteIntoOamStaging
-
-@currentGoesLast:
-        ; Place sprite at end of oamStaging, to make it fail to render when
-        ; sprites align, instead of player2's current piece
-        lda     oamStagingLength
-        sta     tmp1
-        lda     #$100-4*4
-        sta     oamStagingLength
-        jsr     loadSpriteIntoOamStaging
-        lda     tmp1
-        sta     oamStagingLength
 
 @ret:   rts
 
@@ -420,6 +405,16 @@ savePlayer2State_mod:
         .export savePlayer2State_mod
         jsr     savePlayer2State
         jsr     stageSpriteForNextPiece_player2
+.ifndef NEXT_ON_TOP
+        ; Alternate draw order to flicker on conflict
+        lda     frameCounter
+        and     #$0F
+        jsr     moveSpriteToEndOfOamStaging
+        lda     frameCounter
+        and     #$0F
+        eor     #$08
+        jsr     moveSpriteToEndOfOamStaging
+.endif
         rts
 
 stageSpriteForNextPiece_player2:
@@ -458,6 +453,32 @@ loadSpriteIntoOamStaging_player2:
         cpx     oamStagingLength
         bne     @adjustSprite
         rts
+
+
+.ifndef NEXT_ON_TOP
+; Move a sprite in oamStaging to end of oamStaging.
+;
+; reg a: sprite number in oamStaging to move
+moveSpriteToEndOfOamStaging:
+        asl     a
+        asl     a
+        tax
+        ldy     oamStagingLength
+        lda     #$04
+        sta     generalCounter
+@copySprite:
+        lda     oamStaging,x
+        sta     oamStaging,y
+        lda     #$FF
+        sta     oamStaging,x
+        inx
+        iny
+        dec     generalCounter
+        bne     @copySprite
+
+        sty     oamStagingLength
+        rts
+.endif
 
 
 pickRandomTetrimino_mod:
