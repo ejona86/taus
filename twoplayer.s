@@ -100,7 +100,11 @@ initGameBackground_mod:
         jmp     after_initGameBackground_mod_player2
 
 twoplayer_game_nametable:
+.ifndef NEXT_ON_TOP
         .incbin "twoplayer_game.nam"
+.else
+        .incbin "twoplayer_game_top.nam"
+.endif
 
 copyNametableToPpu:
         jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
@@ -176,7 +180,11 @@ renderPlay_mod:
         and     #$04
         beq     @ret
 
+.ifndef NEXT_ON_TOP
         lda     #$20
+.else
+        lda     #$23
+.endif
         sta     PPUADDR
         lda     #$66
         sta     PPUADDR
@@ -187,7 +195,11 @@ renderPlay_mod:
         lda     player1_score
         jsr     twoDigsToPPU
 
+.ifndef NEXT_ON_TOP
         lda     #$20
+.else
+        lda     #$23
+.endif
         sta     PPUADDR
         lda     #$78
         sta     PPUADDR
@@ -369,9 +381,15 @@ stageSpriteForNextPiece_player1_mod:
         sta     spriteYOffset
         jmp     @stage
 @twoPlayers:
+.ifndef NEXT_ON_TOP
         lda     #$78
         sta     spriteXOffset
         lda     #$53
+.else
+        lda     #6*8
+        sta     spriteXOffset
+        lda     #3*8
+.endif
         sta     spriteYOffset
 @stage:
         .importzp player1_nextPiece
@@ -407,9 +425,15 @@ savePlayer2State_mod:
 stageSpriteForNextPiece_player2:
         lda     displayNextPiece
         bne     @ret
+.ifndef NEXT_ON_TOP
         lda     #$80
         sta     spriteXOffset
         lda     #$AB
+.else
+        lda     #24*8
+        sta     spriteXOffset
+        lda     #3*8
+.endif
         sta     spriteYOffset
         .importzp player2_nextPiece
         ldx     player2_nextPiece
