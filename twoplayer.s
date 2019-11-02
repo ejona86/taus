@@ -94,42 +94,27 @@ initGameBackground_mod:
         jmp     after_initGameBackground_mod_player1
 
 @twoPlayers:
-        jsr     copyNametableToPpu
+        jsr     copyRleNametableToPpu
         .addr   twoplayer_game_nametable
         .import after_initGameBackground_mod_player2
         jmp     after_initGameBackground_mod_player2
 
 twoplayer_game_nametable:
 .ifndef NEXT_ON_TOP
-        .incbin "twoplayer_game.nam"
+        .incbin "build/twoplayer_game.nam.rle"
 .else
-        .incbin "twoplayer_game_top.nam"
+        .incbin "build/twoplayer_game_top.nam.rle"
 .endif
 
-copyNametableToPpu:
+copyRleNametableToPpu:
         jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
         ldx     PPUSTATUS
         lda     #$20
         sta     PPUADDR
         lda     #$00
         sta     PPUADDR
-        jsr     copyPageToPpu
-        inc     tmp2
-        jsr     copyPageToPpu
-        inc     tmp2
-        jsr     copyPageToPpu
-        inc     tmp2
-        jsr     copyPageToPpu
-        rts
-
-copyPageToPpu:
-        ldy     #$00
-@copyByte:
-        lda     (tmp1),y
-        sta     PPUDATA
-        iny
-        bne     @copyByte
-        rts
+        .import rleDecodeToPpu
+        jmp     rleDecodeToPpu
 
 renderPlay_mod:
         .export renderPlay_mod

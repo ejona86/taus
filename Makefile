@@ -8,7 +8,7 @@ build/handicap.o: build/tetris.inc
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
-build/twoplayer.o: build/tetris.inc
+build/twoplayer.o: rle.o build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle
 # .diff base files. There should be a .diff for each target
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 # List linker dependencies. There should be a .cfg for each target
@@ -17,7 +17,7 @@ build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o buil
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
-build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o
+build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o
 # IPS base dependencies. There should be a .ips for each target
 build/taus.nes: build/tetris.nes
 build/screens.nes: build/tetris.nes
@@ -52,6 +52,8 @@ build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
 	touch $@
 	split -x -b 16 $< build/$*.chrs/
+build/%.rle: % rle-enc.awk | build
+	basenc --base16 -w2 $< | LC_ALL=C awk -f rle-enc.awk | basenc --base16 -d > $@
 
 # There are tools to split apart the iNES file, like
 # https://github.com/taotao54321/ines, but they would require an additional
