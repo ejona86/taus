@@ -468,7 +468,10 @@ moveSpriteToEndOfOamStaging:
 
 pickRandomTetrimino_mod:
         .export pickRandomTetrimino_mod
-        ldx     #rng_seed
+        ldx     #personal_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #personal_rng
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         ldx     #personal_rng
