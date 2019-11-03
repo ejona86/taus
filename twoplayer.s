@@ -10,7 +10,6 @@
 ; Save another RNG to let the behind player catch up.
 ; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
 ; Fix background tetrimino pattern
-; Figure out what's up with twoPlayerPieceDelayCounter
 ; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
 ; Allow toggling on garbage?
 ; Allow second player to disable next piece display (minor)
