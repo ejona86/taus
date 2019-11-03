@@ -586,7 +586,7 @@
 +        .byte   <$22C6,<$22E6,<$2306,<$2326
  twoDigsToPPU:
 -        sta     generalCounter
-+        tay
++        tax
          and     #$F0
          lsr     a
          lsr     a
@@ -594,7 +594,7 @@
          lsr     a
          sta     PPUDATA
 -        lda     generalCounter
-+        tya
++        txa
          and     #$0F
          sta     PPUDATA
          rts
