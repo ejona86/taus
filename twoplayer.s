@@ -7,8 +7,9 @@
 ; "current player" as the palette value.
 
 ; TODO:
+; Allow player 2 to pause
 ; Save another RNG to let the behind player catch up.
-; Handle end-game. If one player dies, if the player behind in score is still playing, they can keep playing. Unclear if score should be the only way. People may care about lines, or some other such. Need to think about it more. If let both players go to end, then may want to let 2nd player enter high score
+; Let players enter high score in two person game
 ; Fix background tetrimino pattern
 ; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
 ; Allow toggling on garbage?
@@ -661,27 +662,32 @@ updateMusicSpeed_foundBlockInRow_mod:
 playState_updateGameOverCurtain_curtainFinished_mod:
         .export playState_updateGameOverCurtain_curtainFinished_mod
         sta     playState
-        sta     newlyPressedButtons_player1
 
         lda     numberOfPlayers
         cmp     #$02
         bne     @ret
 
-        ; playState has not yet been copied to player*_playState
-        lda     activePlayer
-        cmp     #$01
-        bne     @playerTwoActive
-        lda     player2_playState
-        beq     @ret
-        bne     @resumeMusic
-@playerTwoActive:
+        ; playState has not yet been copied to player*_playState.
+        ; If a player has already died, then this would make two.
         lda     player1_playState
-        beq     @ret
+        beq     @bothPlayersDead
+        lda     player2_playState
+        beq     @bothPlayersDead
+        jmp     updateMusicSpeed_playerDied
 
-@resumeMusic:
-        jsr     updateMusicSpeed_playerDied
-
+@bothPlayersDead:
+        ; Wait for a player to press start
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     newlyPressedButtons_player1
+        ora     newlyPressedButtons_player2
+        and     #$10
+        bne     @ret
+        jmp     @bothPlayersDead
 @ret:
+        ; Prevent start button from counting as pause
+        lda     #$00
+        sta     newlyPressedButtons_player1
+        sta     newlyPressedButtons_player2
         rts
 
 updateMusicSpeed_playerDied:
