@@ -19,7 +19,9 @@ IPSPRGOFFSET = 16-$8000
 	.dbyt .ident(.concat("__", name, "_SIZE__"))
 .endmacro
 
+.ifndef IPSCHROFFSET
 IPSCHROFFSET = 16+$8000
+.endif
 CHR00 = $0000
 CHR01 = $2000
 CHR_LEFT = $0000

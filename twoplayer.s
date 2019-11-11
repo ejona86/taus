@@ -22,6 +22,10 @@
 
 .include "build/tetris.inc"
 
+.segment "CHR"
+        .incbin "build/tetris-CHR-00.chr"
+        .incbin "build/twoplayer-CHR-01.chr"
+
 .bss
 
 
@@ -136,18 +140,32 @@ renderPlay_mod:
         eor     #$02
         and     #$06
         bne     @renderScore
+.ifndef NEXT_ON_TOP
         lda     #$20
         sta     PPUADDR
         lda     #$EF
         sta     PPUADDR
+.else
+        lda     #$21
+        sta     PPUADDR
+        lda     #$0F
+        sta     PPUADDR
+.endif
         ldx     player1_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU
         jsr     updatePaletteForLevel
+.ifndef NEXT_ON_TOP
         lda     #$22
         sta     PPUADDR
         lda     #$50
         sta     PPUADDR
+.else
+        lda     #$21
+        sta     PPUADDR
+        lda     #$F0
+        sta     PPUADDR
+.endif
         ldx     player2_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU

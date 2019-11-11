@@ -7,22 +7,25 @@ build/playerid.o: build/tetris.inc
 build/handicap.o: build/tetris.inc
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
-build/tetris.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
-build/twoplayer.o: rle.o build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle
+build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
+build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
+build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
 # .diff base files. There should be a .diff for each target
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 # List linker dependencies. There should be a .cfg for each target
-build/tetris.nes: build/tetris.o build/tetris-PRG.o build/tetris-ram.o
+build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
 build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o
+build/twoplayer-CHR-01.chr.ips: build/ips.o build/twoplayer-CHR-01.chr.ips.o
 # IPS base dependencies. There should be a .ips for each target
 build/taus.nes: build/tetris.nes
 build/screens.nes: build/tetris.nes
 build/highscores.nes: build/tetris.nes
 build/handicap.nes: build/tetris.nes
+build/twoplayer-CHR-01.chr: build/tetris-CHR-01.chr
 # Combine mods
 build/custom.nes: build/taus.ips build/highscores.ips
 
@@ -44,6 +47,12 @@ build/%: %.cfg
 
 build/%.nes: build/%.ips
 	# Second prerequisite is assumed to be a .nes source
+	# If the first time fails, run it a second time to display output
+	flips --apply $< $(word 2,$^) $@ > /dev/null || flips --apply $< $(word 2,$^) $@
+	flips --create $(word 2,$^) $@ build/$*.dist.ips > /dev/null
+
+build/%: %.ips
+	# Second prerequisite is assumed to be source
 	# If the first time fails, run it a second time to display output
 	flips --apply $< $(word 2,$^) $@ > /dev/null || flips --apply $< $(word 2,$^) $@
 	flips --create $(word 2,$^) $@ build/$*.dist.ips > /dev/null
