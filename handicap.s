@@ -10,6 +10,18 @@
 
 .segment "CODE"
 
+        .byte   $FF
+
+.segment "TYPE_A_MENU_PATCHHDR"
+        ips_hunkhdr     "TYPE_A_MENU_PATCH"
+
+.segment "TYPE_A_MENU_PATCH"
+
+; height_menu_nametablepalette_patch:
+        .byte   $3F,$0A,$01,$16
+        .byte   $20,$6D,$01,$0A
+        .byte   $FF
+
 playfieldSize := $0003
 
 initGameState_mod:
@@ -48,16 +60,6 @@ checkForCompletedRows_mod:
         jmp     afterCheckForCompletedRowsMod
 @skip:
         jmp     $9ACC   ; @rowNotComplete
-
-.segment "TYPE_A_MENU_PATCHHDR"
-        ips_hunkhdr     "TYPE_A_MENU_PATCH"
-
-.segment "TYPE_A_MENU_PATCH"
-
-; height_menu_nametablepalette_patch:
-        .byte   $3F,$0A,$01,$16
-        .byte   $20,$6D,$01,$0A
-        .byte   $FF
 
 .segment "JMP_INIT_GAME_STATEHDR"
         ips_hunkhdr     "JMP_INIT_GAME_STATE"
