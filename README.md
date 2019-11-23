@@ -6,6 +6,18 @@ The main project is the Actually Useful Statistics Tetris mod. However, the
 repository also contains disassembly knowledge for tetris, a structure for
 building NES ips/nes files, and a LUA-based unit/integration test helpers.
 
+## How to run
+
+Pre-built IPS mod files are available in the
+[releases section of GitHub](https://github.com/ejona86/taus/releases). They
+can be applied to the USA Tetris ROM, commonly known as "Tetris (U) [!].nes".
+The ROM has CRC32 `6d72c53a`, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
+SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
+header (`tail -c +17 tetris.nes > no-header.nes`), it has CRC32 `1394f57e`,
+MD5 `5b0e571558c8c796937b96af469561c6`, and
+SHA1 `fd9079cb5e8479eb06d93c2ae5175bfce871746a`. It is generally okay if the
+iNES header is different.
+
 ## TAUS
 
 [![In-game stats](media/stats-ingame.thumb.png)](media/stats-ingame.aspect.png)
@@ -41,16 +53,16 @@ EFF was 188 and 214 agreeing with the 14% better score on the second game. If
 your EFF increases by 10%, then your score increases ~10% for the same number
 of lines.
 
-## How to run
+## Two Player
 
-There should be a pre-built IPS file for the most recent release. It should be
-applied to the USA Tetris ROM, commonly known as "Tetris (U) [!].nes". The ROM
-has CRC32 `6d72c53a`, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
-SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
-header (`tail -c +17 tetris.nes > no-header.nes`), it has CRC32 `1394f57e`,
-MD5 `5b0e571558c8c796937b96af469561c6`, and
-SHA1 `fd9079cb5e8479eb06d93c2ae5175bfce871746a`. It is generally okay if the
-iNES header is different.
+[![Next on side](media/twoplayer-side.thumb.png)](media/twoplayer-side.aspect.png)
+[![Next on top](media/twoplayer-top.thumb.png)](media/twoplayer-top.aspect.png)
+
+The twoplayer mod allows two simultaneous players to play while receiving the
+same pieces. Garbage is not sent between players.
+
+There are two variations of the mod. One shows the next piece on the side,
+which makes it easier to see with peripheral vision. The other shows it on top, which makes it clearer at-a-glance which next piece belongs to which player.
 
 ## How to build
 
