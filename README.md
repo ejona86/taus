@@ -14,9 +14,9 @@ building NES ips/nes files, and a LUA-based unit/integration test helpers.
 TAUS provides the in-game statistics:
  * DHT: The drought. The number of pieces since the last line
  * BRN: The burn. The number of lines cleared since the last tetris
- * EFF: The efficiency. The score per lines as if on level 0. Individual
-   clears have score per lines of: 40 for a single, 50 for a double, 100 for a
-   triple, 300 for a tetris
+ * EFF: The efficiency. The score per lines ignoring the level multiplier.
+   Individual clears have score per lines of: 40 for a single, 50 for a double,
+   100 for a triple, 300 for a tetris
  * TRT: The tetris rate. The percentage of lines cleared that were tetrises
  * TRNS: The transition score. The score achieved when leaving the starting
    level
@@ -34,13 +34,12 @@ EFF is similar in purpose to the conventional TRT. Both assume you die because
 you reach too high of a level (e.g., level 29) and both let you know for "how
 well are you doing" in the middle of the game. But EFF is a strong predictor
 of your final score. For example, let's say you start on level 9 and
-die after 100 lines. If you alternate between tetrises and singles, your final
-score will be ~248k. But if you alternate between tetrises and triples, your
-final score will be ~214k (ignoring the fact you can get over 100 lines by
-finishing with a tetris). TRT will be 80% and 57% showing the first game has a
-40% better performance, but your EFF was 248 and 214 showing a 16% better
-performance which agrees with the score. If your EFF increases by 10%, then
-your score roughly increases ~10% for the same number of lines.
+die after 100 lines. If you alternate between tetrises and sets of three
+singles, your final score will be ~188k. But if you alternate between tetrises
+and triples, your final score will be ~214k. TRT for each will be 57%, but your
+EFF was 188 and 214 agreeing with the 14% better score on the second game. If
+your EFF increases by 10%, then your score increases ~10% for the same number
+of lines.
 
 ## How to run
 
