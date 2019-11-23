@@ -84,7 +84,7 @@ drawChartBackground:
         dec     tmp1
 
         ldx     #barLength
-        lda     #$EF
+        lda     #full_bar_none
 @clearCell:
         dex
         sta     barScratch,x
@@ -102,7 +102,7 @@ drawChartBackground:
         lsr
         tax
         beq     @skipFirst
-        lda     #$F1
+        lda     #full_bar_left
 @setFirst:
         dex
         sta     barScratch,x
@@ -130,13 +130,13 @@ drawChartBackground:
 
         lda     barScratch+1
         clc
-        adc     #$F8-$EF
+        adc     #full_bar_none_gridline-full_bar_none
         sta     barScratch+1
         lda     barScratch+3
-        adc     #$F8-$EF
+        adc     #full_bar_none_gridline-full_bar_none
         sta     barScratch+3
         lda     barScratch+5
-        adc     #$F8-$EF
+        adc     #full_bar_none_gridline-full_bar_none
         sta     barScratch+5
 
         lda     #(20-barLength)*10+barOffset
@@ -187,7 +187,7 @@ drawChartSprites:
         bmi     @positive
 @diffTooLarge:
         ; Draw the two bars separately
-        lda     #$F7
+        lda     #endcap
         sta     tmp1
         lda     levelEffs,x
         sta     spriteYOffset
@@ -225,13 +225,13 @@ drawChartSprites:
         clc
         adc     spriteYOffset
         sta     spriteYOffset
-        lda     #$E7
+        lda     #endcap_diff_0
         clc
         adc     tmp1
         sta     tmp1
         jsr     stageChartSprite
 
-        lda     #$F6
+        lda     #sevenpx_bar_both
         sta     tmp1
         lda     spriteYOffset
         sec
@@ -387,74 +387,85 @@ chart_attributetable_patch:
 
 .segment "CHART_IPSCHR"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$E7
+endcap_diff_0 = $40
+
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0
         ; endcap difference = 0
         .incbin "build/taus.chrs/10"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$E8
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+1
         ; endcap difference = 1
         .incbin "build/taus.chrs/11"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$E9
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+2
         ; endcap difference = 2
         .incbin "build/taus.chrs/12"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$EA
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+3
         ; endcap difference = 3
         .incbin "build/taus.chrs/13"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$EB
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+4
         ; endcap difference = 4
         .incbin "build/taus.chrs/14"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$EC
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+5
         ; endcap difference = 5
         .incbin "build/taus.chrs/15"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$ED
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+6
         ; endcap difference = 6
         .incbin "build/taus.chrs/16"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$EE
+        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+7
         ; endcap difference = 7
         .incbin "build/taus.chrs/17"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$EF
+full_bar_none = $48
+full_bar_left = $4A
+
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none
         ; blank
         .incbin "build/taus.chrs/20"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F0
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none+1
         ;  |
         .incbin "build/taus.chrs/21"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F1
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_left
         ; |
         .incbin "build/taus.chrs/22"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F2
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_left+1
         ; ||
         .incbin "build/taus.chrs/23"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F6
+sevenpx_bar_both = $4C
+
+        ips_tilehdr CHR01+CHR_RIGHT,sevenpx_bar_both
         ; || 7 pixel high
         .incbin "build/taus.chrs/19"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F7
+endcap = $4D
+
+        ips_tilehdr CHR01+CHR_RIGHT,endcap
         ; endcap
         .incbin "build/taus.chrs/18"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F8
+full_bar_none_gridline = $50
+
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline
         ; blank, with gridline
         .incbin "build/taus.chrs/24"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$F9
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+1
         ;  |, with gridline
         .incbin "build/taus.chrs/25"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$FA
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+2
         ; |, with gridline
         .incbin "build/taus.chrs/26"
 
-        ips_tilehdr CHR01+CHR_RIGHT,$FB
+        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+3
         ; ||, with gridline
         .incbin "build/taus.chrs/27"

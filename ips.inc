@@ -36,6 +36,6 @@ TILE_SIZE = $10
 ;       ips_tilehdr CHR01+CHR_LEFT,$03
 .macro ips_tilehdr mapper_addr,tile
 	.byte 0
-	.dbyt (mapper_addr)+(tile*TILE_SIZE)+IPSCHROFFSET
+	.dbyt (mapper_addr)+((tile)*TILE_SIZE)+IPSCHROFFSET
 	.dbyt TILE_SIZE
 .endmacro
