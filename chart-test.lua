@@ -38,14 +38,14 @@ function test_drawChartBackground ()
 	end
 
 	asm.jsr(labels.drawChartBackground)
-	local n = 0xEF -- none
-	local r = 0xF0 -- right
-	local l = 0xF1 -- left
-	local b = 0xF2 -- both
-	local gn = 0xF8 -- gridline none
-	local gr = 0xF9 -- gridline right
-	local gl = 0xFA -- gridline left
-	local gb = 0xFB -- gridline both
+	local n = 0x48 -- none
+	local r = 0x49 -- right
+	local l = 0x4A -- left
+	local b = 0x4B -- both
+	local gn = 0x50 -- gridline none
+	local gr = 0x51 -- gridline right
+	local gl = 0x52 -- gridline left
+	local gb = 0x53 -- gridline both
 	local goldenPlayfield = {
 		{gn, gn, gn, gn, gn, gn, gn, gn, gn, gn},
 	        { n,  n,  n,  n,  l,  n,  n,  n,  n,  n},
@@ -88,16 +88,16 @@ function test_drawChartSprites ()
 	memory.writebyte(labels.oamStagingLength, 0)
 	asm.jsr(labels.drawChartBackground)
 	asm.jsr(labels.drawChartSprites)
-	local d0 = 0xE7 -- endcap, diff 0
-	local d1 = 0xE8 -- endcap, diff 1
-	local d2 = 0xE9 -- endcap, diff 2
-	local d3 = 0xEA -- endcap, diff 3
-	local d4 = 0xEB -- endcap, diff 4
-	local d5 = 0xEC -- endcap, diff 5
-	local d6 = 0xED -- endcap, diff 6
-	local d7 = 0xEE -- endcap, diff 7
-	local f = 0xF6 -- seven-pixel filler
-	local e = 0xF7 -- single endcap
+	local d0 = 0x40 -- endcap, diff 0
+	local d1 = 0x41 -- endcap, diff 1
+	local d2 = 0x42 -- endcap, diff 2
+	local d3 = 0x43 -- endcap, diff 3
+	local d4 = 0x44 -- endcap, diff 4
+	local d5 = 0x45 -- endcap, diff 5
+	local d6 = 0x46 -- endcap, diff 6
+	local d7 = 0x47 -- endcap, diff 7
+	local f = 0x4C -- seven-pixel filler
+	local e = 0x4D -- single endcap
 	local an = 0x22 -- attributes, normal
 	local af = 0x62 -- attributes, flip horiz
 	local goldenSprites = {
