@@ -60,9 +60,9 @@ build/%: %.ips
 build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
 	touch $@
-	split -x -b 16 $< build/$*.chrs/
+	split -d -b 16 $< build/$*.chrs/
 build/%.rle: % rle-enc.awk | build
-	basenc --base16 -w2 $< | LC_ALL=C awk -f rle-enc.awk | basenc --base16 -d > $@
+	xxd -ps -c1 $< | LC_ALL=C awk -f rle-enc.awk | xxd -ps -c1 -r > $@
 
 # There are tools to split apart the iNES file, like
 # https://github.com/taotao54321/ines, but they would require an additional
