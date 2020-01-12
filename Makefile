@@ -8,7 +8,7 @@ build/handicap.o: build/tetris.inc
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
-build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
+build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
 build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
 # .diff base files. There should be a .diff for each target
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
@@ -32,7 +32,7 @@ build/custom.nes: build/taus.ips build/highscores.ips
 build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 	flips --create $^ $@ > /dev/null
 
-CAFLAGS = -g
+CAFLAGS = "-g" "-DTOURNAMENT_MODE"
 LDFLAGS =
 VPATH = build
 
@@ -61,6 +61,28 @@ build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
 	touch $@
 	split -d -b 16 $< build/$*.chrs/
+	mv build/$*.chrs/10 build/$*.chrs/0a
+	mv build/$*.chrs/11 build/$*.chrs/0b
+	mv build/$*.chrs/12 build/$*.chrs/0c
+	mv build/$*.chrs/13 build/$*.chrs/0d
+	mv build/$*.chrs/14 build/$*.chrs/0e
+	mv build/$*.chrs/15 build/$*.chrs/0f
+	mv build/$*.chrs/16 build/$*.chrs/10
+	mv build/$*.chrs/17 build/$*.chrs/11
+	mv build/$*.chrs/18 build/$*.chrs/12
+	mv build/$*.chrs/19 build/$*.chrs/13
+	mv build/$*.chrs/20 build/$*.chrs/14
+	mv build/$*.chrs/21 build/$*.chrs/15
+	mv build/$*.chrs/22 build/$*.chrs/16
+	mv build/$*.chrs/23 build/$*.chrs/17
+	mv build/$*.chrs/24 build/$*.chrs/18
+	mv build/$*.chrs/25 build/$*.chrs/19
+	mv build/$*.chrs/26 build/$*.chrs/1a
+	mv build/$*.chrs/27 build/$*.chrs/1b
+	mv build/$*.chrs/28 build/$*.chrs/1c
+	mv build/$*.chrs/29 build/$*.chrs/1d
+	mv build/$*.chrs/30 build/$*.chrs/1e
+	mv build/$*.chrs/31 build/$*.chrs/1f
 build/%.rle: % rle-enc.awk | build
 	xxd -ps -c1 $< | LC_ALL=C awk -f rle-enc.awk | xxd -ps -c1 -r > $@
 
