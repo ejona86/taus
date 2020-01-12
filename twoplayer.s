@@ -22,6 +22,10 @@
 
 .include "build/tetris.inc"
 
+.ifdef TOURNAMENT_MODE
+.include "tournament.screenlayout.inc"
+.endif
+
 .segment "CHR"
         .incbin "build/tetris-CHR-00.chr"
         .incbin "build/twoplayer-CHR-01.chr"
@@ -104,10 +108,12 @@ initGameBackground_mod:
         jmp     after_initGameBackground_mod_player2
 
 twoplayer_game_nametable:
-.ifndef NEXT_ON_TOP
-        .incbin "build/twoplayer_game.nam.rle"
-.else
+.ifdef  TOURNAMENT_MODE
+        .incbin INGAME_NAM
+.elseif .defined(NEXT_ON_TOP)
         .incbin "build/twoplayer_game_top.nam.rle"
+.else
+        .incbin "build/twoplayer_game.nam.rle"
 .endif
 
 copyRleNametableToPpu:
@@ -140,32 +146,50 @@ renderPlay_mod:
         eor     #$02
         and     #$06
         bne     @renderScore
+
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$20
         sta     PPUADDR
         lda     #$EF
         sta     PPUADDR
+.else
+        lda     #>INGAME_LAYOUT_P1_LEVEL
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_LEVEL
+        sta     PPUADDR
+.endif
 .else
         lda     #$21
         sta     PPUADDR
         lda     #$0F
         sta     PPUADDR
 .endif
+
         ldx     player1_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU
         jsr     updatePaletteForLevel
+
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$22
         sta     PPUADDR
         lda     #$50
         sta     PPUADDR
+.else
+        lda     #>INGAME_LAYOUT_P2_LEVEL
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_LEVEL
+        sta     PPUADDR
+.endif
 .else
         lda     #$21
         sta     PPUADDR
         lda     #$F0
         sta     PPUADDR
 .endif
+
         ldx     player2_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU
@@ -184,12 +208,20 @@ renderPlay_mod:
         beq     @ret
 
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$20
+.else
+        lda     #>INGAME_LAYOUT_P1_SCORE
+.endif
 .else
         lda     #$23
 .endif
         sta     PPUADDR
+.ifndef TOURNAMENT_MODE
         lda     #$66
+.else
+        lda     #<INGAME_LAYOUT_P1_SCORE
+.endif
         sta     PPUADDR
         lda     player1_score+2
         jsr     twoDigsToPPU
@@ -199,12 +231,20 @@ renderPlay_mod:
         jsr     twoDigsToPPU
 
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$20
+.else
+        lda     #>INGAME_LAYOUT_P2_SCORE
+.endif
 .else
         lda     #$23
 .endif
         sta     PPUADDR
+.ifndef TOURNAMENT_MODE
         lda     #$78
+.else
+        lda     #<INGAME_LAYOUT_P2_SCORE
+.endif
         sta     PPUADDR
         lda     player2_score+2
         jsr     twoDigsToPPU
@@ -385,9 +425,15 @@ stageSpriteForNextPiece_player1_mod:
         jmp     @stage
 @twoPlayers:
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$78
         sta     spriteXOffset
         lda     #$53
+.else
+        lda		#INGAME_LAYOUT_P1_PREVIEW_X
+        sta     spriteXOffset
+        lda     #INGAME_LAYOUT_P1_PREVIEW_Y
+.endif
 .else
         lda     #6*8
         sta     spriteXOffset
@@ -424,9 +470,15 @@ stageSpriteForNextPiece_player2:
         lda     displayNextPiece
         bne     @ret
 .ifndef NEXT_ON_TOP
+.ifndef TOURNAMENT_MODE
         lda     #$80
         sta     spriteXOffset
         lda     #$AB
+.else
+        lda     #INGAME_LAYOUT_P2_PREVIEW_X
+        sta     spriteXOffset
+        lda     #INGAME_LAYOUT_P2_PREVIEW_Y
+.endif
 .else
         lda     #24*8
         sta     spriteXOffset
