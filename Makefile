@@ -8,7 +8,7 @@ build/handicap.o: build/tetris.inc
 build/screens.o: build/tetris.inc
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
-build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
+build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
 build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
 # .diff base files. There should be a .diff for each target
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
