@@ -109,7 +109,7 @@ initGameBackground_mod:
 
 twoplayer_game_nametable:
 .ifdef  TOURNAMENT_MODE
-        .incbin INGAME_NAM
+        .incbin "build/tournament.nam.rle"
 .elseif .defined(NEXT_ON_TOP)
         .incbin "build/twoplayer_game_top.nam.rle"
 .else
@@ -430,7 +430,7 @@ stageSpriteForNextPiece_player1_mod:
         sta     spriteXOffset
         lda     #$53
 .else
-        lda		#INGAME_LAYOUT_P1_PREVIEW_X
+        lda     #INGAME_LAYOUT_P1_PREVIEW_X
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P1_PREVIEW_Y
 .endif
