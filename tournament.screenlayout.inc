@@ -1,5 +1,6 @@
 .define INGAME_NAM "build/tournament.nam.rle"
 
+
 INGAME_LAYOUT_P1_LEVEL_X = 12
 INGAME_LAYOUT_P1_LEVEL_Y = 2
 

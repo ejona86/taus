@@ -4,7 +4,7 @@ IPSCHROFFSET = 0
 .segment "IPSCHR"
 
 .ifdef TOURNAMENT_MODE
-	.include "tournament-CHR.inc"
+.include "tournament-CHR.inc"
 .else
 
 	.ifdef NEXT_ON_TOP

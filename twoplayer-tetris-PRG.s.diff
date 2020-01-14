@@ -1012,6 +1012,188 @@
          jmp     LA085
  
  L9FFB:  jsr     bulkCopyToPpu
+@@ -3920,11 +4109,11 @@ byteToBcdTable:
+         .byte   $16,$17,$18,$19,$20,$21,$22,$23
+         .byte   $24,$25,$26,$27,$28,$29,$30,$31
+         .byte   $32,$33,$34,$35,$36,$37,$38,$39
+         .byte   $40,$41,$42,$43,$44,$45,$46,$47
+         .byte   $48,$49
+-; Adjusts high score table and handles data entry, if necessary
++; Adjusts high score table and handles data entry, if necessary; x comes from gameModeState_handleGameOver_mod
+ handleHighScoreIfNecessary:
+         lda     #$00
+         sta     highScoreEntryRawPos
+         lda     gameType
+         beq     @compareWithPos
+@@ -3936,26 +4125,26 @@ @compareWithPos:
+         asl     a
+         clc
+         adc     generalCounter2
+         tay
+         lda     highScoreScoresA,y
+-        cmp     player1_score+2
++        cmp     player1_score+2,x
+         beq     @checkHundredsByte
+         bcs     @tooSmall
+         bcc     adjustHighScores
+ @checkHundredsByte:
+         iny
+         lda     highScoreScoresA,y
+-        cmp     player1_score+1
++        cmp     player1_score+1,x
+         beq     @checkOnesByte
+         bcs     @tooSmall
+         bcc     adjustHighScores
+ ; This breaks ties by prefering the new score
+ @checkOnesByte:
+         iny
+         lda     highScoreScoresA,y
+-        cmp     player1_score
++        cmp     player1_score,x
+         beq     adjustHighScores
+         bcc     adjustHighScores
+ @tooSmall:
+         inc     highScoreEntryRawPos
+         lda     highScoreEntryRawPos
+@@ -3998,22 +4187,22 @@ @clearNameLetter:
+         inx
+         dey
+         bne     @clearNameLetter
+         ldx     highScoreEntryRawPos
+         lda     highScoreIndexToHighScoreScoresOffset,x
+-        tax
+-        lda     player1_score+2
+-        sta     highScoreScoresA,x
+-        inx
+-        lda     player1_score+1
+-        sta     highScoreScoresA,x
+-        inx
+-        lda     player1_score
+-        sta     highScoreScoresA,x
++        tay     ; swapped to y
++        ldx     tmp3                    ; player offset
++        lda     player1_score+2,x
++        sta     highScoreScoresA,y      ; removed inx from next line
++        lda     player1_score+1,x
++        sta     highScoreScoresA+1,y
++        ;inx
++        lda     player1_score,x
++        sta     highScoreScoresA+2,y
+         ldx     highScoreEntryRawPos
+-        lda     player1_levelNumber
+-        sta     highScoreLevels,x
++        lda     player1_levelNumber,x
++        sta     highScoreLevels,y
+         jmp     highScoreEntryScreen
+ 
+ ; reg a: start byte to copy
+ copyHighScoreNameToNextIndex:
+         sta     generalCounter
+@@ -4076,11 +4265,11 @@ copyHighScoreLevelToNextIndex:
+         tax
+ @xAdjustedForGameType:
+         lda     highScoreLevels,x
+         sta     highScoreLevels+1,x
+         rts
+-
++.import highScoreEntryScreen_render
+ highScoreIndexToHighScoreNamesOffset:
+         .byte   $00,$06,$0C,$12,$18,$1E,$24,$2A
+ highScoreIndexToHighScoreScoresOffset:
+         .byte   $00,$03,$06,$09,$0C,$0F,$12,$15
+ highScoreEntryScreen:
+@@ -4110,11 +4299,11 @@ highScoreEntryScreen:
+         adc     gameType
+         sta     PPUDATA
+         jsr     showHighScores
+         lda     #$02
+         sta     renderMode
+-        jsr     waitForVBlankAndEnableNmi
++        jsr     highScoreEntryScreen_render ; jsr     waitForVBlankAndEnableNmi
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         jsr     updateAudioWaitForNmiAndEnablePpuRendering
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         lda     highScoreEntryRawPos
+         asl     a
+@@ -4143,20 +4332,20 @@ @renderFrame:
+         and     #$03
+         bne     @flickerStateSelected_checkForStartPressed
+         lda     #$02
+         sta     spriteIndexInOamContentLookup
+ @flickerStateSelected_checkForStartPressed:
+-        jsr     loadSpriteIntoOamStaging
+-        lda     newlyPressedButtons_player1
++        .import highScoreEntryScreen_get_player ; loads player id (0 or 1) into x
++        jsr     highScoreEntryScreen_get_player ; jsr     loadSpriteIntoOamStaging
++        lda     newlyPressedButtons_player1,x
+         and     #$10
+         beq     @checkForAOrRightPressed
+         lda     #$02
+         sta     soundEffectSlot1Init
+         jmp     @ret
+-
+ @checkForAOrRightPressed:
+-        lda     newlyPressedButtons_player1
++        lda     newlyPressedButtons_player1,x
+         and     #$81
+         beq     @checkForBOrLeftPressed
+         lda     #$01
+         sta     soundEffectSlot1Init
+         inc     highScoreEntryNameOffsetForLetter
+@@ -4164,22 +4353,22 @@ @checkForAOrRightPressed:
+         cmp     #$06
+         bmi     @checkForBOrLeftPressed
+         lda     #$00
+         sta     highScoreEntryNameOffsetForLetter
+ @checkForBOrLeftPressed:
+-        lda     newlyPressedButtons_player1
++        lda     newlyPressedButtons_player1,x
+         and     #$42
+         beq     @checkForDownPressed
+         lda     #$01
+         sta     soundEffectSlot1Init
+         dec     highScoreEntryNameOffsetForLetter
+         lda     highScoreEntryNameOffsetForLetter
+         bpl     @checkForDownPressed
+         lda     #$05
+         sta     highScoreEntryNameOffsetForLetter
+ @checkForDownPressed:
+-        lda     heldButtons_player1
++        lda     heldButtons_player1,x
+         and     #$04
+         beq     @checkForUpPressed
+         lda     frameCounter
+         and     #$07
+         bne     @checkForUpPressed
+@@ -4187,24 +4376,24 @@ @checkForDownPressed:
+         sta     soundEffectSlot1Init
+         lda     highScoreEntryNameOffsetForRow
+         sta     generalCounter
+         clc
+         adc     highScoreEntryNameOffsetForLetter
+-        tax
+-        lda     highScoreNames,x
++        tay
++        lda     highScoreNames,y
+         sta     generalCounter
+         dec     generalCounter
+         lda     generalCounter
+         bpl     @letterDoesNotUnderflow
+         clc
+         adc     #$2C
+         sta     generalCounter
+ @letterDoesNotUnderflow:
+         lda     generalCounter
+-        sta     highScoreNames,x
++        sta     highScoreNames,y
+ @checkForUpPressed:
+-        lda     heldButtons_player1
++        lda     heldButtons_player1,x
+         and     #$08
+         beq     @waitForVBlank
+         lda     frameCounter
+         and     #$07
+         bne     @waitForVBlank
 @@ -6204,17 +6393,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83
