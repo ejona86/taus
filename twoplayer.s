@@ -9,7 +9,6 @@
 ; TODO:
 ; Allow player 2 to pause
 ; Save another RNG to let the behind player catch up.
-; Let players enter high score in two person game
 ; Fix background tetrimino pattern
 ; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
 ; Allow toggling on garbage?
@@ -694,6 +693,8 @@ gameModeState_handleGameOver_mod:
         lda     numberOfPlayers
         cmp     #$01
         bne     @twoPlayers
+        ldx     #$00 ; player score offset for handleHighScoreIfNecessary
+        stx     tmp3
         jmp     gameModeState_handleGameOver
 
 @twoPlayers:
@@ -707,8 +708,41 @@ gameModeState_handleGameOver_mod:
         rts
 
 @gameOver:
+        ldx     #$00 ; player score offset for handleHighScoreIfNecessary
+        stx     tmp3
+        jsr     handleHighScoreIfNecessary
+        ldx     #player2_score-player1_score
+        stx     tmp3
+        jsr     handleHighScoreIfNecessary
+
         jmp     gameModeState_handleGameOver
 
+highScoreEntryScreen_render:
+        .export highScoreEntryScreen_render
+        lda     numberOfPlayers
+        cmp     #$01
+        beq     @ret
+        lda     tmp3
+        bne     @player2
+        jsr     bulkCopyToPpu
+        .addr   player1ActivePatch
+        jmp     @ret
+@player2:
+        jsr     bulkCopyToPpu
+        .addr   player2ActivePatch
+
+@ret:
+        jsr     waitForVBlankAndEnableNmi
+        rts
+
+highScoreEntryScreen_get_player:
+        .export highScoreEntryScreen_get_player
+        jsr     loadSpriteIntoOamStaging
+        ldx     tmp3
+        beq     @ret
+        ldx     #$01
+@ret:
+        rts
 
 updateMusicSpeed_noBlockInRow_mod:
         .export updateMusicSpeed_noBlockInRow_mod
