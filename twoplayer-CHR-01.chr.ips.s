@@ -3,6 +3,10 @@ IPSCHROFFSET = 0
 
 .segment "IPSCHR"
 
+.ifdef TOURNAMENT_MODE
+NEXT_ON_TOP = 0
+.endif
+
 .ifdef NEXT_ON_TOP
         ips_tilehdr CHR_RIGHT,$68
         .incbin "build/twoplayer.chrs/18"
