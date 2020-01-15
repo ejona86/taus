@@ -86,7 +86,9 @@ build/level_menu_nametable.nam: build/tetris-PRG.bin
 	tail -c +$$((16#BADB - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 
 build/%.s: %.bin %.info Makefile | build
-	da65 -i $(word 2,$^) -o $@ $<
+	# Strip off the first two lines of header, which contain variable
+	# information; they cause merge conflicts
+	da65 -i $(word 2,$^) $< | tail -n +3 > $@
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
