@@ -23,6 +23,7 @@
 
 .ifdef TOURNAMENT_MODE
 .include "tournament.screenlayout.inc"
+.include "tournament.romlayout.inc"
 .endif
 
 .segment "CHR"
@@ -34,7 +35,18 @@
 
 .segment "GAMEBSS"
 
+.ifndef TOURNAMENT_MODE
 .res 1 ; must be at least size 1 to prevent init loop from breaking
+.else
+tetrisLines_P1:
+        .res    1
+tetrisLines_P2:
+        .res    1
+binaryLines_P1:
+        .res    2
+binaryLines_P2:
+        .res    2
+.endif
 
 .code
 
@@ -201,6 +213,15 @@ renderPlay_mod:
         and     #$FD
         sta     outOfDateRenderFlags
 
+.ifdef TOURNAMENT_MODE
+        ;in tourmanent mode we try to reduce updates
+        ;so we update only one set of numbers at once
+        ;if we updated level, we just leave
+        lda     #$00
+        jmp     after_renderPlay_mod
+
+.endif
+
 @renderScore:
         lda     outOfDateRenderFlags
         and     #$04
@@ -255,8 +276,19 @@ renderPlay_mod:
         lda     outOfDateRenderFlags
         and     #$FB
         sta     outOfDateRenderFlags
-
+.ifdef TOURNAMENT_MODE
+        ;in tourmanent mode we try to reduce updates
+        ;so we update only one set of numbers at once
+        ;if we updated score, we just leave
+        lda     #$00
+        jmp     after_renderPlay_mod
 @ret:
+        ;we did no update so far, lets see if the
+        ;tournament statistics need update
+        jsr     updateTournamentRendering
+.else
+@ret:
+ .endif
         lda     #$00
         jmp     after_renderPlay_mod
 
@@ -813,4 +845,150 @@ updateMusicSpeed_playerDied:
         tax
         lda     musicSelectionTable,x
         jsr     setMusicTrack
+        rts
+
+;this is the update of stats for the tournament play mode
+statsPerBlock_tournamentMode:
+        .export statsPerBlock_tournamentMode
+        tay
+        lda     activePlayer
+        clc
+        adc     #DROUGHT_P1 - 1
+        tax
+        lda     tetriminoTypeFromOrientation,y
+        cmp     #$06 ; i piece
+        beq     @clearDrought
+        lda     #1
+        jsr     increaseBCDStatsToF9
+        jmp     @rts
+@clearDrought:
+        lda     #$00
+        sta     statsByType, x
+@rts:
+        ;request render update
+        lda     tournamentRenderFlags-DROUGHT_P1, x
+        ora     #tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags-DROUGHT_P1, x
+
+        rts
+
+
+statsPerLineClear_tournamentMode:
+        .export statsPerLineClear_tournamentMode
+        lda     completedLines
+        cmp     #$00
+        beq     @rts
+        tay
+        lda     activePlayer
+        clc
+        adc     #BURN_P1 - 1
+        tax
+        tya
+        cmp     #$04
+        beq     @clearBurn
+        jsr     increaseBCDStatsToF9
+        jmp     @dirtyRenderFlags
+@clearBurn:
+        lda     #$00
+        sta     statsByType, x
+@dirtyRenderFlags:
+        ;request render update
+        lda     tournamentRenderFlags-BURN_P1, x
+        ora     #tournamentRenderFlagsBurn|tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags-BURN_P1, x
+
+@rts:
+        lda     #$00
+        sta     completedLines
+        inc     playState
+        rts
+
+
+;increases a bcd value, but the first value can increase to F
+;the value will go up to F9 and then stop increasing
+;the number to add is stored in a
+;the adress is stored in x relative to the begin of statsByType
+
+;warning, this can fail for certain numbers, e.g. 8 + 9 = 11
+;should be save for all digits 6 and smaller
+increaseBCDStatsToF9:
+        clc
+        adc     statsByType, x
+        bcs     @overflow
+
+        sta     statsByType, x
+        and     #$0f
+        cmp     #10
+        bmi     @rts
+        lda     statsByType, x
+        clc
+        adc     #6
+        bcc     @writeA
+@overflow:
+        lda     #$F9
+@writeA:
+        sta     statsByType, x
+@rts:
+        rts
+
+;renders the special tournament statistics to screen
+;to save some time it does only update a single number per update
+updateTournamentRendering:
+@burnP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsBurn
+        beq     @burnP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsBurn
+        sta     tournamentRenderFlags
+@burnP1Write:
+        lda     #>INGAME_LAYOUT_P1_BURN
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_BURN
+        sta     PPUADDR
+        lda     statsByType + BURN_P1
+        jmp     twoDigsToPPU
+@burnP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsBurn
+        beq     @droughtP1
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsBurn
+        sta     tournamentRenderFlags + 1
+@burnP2Write:
+        lda     #>INGAME_LAYOUT_P2_BURN
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_BURN
+        sta     PPUADDR
+        lda     statsByType + BURN_P2
+        jmp     twoDigsToPPU
+@droughtP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsDrought
+        beq     @droughtP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags
+@droughtP1Write:
+        lda     #>INGAME_LAYOUT_P1_DROUGHT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_DROUGHT
+        sta     PPUADDR
+        lda     statsByType + DROUGHT_P1
+        jmp     twoDigsToPPU
+@droughtP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsDrought
+        beq     @end
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags + 1
+@droughtP2Write:
+        lda     #>INGAME_LAYOUT_P2_DROUGHT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_DROUGHT
+        sta     PPUADDR
+        lda     statsByType + DROUGHT_P2
+        jmp     twoDigsToPPU
+@end:
         rts
