@@ -38,14 +38,18 @@
 .ifndef TOURNAMENT_MODE
 .res 1 ; must be at least size 1 to prevent init loop from breaking
 .else
-tetrisLines_P1:
+tetrisCount_P1:
         .res    1
-tetrisLines_P2:
+tetrisCount_P2:
         .res    1
 binaryLines_P1:
-        .res    2
+        .res    1
 binaryLines_P2:
-        .res    2
+        .res    1
+binaryLines_P1_HI:
+        .res    1
+binaryLines_P2_HI:
+        .res    1
 .endif
 
 .code
@@ -887,15 +891,43 @@ statsPerLineClear_tournamentMode:
         cmp     #$04
         beq     @clearBurn
         jsr     increaseBCDStatsToF9
-        jmp     @dirtyRenderFlags
+        jmp     @updateLines
 @clearBurn:
         lda     #$00
         sta     statsByType, x
+        inc     tetrisCount_P1 - BURN_P1, x
+        inc     tetrisCount_P1 - BURN_P1, x
+@updateLines:
+        lda     completedLines
+        clc
+        adc     binaryLines_P1 - BURN_P1, x
+        sta     binaryLines_P1 - BURN_P1, x
+        bcc     @dirtyRenderFlags
+        inc     binaryLines_P1_HI - BURN_P1, x
 @dirtyRenderFlags:
         ;request render update
         lda     tournamentRenderFlags-BURN_P1, x
         ora     #tournamentRenderFlagsBurn|tournamentRenderFlagsTetrisRate
         sta     tournamentRenderFlags-BURN_P1, x
+
+        lda     binaryLines_P1 - BURN_P1, x
+        sta     tmp1
+        lda     binaryLines_P1_HI - BURN_P1, x
+        lsr     a
+        lda     tetrisCount_P1 - BURN_P1, x
+        bcs     @halfresTetrisRate
+        asl     a
+        bcc     @calculateTetrisRate
+
+@halfresTetrisRate:
+        ror     tmp1
+
+@calculateTetrisRate:
+        jsr     calculateTetrisRateBCD
+        lda     activePlayer
+        tax
+        lda     tmp2
+        sta     statsByType + TRATE_P1 - 1, x
 
 @rts:
         lda     #$00
@@ -934,6 +966,34 @@ increaseBCDStatsToF9:
 ;renders the special tournament statistics to screen
 ;to save some time it does only update a single number per update
 updateTournamentRendering:
+@trtP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsTetrisRate
+        beq     @trtP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags
+@trtP1Write:
+        lda     #>INGAME_LAYOUT_P1_TRT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_TRT
+        sta     PPUADDR
+        lda     statsByType + TRATE_P1
+        jmp     twoDigsToPPU
+@trtP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsTetrisRate
+        beq     @burnP1
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags + 1
+@trtP2Write:
+        lda     #>INGAME_LAYOUT_P2_TRT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_TRT
+        sta     PPUADDR
+        lda     statsByType + TRATE_P2
+        jmp     twoDigsToPPU
 @burnP1:
         lda     tournamentRenderFlags
         and     #tournamentRenderFlagsBurn
@@ -991,4 +1051,111 @@ updateTournamentRendering:
         lda     statsByType + DROUGHT_P2
         jmp     twoDigsToPPU
 @end:
+        rts
+
+; calculate Tetris rate from two 8bit numbers and give BCD result
+; its possible do to a low resolution calculation for high line counts
+; by shifting a and tmp1 beforehand
+; reg a: 4 times tetris count binary
+; tmp1: line count binary
+; tmp2: (out) result in BCD
+calculateTetrisRateBCD:
+        cmp     tmp1
+        bcc     @below100Percent
+        lda     #$a0
+        sta     tmp2
+        rts
+@below100Percent:
+        ldx     #0      ;multiply by 10
+        stx     tmp3    ;{t2,t3} = 4 times tetris count
+        sta     tmp2
+
+        asl     tmp2    ;{t2,t3} =<< 2
+        rol     tmp3
+        asl     tmp2
+        rol     tmp3
+
+        clc             ;{a,t3} = {t2,t3} + {a,0}
+        adc     tmp2
+        bcc     @noCarryTen
+        inc     tmp3
+@noCarryTen:
+
+        asl     a       ;{a,t3} =<< 1
+        rol     tmp3
+
+        tay             ;store the Tetris Count * 40 to {y,x}
+        ldx     tmp3
+
+        lda     #$ff    ;prepare output as -1
+        sta     tournamentTmp4
+
+;{y,x} now contains Tetris Count * 40
+;we repeatly try to substract from this
+;the result is the first numer of the BCD
+@setSecTen:
+        sec
+@tenLoop:
+        inc     tournamentTmp4
+
+        tya
+        sbc     tmp1
+        tay
+        bcs     @tenLoop
+        dex
+        bpl     @setSecTen
+
+@fixRemainder:
+        ldx     #0      ;{y,x} = {y+tmp1,0}
+        tya
+        clc
+        adc     tmp1
+        bne     @doOnes ;calculate one of BCD number
+        sta     tournamentTmp5
+        beq     @prepareResult
+@doOnes:
+        stx     tmp3    ;multiply by 10
+        sta     tmp2    ;{t2,t3} = 4 times remaining tetris count
+
+        asl     tmp2    ;{t2,t3} =<< 2
+        rol     tmp3
+        asl     tmp2
+        rol     tmp3
+
+        clc             ; {a,t3} = {t2,t3} + {a,0}
+        adc     tmp2
+        bcc     @noCarryOnes
+        inc     tmp3
+@noCarryOnes:
+
+        asl     a       ;{a,t3} =<< 1
+        rol     tmp3
+
+        tay             ;store the remaining Tetris Count * 400 to {y,x}
+        ldx     tmp3
+
+
+        lda     #$ff    ; prepare output as -1
+        sta     tournamentTmp5
+
+@setSecOne:
+        sec
+@oneLoop:
+        inc     tournamentTmp5
+
+        tya
+        sbc     tmp1
+        tay
+        bcs     @oneLoop
+        dex
+        bpl     @setSecOne
+
+@prepareResult:
+        lda     tournamentTmp4
+        asl     a
+        asl     a
+        asl     a
+        asl     a
+        ora     tournamentTmp5
+        sta     tmp2
         rts

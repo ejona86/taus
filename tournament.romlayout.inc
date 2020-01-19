@@ -14,3 +14,6 @@ tournamentRenderFlagsLead       = $02
 tournamentRenderFlagsTetrisRate = $04
 tournamentRenderFlagsBurn       = $08
 tournamentRenderFlagsDrought    = $10
+tournamentCalcFlagsTetrisRate   = $20
+tournamentTmp4                  = $10
+tournamentTmp5                  = $11
