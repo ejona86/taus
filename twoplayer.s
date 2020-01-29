@@ -489,7 +489,8 @@ savePlayer2State_mod:
         .export savePlayer2State_mod
         jsr     savePlayer2State
         jsr     stageSpriteForNextPiece_player2
-.ifndef NEXT_ON_TOP
+
+.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
         ; Alternate draw order to flicker on conflict
         lda     frameCounter
         and     #$0F
@@ -499,7 +500,11 @@ savePlayer2State_mod:
         eor     #$08
         jsr     moveSpriteToEndOfOamStaging
 .endif
+.ifdef TOURNAMENT_MODE
+        jmp     tournamentLeadCheck
+.else
         rts
+.endif
 
 stageSpriteForNextPiece_player2:
         lda     displayNextPiece
@@ -545,7 +550,7 @@ loadSpriteIntoOamStaging_player2:
         rts
 
 
-.ifndef NEXT_ON_TOP
+.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
 ; Move a sprite in oamStaging to end of oamStaging.
 ;
 ; reg a: sprite number in oamStaging to move
@@ -935,6 +940,89 @@ statsPerLineClear_tournamentMode:
         inc     playState
         rts
 
+;check who is in lead and what point difference is there
+tournamentLeadCheck:
+        lda     outOfDateRenderFlags
+        and     #$04
+        beq     @rts
+        ;score needs update, so we also need to update lead
+        lda     #$80
+        ldx     player2_score+2
+        cpx     player1_score+2
+        bne     @calcResult
+        ldx     player2_score+1
+        cpx     player1_score+1
+        bne     @calcResult
+        ldx     player2_score
+        cpx     player1_score
+@calcResult:
+        beq     @equal
+        rol     a
+@equal:
+        cmp     statsByType + LEADERID
+        beq     @calcLead
+        sta     statsByType + LEADERID
+        lda     tournamentRenderFlags
+        ora     #tournamentRenderFlagsLeadArrow
+        sta     tournamentRenderFlags
+@calcLead:
+        lda     #0
+        ldx     statsByType + LEADERID
+        beq    @player1InLead
+
+        ;this should toggle between p1 and p2 score adress
+        eor     #player2_score-player1_score
+@player1InLead:
+        ;start with lowest byte
+        tax
+        sec
+        jsr     TournamentLeadSubstractInner
+        jsr     TournamentLeadSubstractInner
+        jsr     TournamentLeadSubstractInner
+        lda     tournamentRenderFlags
+        ora     #tournamentRenderFlagsLead
+        sta     tournamentRenderFlags
+@rts:
+        rts
+
+;this reads two BCD number which are part of the scores
+;substracts them and puts result into the lead display
+;it also prepares the next step of the calculation
+;(inc x and set carry)
+;x - player + offset of higher score
+TournamentLeadSubstractInner:
+        ldy     player1_score, x
+        txa
+        eor     #player2_score-player1_score
+        tax
+        tya
+        sbc     player1_score, x
+        bcs     @noCarry
+        sbc     #$5f
+        clc
+@noCarry:
+        ror     tmp3
+        sta     tmp1
+        and     #$0f
+        sta     tmp2
+        tya
+        and     #$0f
+        cmp     tmp2
+        bcs     @noCarryOnes
+        lda     tmp1
+        sbc     #$05
+        sta     tmp1
+@noCarryOnes:
+        txa
+        eor     #player2_score-player1_score
+        tax
+        and     #player2_score-player1_score-1
+        tay
+        lda     tmp1
+        sta     statsByType + SCORELEAD, y
+        inx
+        rol     tmp3
+        rts
 
 ;increases a bcd value, but the first value can increase to F
 ;the value will go up to F9 and then stop increasing
@@ -966,6 +1054,63 @@ increaseBCDStatsToF9:
 ;renders the special tournament statistics to screen
 ;to save some time it does only update a single number per update
 updateTournamentRendering:
+@leadArrow:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsLeadArrow
+        beq     @leadScore
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsLeadArrow
+        sta     tournamentRenderFlags
+@leadArrowWrite:
+        lda     #>INGAME_LAYOUT_P1_ARROW
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_ARROW
+        sta     PPUADDR
+        ldy     #$ff
+        lda     statsByType + LEADERID
+        bne     @firstEmpty
+        ldx     #INGAME_LAYOUT_CHARID_ARROWS
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        bpl     @midEmpty
+@firstEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+@midEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+@midwritten:
+        cmp     #1
+        bne     @lastEmpty
+        ldx     #INGAME_LAYOUT_CHARID_ARROWS+2
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        rts
+@lastEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+        rts
+@leadScore:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsLead
+        beq     @trtP1
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsLead
+        sta     tournamentRenderFlags
+@leadScoreWrite:
+        lda     #>INGAME_LAYOUT_LEAD
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_LEAD
+        sta     PPUADDR
+        lda     statsByType + SCORELEAD + 2
+        jsr     twoDigsToPPU
+        lda     statsByType + SCORELEAD + 1
+        jsr     twoDigsToPPU
+        lda     statsByType + SCORELEAD + 0
+        jmp     twoDigsToPPU
+
 @trtP1:
         lda     tournamentRenderFlags
         and     #tournamentRenderFlagsTetrisRate
@@ -979,7 +1124,15 @@ updateTournamentRendering:
         lda     #<INGAME_LAYOUT_P1_TRT
         sta     PPUADDR
         lda     statsByType + TRATE_P1
+        cmp     #$A0
+        beq     @write100
         jmp     twoDigsToPPU
+@write100:
+        ldx     #INGAME_LAYOUT_CHARID_HUNDRED
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        rts
 @trtP2:
         lda     tournamentRenderFlags + 1
         and     #tournamentRenderFlagsTetrisRate
@@ -993,6 +1146,8 @@ updateTournamentRendering:
         lda     #<INGAME_LAYOUT_P2_TRT
         sta     PPUADDR
         lda     statsByType + TRATE_P2
+        cmp     #$A0
+        beq     @write100
         jmp     twoDigsToPPU
 @burnP1:
         lda     tournamentRenderFlags
