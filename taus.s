@@ -394,7 +394,7 @@ postGameStats:
         cmp     #$10
         bne     @ret
         lda     player1_score+2
-        cmp     #$03
+        cmp     $9A50   ; #$03, but can be changed by Game Genie
         bcc     @exitGame
         jsr     endingAnimation_maybe
 @exitGame:
@@ -599,7 +599,9 @@ multiplyBy100:
 ; within @curtainFinished of playState_updateGameOverCurtain, replacing
 ; "lda player1_score+2; cmp #$03"
         jmp     postGameStats
-        nop
+        ; This leaves the cmp cut in half, but we don't jump back to it so this
+        ; is okay. We want to leave the #$03 intact to support Game Genie codes
+        ; that skip the ending animation.
 
 .segment "JMP_RENDER_MODHDR"
         ips_hunkhdr     "JMP_RENDER_MOD"
