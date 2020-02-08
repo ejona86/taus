@@ -124,7 +124,7 @@ initGameBackground_mod:
 
 twoplayer_game_nametable:
 .ifdef  TOURNAMENT_MODE
-        .incbin INGAME_NAM
+        .incbin "build/tournament.nam.rle"
 .elseif .defined(NEXT_ON_TOP)
         .incbin "build/twoplayer_game_top.nam.rle"
 .else
@@ -856,6 +856,11 @@ updateMusicSpeed_playerDied:
         jsr     setMusicTrack
         rts
 
+;--------------------------------------------------------------------
+; Tournament Mode Mod - additional code
+;--------------------------------------------------------------------
+.ifdef  TOURNAMENT_MODE
+
 ;this is the update of stats for the tournament play mode
 statsPerBlock_tournamentMode:
         .export statsPerBlock_tournamentMode
@@ -1314,3 +1319,5 @@ calculateTetrisRateBCD:
         ora     tournamentTmp5
         sta     tmp2
         rts
+
+.endif
