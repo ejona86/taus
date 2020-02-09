@@ -23,6 +23,7 @@
 
 .ifdef TOURNAMENT_MODE
 .include "tournament.screenlayout.inc"
+.include "tournament.romlayout.inc"
 .endif
 
 .segment "CHR"
@@ -34,7 +35,22 @@
 
 .segment "GAMEBSS"
 
+.ifndef TOURNAMENT_MODE
 .res 1 ; must be at least size 1 to prevent init loop from breaking
+.else
+tetrisCount_P1:
+        .res    1
+tetrisCount_P2:
+        .res    1
+binaryLines_P1:
+        .res    1
+binaryLines_P2:
+        .res    1
+binaryLines_P1_HI:
+        .res    1
+binaryLines_P2_HI:
+        .res    1
+.endif
 
 .code
 
@@ -201,6 +217,15 @@ renderPlay_mod:
         and     #$FD
         sta     outOfDateRenderFlags
 
+.ifdef TOURNAMENT_MODE
+        ;in tourmanent mode we try to reduce updates
+        ;so we update only one set of numbers at once
+        ;if we updated level, we just leave
+        lda     #$00
+        jmp     after_renderPlay_mod
+
+.endif
+
 @renderScore:
         lda     outOfDateRenderFlags
         and     #$04
@@ -255,8 +280,19 @@ renderPlay_mod:
         lda     outOfDateRenderFlags
         and     #$FB
         sta     outOfDateRenderFlags
-
+.ifdef TOURNAMENT_MODE
+        ;in tourmanent mode we try to reduce updates
+        ;so we update only one set of numbers at once
+        ;if we updated score, we just leave
+        lda     #$00
+        jmp     after_renderPlay_mod
 @ret:
+        ;we did no update so far, lets see if the
+        ;tournament statistics need update
+        jsr     updateTournamentRendering
+.else
+@ret:
+ .endif
         lda     #$00
         jmp     after_renderPlay_mod
 
@@ -453,7 +489,8 @@ savePlayer2State_mod:
         .export savePlayer2State_mod
         jsr     savePlayer2State
         jsr     stageSpriteForNextPiece_player2
-.ifndef NEXT_ON_TOP
+
+.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
         ; Alternate draw order to flicker on conflict
         lda     frameCounter
         and     #$0F
@@ -463,7 +500,11 @@ savePlayer2State_mod:
         eor     #$08
         jsr     moveSpriteToEndOfOamStaging
 .endif
+.ifdef TOURNAMENT_MODE
+        jmp     tournamentLeadCheck
+.else
         rts
+.endif
 
 stageSpriteForNextPiece_player2:
         lda     displayNextPiece
@@ -509,7 +550,7 @@ loadSpriteIntoOamStaging_player2:
         rts
 
 
-.ifndef NEXT_ON_TOP
+.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
 ; Move a sprite in oamStaging to end of oamStaging.
 ;
 ; reg a: sprite number in oamStaging to move
@@ -814,3 +855,469 @@ updateMusicSpeed_playerDied:
         lda     musicSelectionTable,x
         jsr     setMusicTrack
         rts
+
+;--------------------------------------------------------------------
+; Tournament Mode Mod - additional code
+;--------------------------------------------------------------------
+.ifdef  TOURNAMENT_MODE
+
+;this is the update of stats for the tournament play mode
+statsPerBlock_tournamentMode:
+        .export statsPerBlock_tournamentMode
+        tay
+        lda     activePlayer
+        clc
+        adc     #DROUGHT_P1 - 1
+        tax
+        lda     tetriminoTypeFromOrientation,y
+        cmp     #$06 ; i piece
+        beq     @clearDrought
+        lda     #1
+        jsr     increaseBCDStatsToF9
+        jmp     @rts
+@clearDrought:
+        lda     #$00
+        sta     statsByType, x
+@rts:
+        ;request render update
+        lda     tournamentRenderFlags-DROUGHT_P1, x
+        ora     #tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags-DROUGHT_P1, x
+
+        rts
+
+
+statsPerLineClear_tournamentMode:
+        .export statsPerLineClear_tournamentMode
+        lda     completedLines
+        cmp     #$00
+        beq     @rts
+        tay
+        lda     activePlayer
+        clc
+        adc     #BURN_P1 - 1
+        tax
+        tya
+        cmp     #$04
+        beq     @clearBurn
+        jsr     increaseBCDStatsToF9
+        jmp     @updateLines
+@clearBurn:
+        lda     #$00
+        sta     statsByType, x
+        inc     tetrisCount_P1 - BURN_P1, x
+        inc     tetrisCount_P1 - BURN_P1, x
+@updateLines:
+        lda     completedLines
+        clc
+        adc     binaryLines_P1 - BURN_P1, x
+        sta     binaryLines_P1 - BURN_P1, x
+        bcc     @dirtyRenderFlags
+        inc     binaryLines_P1_HI - BURN_P1, x
+@dirtyRenderFlags:
+        ;request render update
+        lda     tournamentRenderFlags-BURN_P1, x
+        ora     #tournamentRenderFlagsBurn|tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags-BURN_P1, x
+
+        lda     binaryLines_P1 - BURN_P1, x
+        sta     tmp1
+        lda     binaryLines_P1_HI - BURN_P1, x
+        lsr     a
+        lda     tetrisCount_P1 - BURN_P1, x
+        bcs     @halfresTetrisRate
+        asl     a
+        bcc     @calculateTetrisRate
+
+@halfresTetrisRate:
+        ror     tmp1
+
+@calculateTetrisRate:
+        jsr     calculateTetrisRateBCD
+        lda     activePlayer
+        tax
+        lda     tmp2
+        sta     statsByType + TRATE_P1 - 1, x
+
+@rts:
+        lda     #$00
+        sta     completedLines
+        inc     playState
+        rts
+
+;check who is in lead and what point difference is there
+tournamentLeadCheck:
+        lda     outOfDateRenderFlags
+        and     #$04
+        beq     @rts
+        ;score needs update, so we also need to update lead
+        lda     #$80
+        ldx     player2_score+2
+        cpx     player1_score+2
+        bne     @calcResult
+        ldx     player2_score+1
+        cpx     player1_score+1
+        bne     @calcResult
+        ldx     player2_score
+        cpx     player1_score
+@calcResult:
+        beq     @equal
+        rol     a
+@equal:
+        cmp     statsByType + LEADERID
+        beq     @calcLead
+        sta     statsByType + LEADERID
+        lda     tournamentRenderFlags
+        ora     #tournamentRenderFlagsLeadArrow
+        sta     tournamentRenderFlags
+@calcLead:
+        lda     #0
+        ldx     statsByType + LEADERID
+        beq    @player1InLead
+
+        ;this should toggle between p1 and p2 score adress
+        eor     #player2_score-player1_score
+@player1InLead:
+        ;start with lowest byte
+        tax
+        sec
+        jsr     TournamentLeadSubstractInner
+        jsr     TournamentLeadSubstractInner
+        jsr     TournamentLeadSubstractInner
+        lda     tournamentRenderFlags
+        ora     #tournamentRenderFlagsLead
+        sta     tournamentRenderFlags
+@rts:
+        rts
+
+;this reads two BCD number which are part of the scores
+;substracts them and puts result into the lead display
+;it also prepares the next step of the calculation
+;(inc x and set carry)
+;x - player + offset of higher score
+TournamentLeadSubstractInner:
+        ldy     player1_score, x
+        txa
+        eor     #player2_score-player1_score
+        tax
+        tya
+        sbc     player1_score, x
+        bcs     @noCarry
+        sbc     #$5f
+        clc
+@noCarry:
+        ror     tmp3
+        sta     tmp1
+        and     #$0f
+        sta     tmp2
+        tya
+        and     #$0f
+        cmp     tmp2
+        bcs     @noCarryOnes
+        lda     tmp1
+        sbc     #$05
+        sta     tmp1
+@noCarryOnes:
+        txa
+        eor     #player2_score-player1_score
+        tax
+        and     #player2_score-player1_score-1
+        tay
+        lda     tmp1
+        sta     statsByType + SCORELEAD, y
+        inx
+        rol     tmp3
+        rts
+
+;increases a bcd value, but the first value can increase to F
+;the value will go up to F9 and then stop increasing
+;the number to add is stored in a
+;the adress is stored in x relative to the begin of statsByType
+
+;warning, this can fail for certain numbers, e.g. 8 + 9 = 11
+;should be save for all digits 6 and smaller
+increaseBCDStatsToF9:
+        clc
+        adc     statsByType, x
+        bcs     @overflow
+
+        sta     statsByType, x
+        and     #$0f
+        cmp     #10
+        bmi     @rts
+        lda     statsByType, x
+        clc
+        adc     #6
+        bcc     @writeA
+@overflow:
+        lda     #$F9
+@writeA:
+        sta     statsByType, x
+@rts:
+        rts
+
+;renders the special tournament statistics to screen
+;to save some time it does only update a single number per update
+updateTournamentRendering:
+@leadArrow:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsLeadArrow
+        beq     @leadScore
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsLeadArrow
+        sta     tournamentRenderFlags
+@leadArrowWrite:
+        lda     #>INGAME_LAYOUT_P1_ARROW
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_ARROW
+        sta     PPUADDR
+        ldy     #$ff
+        lda     statsByType + LEADERID
+        bne     @firstEmpty
+        ldx     #INGAME_LAYOUT_CHARID_ARROWS
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        bpl     @midEmpty
+@firstEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+@midEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+@midwritten:
+        cmp     #1
+        bne     @lastEmpty
+        ldx     #INGAME_LAYOUT_CHARID_ARROWS+2
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        rts
+@lastEmpty:
+        sty     PPUDATA
+        sty     PPUDATA
+        rts
+@leadScore:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsLead
+        beq     @trtP1
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsLead
+        sta     tournamentRenderFlags
+@leadScoreWrite:
+        lda     #>INGAME_LAYOUT_LEAD
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_LEAD
+        sta     PPUADDR
+        lda     statsByType + SCORELEAD + 2
+        jsr     twoDigsToPPU
+        lda     statsByType + SCORELEAD + 1
+        jsr     twoDigsToPPU
+        lda     statsByType + SCORELEAD + 0
+        jmp     twoDigsToPPU
+
+@trtP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsTetrisRate
+        beq     @trtP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags
+@trtP1Write:
+        lda     #>INGAME_LAYOUT_P1_TRT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_TRT
+        sta     PPUADDR
+        lda     statsByType + TRATE_P1
+        cmp     #$A0
+        beq     @write100
+        jmp     twoDigsToPPU
+@write100:
+        ldx     #INGAME_LAYOUT_CHARID_HUNDRED
+        stx     PPUDATA
+        inx
+        stx     PPUDATA
+        rts
+@trtP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsTetrisRate
+        beq     @burnP1
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsTetrisRate
+        sta     tournamentRenderFlags + 1
+@trtP2Write:
+        lda     #>INGAME_LAYOUT_P2_TRT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_TRT
+        sta     PPUADDR
+        lda     statsByType + TRATE_P2
+        cmp     #$A0
+        beq     @write100
+        jmp     twoDigsToPPU
+@burnP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsBurn
+        beq     @burnP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsBurn
+        sta     tournamentRenderFlags
+@burnP1Write:
+        lda     #>INGAME_LAYOUT_P1_BURN
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_BURN
+        sta     PPUADDR
+        lda     statsByType + BURN_P1
+        jmp     twoDigsToPPU
+@burnP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsBurn
+        beq     @droughtP1
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsBurn
+        sta     tournamentRenderFlags + 1
+@burnP2Write:
+        lda     #>INGAME_LAYOUT_P2_BURN
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_BURN
+        sta     PPUADDR
+        lda     statsByType + BURN_P2
+        jmp     twoDigsToPPU
+@droughtP1:
+        lda     tournamentRenderFlags
+        and     #tournamentRenderFlagsDrought
+        beq     @droughtP2
+        lda     tournamentRenderFlags
+        and     #$ff^tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags
+@droughtP1Write:
+        lda     #>INGAME_LAYOUT_P1_DROUGHT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P1_DROUGHT
+        sta     PPUADDR
+        lda     statsByType + DROUGHT_P1
+        jmp     twoDigsToPPU
+@droughtP2:
+        lda     tournamentRenderFlags + 1
+        and     #tournamentRenderFlagsDrought
+        beq     @end
+        lda     tournamentRenderFlags + 1
+        and     #$ff^tournamentRenderFlagsDrought
+        sta     tournamentRenderFlags + 1
+@droughtP2Write:
+        lda     #>INGAME_LAYOUT_P2_DROUGHT
+        sta     PPUADDR
+        lda     #<INGAME_LAYOUT_P2_DROUGHT
+        sta     PPUADDR
+        lda     statsByType + DROUGHT_P2
+        jmp     twoDigsToPPU
+@end:
+        rts
+
+; calculate Tetris rate from two 8bit numbers and give BCD result
+; its possible do to a low resolution calculation for high line counts
+; by shifting a and tmp1 beforehand
+; reg a: 4 times tetris count binary
+; tmp1: line count binary
+; tmp2: (out) result in BCD
+calculateTetrisRateBCD:
+        cmp     tmp1
+        bcc     @below100Percent
+        lda     #$a0
+        sta     tmp2
+        rts
+@below100Percent:
+        ldx     #0      ;multiply by 10
+        stx     tmp3    ;{t2,t3} = 4 times tetris count
+        sta     tmp2
+
+        asl     tmp2    ;{t2,t3} =<< 2
+        rol     tmp3
+        asl     tmp2
+        rol     tmp3
+
+        clc             ;{a,t3} = {t2,t3} + {a,0}
+        adc     tmp2
+        bcc     @noCarryTen
+        inc     tmp3
+@noCarryTen:
+
+        asl     a       ;{a,t3} =<< 1
+        rol     tmp3
+
+        tay             ;store the Tetris Count * 40 to {y,x}
+        ldx     tmp3
+
+        lda     #$ff    ;prepare output as -1
+        sta     tournamentTmp4
+
+;{y,x} now contains Tetris Count * 40
+;we repeatly try to substract from this
+;the result is the first numer of the BCD
+@setSecTen:
+        sec
+@tenLoop:
+        inc     tournamentTmp4
+
+        tya
+        sbc     tmp1
+        tay
+        bcs     @tenLoop
+        dex
+        bpl     @setSecTen
+
+@fixRemainder:
+        ldx     #0      ;{y,x} = {y+tmp1,0}
+        tya
+        clc
+        adc     tmp1
+        bne     @doOnes ;calculate one of BCD number
+        sta     tournamentTmp5
+        beq     @prepareResult
+@doOnes:
+        stx     tmp3    ;multiply by 10
+        sta     tmp2    ;{t2,t3} = 4 times remaining tetris count
+
+        asl     tmp2    ;{t2,t3} =<< 2
+        rol     tmp3
+        asl     tmp2
+        rol     tmp3
+
+        clc             ; {a,t3} = {t2,t3} + {a,0}
+        adc     tmp2
+        bcc     @noCarryOnes
+        inc     tmp3
+@noCarryOnes:
+
+        asl     a       ;{a,t3} =<< 1
+        rol     tmp3
+
+        tay             ;store the remaining Tetris Count * 400 to {y,x}
+        ldx     tmp3
+
+
+        lda     #$ff    ; prepare output as -1
+        sta     tournamentTmp5
+
+@setSecOne:
+        sec
+@oneLoop:
+        inc     tournamentTmp5
+
+        tya
+        sbc     tmp1
+        tay
+        bcs     @oneLoop
+        dex
+        bpl     @setSecOne
+
+@prepareResult:
+        lda     tournamentTmp4
+        asl     a
+        asl     a
+        asl     a
+        asl     a
+        ora     tournamentTmp5
+        sta     tmp2
+        rts
+
+.endif
