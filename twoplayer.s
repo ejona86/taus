@@ -20,9 +20,9 @@
 ; No room for A/B-Type, high score
 
 .include "build/tetris.inc"
+.include "twoplayer.inc"
 
 .ifdef TOURNAMENT_MODE
-.include "tournament.screenlayout.inc"
 .include "tournament.romlayout.inc"
 .endif
 
@@ -162,48 +162,20 @@ renderPlay_mod:
         and     #$06
         bne     @renderScore
 
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$20
-        sta     PPUADDR
-        lda     #$EF
-        sta     PPUADDR
-.else
         lda     #>INGAME_LAYOUT_P1_LEVEL
         sta     PPUADDR
         lda     #<INGAME_LAYOUT_P1_LEVEL
         sta     PPUADDR
-.endif
-.else
-        lda     #$21
-        sta     PPUADDR
-        lda     #$0F
-        sta     PPUADDR
-.endif
 
         ldx     player1_levelNumber
         lda     levelDisplayTable,x
         jsr     twoDigsToPPU
         jsr     updatePaletteForLevel
 
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$22
-        sta     PPUADDR
-        lda     #$50
-        sta     PPUADDR
-.else
         lda     #>INGAME_LAYOUT_P2_LEVEL
         sta     PPUADDR
         lda     #<INGAME_LAYOUT_P2_LEVEL
         sta     PPUADDR
-.endif
-.else
-        lda     #$21
-        sta     PPUADDR
-        lda     #$F0
-        sta     PPUADDR
-.endif
 
         ldx     player2_levelNumber
         lda     levelDisplayTable,x
@@ -231,21 +203,9 @@ renderPlay_mod:
         and     #$04
         beq     @ret
 
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$20
-.else
         lda     #>INGAME_LAYOUT_P1_SCORE
-.endif
-.else
-        lda     #$23
-.endif
         sta     PPUADDR
-.ifndef TOURNAMENT_MODE
-        lda     #$66
-.else
         lda     #<INGAME_LAYOUT_P1_SCORE
-.endif
         sta     PPUADDR
         lda     player1_score+2
         jsr     twoDigsToPPU
@@ -254,21 +214,9 @@ renderPlay_mod:
         lda     player1_score
         jsr     twoDigsToPPU
 
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$20
-.else
         lda     #>INGAME_LAYOUT_P2_SCORE
-.endif
-.else
-        lda     #$23
-.endif
         sta     PPUADDR
-.ifndef TOURNAMENT_MODE
-        lda     #$78
-.else
         lda     #<INGAME_LAYOUT_P2_SCORE
-.endif
         sta     PPUADDR
         lda     player2_score+2
         jsr     twoDigsToPPU
@@ -459,21 +407,9 @@ stageSpriteForNextPiece_player1_mod:
         sta     spriteYOffset
         jmp     @stage
 @twoPlayers:
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$78
-        sta     spriteXOffset
-        lda     #$53
-.else
         lda     #INGAME_LAYOUT_P1_PREVIEW_X
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P1_PREVIEW_Y
-.endif
-.else
-        lda     #6*8
-        sta     spriteXOffset
-        lda     #3*8
-.endif
         sta     spriteYOffset
 @stage:
         .importzp player1_nextPiece
@@ -490,7 +426,7 @@ savePlayer2State_mod:
         jsr     savePlayer2State
         jsr     stageSpriteForNextPiece_player2
 
-.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
+.ifndef NEXT_ON_TOP
         ; Alternate draw order to flicker on conflict
         lda     frameCounter
         and     #$0F
@@ -509,21 +445,9 @@ savePlayer2State_mod:
 stageSpriteForNextPiece_player2:
         lda     displayNextPiece
         bne     @ret
-.ifndef NEXT_ON_TOP
-.ifndef TOURNAMENT_MODE
-        lda     #$80
-        sta     spriteXOffset
-        lda     #$AB
-.else
         lda     #INGAME_LAYOUT_P2_PREVIEW_X
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P2_PREVIEW_Y
-.endif
-.else
-        lda     #24*8
-        sta     spriteXOffset
-        lda     #3*8
-.endif
         sta     spriteYOffset
         .importzp player2_nextPiece
         ldx     player2_nextPiece
@@ -550,7 +474,7 @@ loadSpriteIntoOamStaging_player2:
         rts
 
 
-.if .NOT(.def(NEXT_ON_TOP) .OR .def(TOURNAMENT_MODE))
+.ifndef NEXT_ON_TOP
 ; Move a sprite in oamStaging to end of oamStaging.
 ;
 ; reg a: sprite number in oamStaging to move
