@@ -72,10 +72,10 @@ that have not yet been included in a release.
 Dependencies (should be in PATH):
 1. [Flips](https://github.com/Alcaro/Flips). [Flips
    1.31](https://www.smwcentral.net/?p=section&a=details&id=11474) is fine
-2. [cc65](https://cc65.github.io)
-3. GNU Make. Windows users can use `make.exe` from
-   [UnxUpdates.zip](http://unxutils.sourceforge.net/) (just the one file) or
-   [GnuWin32 Make](http://gnuwin32.sourceforge.net/packages/make.htm)
+2. [cc65](https://cc65.github.io/getting-started.html)
+3. GNU Make. Windows users can use `make.exe` (just the one file) from the
+   `bin/` folder of `make-*-without-guile-w32-bin.zip` available at
+   [ezwinports](https://sourceforge.net/projects/ezwinports/files/)
 4. GNU Coreutils and Sed. These are standard on Linux. On Windows they are
    provided by [Git for Windows](https://git-scm.com/download/win) when using
    the "Git Bash" command line. Note that it uses a Unix directory structure;
@@ -87,9 +87,10 @@ On Windows, to modify your PATH, run `SystemPropertiesAdvanced.exe`. On the
 changes to take effect.
 
 Manual prep:
-1. Copy tetris ROM to `tetris.nes`. If the iNES header is different you can
-   still use the ROM, but you need to adjust the header in tetris.s. Ignore
-   iNES header issues for now. `$ make test` will fail if this is a problem.
+1. Copy tetris ROM to `tetris.nes` in the `taus` folder. If the iNES header is
+   different than mentioned above you can still use the ROM, but you need to
+   adjust the header in `tetris.s` to match your rom to make `$ make test`
+   happy
 
 Use `$ make` to build artifacts into `build/`, which includes disassembling
 into `build/tetris-PRG.s`. `$ make test` verifies the reassembled version
