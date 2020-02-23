@@ -1,4 +1,4 @@
-CAFLAGS = -g
+override CAFLAGS += -g
 LDFLAGS =
 VPATH = build
 
