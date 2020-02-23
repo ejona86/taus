@@ -32,38 +32,6 @@ build/custom.nes: build/taus.ips build/highscores.ips
 build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 	flips --create $^ $@ > /dev/null
 
-CAFLAGS = -g
-LDFLAGS =
-VPATH = build
-
-build:
-	mkdir build
-
-build/%.o: %.s Makefile | build
-	ca65 $(CAFLAGS) --create-dep $@.d $< -o $@
-
-build/%: %.cfg
-	ld65 $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(filter %.o,$^)
-
-build/%.nes: build/%.ips
-	# Second prerequisite is assumed to be a .nes source
-	# If the first time fails, run it a second time to display output
-	flips --apply $< $(word 2,$^) $@ > /dev/null || flips --apply $< $(word 2,$^) $@
-	flips --create $(word 2,$^) $@ build/$*.dist.ips > /dev/null
-
-build/%: %.ips
-	# Second prerequisite is assumed to be source
-	# If the first time fails, run it a second time to display output
-	flips --apply $< $(word 2,$^) $@ > /dev/null || flips --apply $< $(word 2,$^) $@
-	flips --create $(word 2,$^) $@ build/$*.dist.ips > /dev/null
-
-build/%.chrs/fake: %.chr | build
-	[ -d build/$*.chrs ] || mkdir build/$*.chrs
-	touch $@
-	split -x -b 16 $< build/$*.chrs/
-build/%.rle: % rle-enc.awk | build
-	basenc --base16 -w2 $< | LC_ALL=C awk -f rle-enc.awk | basenc --base16 -d > $@
-
 # There are tools to split apart the iNES file, like
 # https://github.com/taotao54321/ines, but they would require an additional
 # setup step for the user to download/run.
@@ -84,11 +52,6 @@ build/game_nametable.nam: build/tetris-PRG.bin
 	tail -c +$$((16#BF3C - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 build/level_menu_nametable.nam: build/tetris-PRG.bin
 	tail -c +$$((16#BADB - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
-
-build/%.s: %.bin %.info Makefile | build
-	# Strip off the first two lines of header, which contain variable
-	# information; they cause merge conflicts
-	da65 -i $(word 2,$^) $< | tail -n +3 > $@
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
@@ -111,9 +74,6 @@ test: tetris.nes build/tetris.nes build/taus.nes
 	# fceux saves some of the configuration, so restore what we can
 	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/taus.nes
 
-clean:
-	[ ! -d build/ ] || rm -r build/
-
 dis: build/tetris-PRG.s
 tetris: build/tetris.nes
 taus: build/taus.nes
@@ -125,31 +85,7 @@ twoplayer: build/twoplayer.nes build/twoplayer.dist.ips
 # These are simply aliases
 .PHONY: all dis tetris taus screens custom handicap twoplayer
 # These are "true" phonies, and always execute something
-.PHONY: test clean
+.PHONY: test
 
-.SUFFIXES:
-
-ifneq "$(V)" "1"
-.SILENT:
-endif
-
-include $(wildcard build/*.d)
-
-.SECONDEXPANSION:
-build/%: %.diff $$(wildcard build/diffhead-$$*)
-	# Last prerequisite is assumed to be basefile
-	###
-	# Sync diffhead and diff for manual edits
-	if [ build/diffhead-$* -nt $@ ]; then \
-		diff -u --label orig --label mod -U 5 -F : build/diffbase-$* build/diffhead-$* > $@.tmp \
-			|| [ $$? -eq 1 ] && mv $@.tmp $<; \
-	elif [ $< -nt $@ -a -e build/diffbase-$* ]; then \
-		cp build/diffbase-$* $@.tmp && patch -s $@.tmp $< && mv $@.tmp build/diffhead-$*; \
-	fi
-	# Now do build-triggered updates
-	if [ ! -e build/diffbase-$* -o $(word $(words $^),$^) -nt build/diffbase-$* ]; then \
-		cp $(word $(words $^),$^) $@.tmpbase && \
-		cp $(word $(words $^),$^) $@.tmphead && patch -s $@.tmphead $< && \
-		mv $@.tmpbase build/diffbase-$* && mv $@.tmphead build/diffhead-$*; \
-	fi
-	echo "; DO NOT MODIFY. Modify diffhead-$* instead" | cat - build/diffhead-$* > $@
+# include last because it enables SECONDEXPANSION
+include nes.mk
