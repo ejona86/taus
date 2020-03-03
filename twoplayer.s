@@ -542,8 +542,8 @@ gameMode_levelMenu_nametable_mod:
 gameMode_levelMenu_processPlayer1Navigation_processPlayer2:
         .export gameMode_levelMenu_processPlayer1Navigation_processPlayer2
         lda     newlyPressedButtons_player2
-        cmp     #$10
-        bne     @checkBPressed
+        and     #$90    ; Start or A. A is required for Famicom
+        beq     @checkBPressed
         lda     numberOfPlayers
         cmp     #$01
         bne     @checkBPressed
@@ -622,11 +622,13 @@ gameMode_levelMenu_processPlayer2Navigation:
         lda     selectingLevelOrHeight
         sta     originalY
         lda     newlyPressedButtons_player2
-        cmp     #$10
-        bne     @checkBPressed
+        ; allow player1 to press start for Famicom
+        ora     newlyPressedButtons_player1
+        and     #$10
+        beq     @checkBPressed
         lda     heldButtons_player2
-        cmp     #$90
-        bne     @startAndANotPressed
+        and     #$80
+        beq     @startAndANotPressed
         lda     player2_startLevel
         clc
         adc     #$0A
