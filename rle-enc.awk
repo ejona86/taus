@@ -2,6 +2,9 @@
 #
 # Intended to be run with LC_ALL=C and 'basenc --base16 -w2' as input and
 # 'basenc --base16 -d' on output
+#
+# Note: alternatively 'basez --base16 -c -w2' and 'basez --base16 -d' are
+# equivalent
 
 # input is pairs of hex digits each followed by newline
 # output is chunks of hex digits, with newlines between each chunk

@@ -2,6 +2,8 @@ override CAFLAGS += -g
 LDFLAGS =
 VPATH = build
 
+BASE16 = $(shell command -v basenc 1>/dev/null && echo basenc --base16 || echo basez --base16 -c)
+
 build:
 	mkdir build
 
@@ -28,7 +30,7 @@ build/%.chrs/fake: %.chr | build
 	touch $@
 	split -x -b 16 $< build/$*.chrs/
 build/%.rle: % rle-enc.awk | build
-	basenc --base16 -w2 $< | LC_ALL=C awk -f rle-enc.awk | basenc --base16 -d > $@
+	$(BASE16) -c -w2 $< | LC_ALL=C awk -f rle-enc.awk | $(BASE16) -d > $@
 
 build/%.s: %.bin %.info Makefile | build
 	# Strip off the first two lines of header, which contain variable
