@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 all: tetris taus screens custom handicap twoplayer build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 
 # Manually list prerequisites that are generated. Non-generated files will
