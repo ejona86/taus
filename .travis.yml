@@ -10,6 +10,9 @@ branches:
 os:
   - linux
 
+dist:
+  - bionic
+
 env:
   global:
     - PATH=$PATH:$HOME/bin
