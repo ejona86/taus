@@ -1,4 +1,4 @@
-language: minimal
+language: generic
 
 notifications:
   email: false
@@ -16,13 +16,13 @@ dist:
 addons:
   apt:
     packages:
-      - xvfb
+      - cc65
+      - fceux
 
 services:
   - xvfb
 
 before_install:
-  - sudo apt-get install cc65 fceux
   - (cd $HOME/bin && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/flips && chmod +x flips)
   - curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/tetris.nes
 
