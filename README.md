@@ -72,7 +72,11 @@ that have not yet been included in a release.
 Dependencies (should be in PATH):
 1. [Flips](https://github.com/Alcaro/Flips). [Flips
    1.31](https://www.smwcentral.net/?p=section&a=details&id=11474) is fine
-2. [cc65](https://cc65.github.io/getting-started.html)
+2. [cc65](https://cc65.github.io/getting-started.html). Starting in Debian 10
+   (Buster) and Ubuntu 18.04 (Bionic) a package is available via
+   `sudo apt install cc65`. The Fedora package is available via
+   `sudo dnf install cc65`. Arch Linux has an
+   [AUR package](https://aur.archlinux.org/packages/cc65/) available.
 3. GNU Make. Windows users can use `make.exe` (just the one file) from the
    `bin/` folder of `make-*-without-guile-w32-bin.zip` available at
    [ezwinports](https://sourceforge.net/projects/ezwinports/files/)
