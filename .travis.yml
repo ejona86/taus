@@ -1,0 +1,19 @@
+language: minimal
+
+notifications:
+  email: false
+
+os:
+  - linux
+
+env:
+  global:
+    - PATH=$PATH:$HOME/bin
+
+before_install:
+  - apt install cc65
+  - mkdir bin && cd bin && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/flips
+  - cd taus && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/tetris.nes
+
+install:
+  - make V=1
