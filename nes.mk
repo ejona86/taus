@@ -28,7 +28,10 @@ build/%.chrs/fake: %.chr | build
 	touch $@
 	split -x -b 16 $< build/$*.chrs/
 build/%.rle: % rle-enc.awk | build
-	basenc --base16 -w2 $< | LC_ALL=C awk -f rle-enc.awk | basenc --base16 -d > $@
+	# 'basenc --base16 -w2' and 'basenc --base16 -d' would also work, but
+	# basenc isn't as widely available as xxd since it was added in
+	# coreutils 8.31
+	xxd -c1 -p $< | LC_ALL=C awk -f rle-enc.awk | xxd -r -p > $@
 
 build/%.s: %.bin %.info Makefile | build
 	# Strip off the first two lines of header, which contain variable
