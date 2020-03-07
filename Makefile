@@ -44,14 +44,14 @@ build/tetris-CHR-01.chr: tetris.nes | build
 
 build/game_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
-	tail -c +$$((16#ACF3 - 16#8000 + 3 + 1)) $< | head -c 16 > $@
+	tail -c +$$((0xACF3 - 0x8000 + 3 + 1)) $< | head -c 16 > $@
 build/menu_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
-	tail -c +$$((16#AD2B - 16#8000 + 3 + 1)) $< | head -c 16 > $@
+	tail -c +$$((0xAD2B - 0x8000 + 3 + 1)) $< | head -c 16 > $@
 build/game_nametable.nam: build/tetris-PRG.bin
-	tail -c +$$((16#BF3C - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
+	tail -c +$$((0xBF3C - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 build/level_menu_nametable.nam: build/tetris-PRG.bin
-	tail -c +$$((16#BADB - 16#8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
+	tail -c +$$((0xBADB - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
