@@ -30,4 +30,4 @@ install:
   - make V=1
 
 script:
-  - xvfb-run make test
+  - xvfb-run -a make test
