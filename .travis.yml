@@ -1,4 +1,4 @@
-language: minimal
+language: generic
 
 notifications:
   email: false
@@ -13,10 +13,22 @@ os:
 dist:
   - bionic
 
+addons:
+  apt:
+    packages:
+      - cc65
+      - fceux
+
+services:
+  - xvfb
+
 before_install:
-  - sudo apt-get install cc65
+  - export PATH=$PATH:/usr/games
   - (cd $HOME/bin && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/flips && chmod +x flips)
   - curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/tetris.nes
 
 install:
   - make V=1
+
+script:
+  - xvfb-run -a make test
