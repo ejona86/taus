@@ -18,8 +18,9 @@ env:
     - PATH=$PATH:$HOME/bin
 
 before_install:
-  - sudo apt update && sudo apt install cc65
-  - mkdir $HOME/bin && cd $HOME/bin && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/flips
+  - sudo apt-get install cc65
+  - ls $HOME/bin
+  - cd $HOME/bin && curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/flips
   - curl -OL -u "travis:545393775684" https://ejona.ersoft.org/taus-ci/tetris.nes
 
 install:
