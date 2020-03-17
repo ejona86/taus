@@ -19,51 +19,36 @@ playfieldSize := $0043
 player1_playfieldSize := $0063
 player2_playfieldSize := $0084
 
-initGameState_mod:
-        jsr     chooseNextTetrimino     ; replaced code
+initPlayfield_mod:
+        beq     @typeA
+        lda     #20+2
+        sta     player1_playfieldSize
+        sta     player2_playfieldSize
+        jmp     $87E3   ; @initPlayfieldForTypeB
 
-        jsr     makePlayer1Active
-        jsr     initPlayfieldSize
-        jsr     savePlayer1State
-
-        jsr     makePlayer2Active
-        jsr     initPlayfieldSize
-        jmp     savePlayer2State
-
-initPlayfieldSize:
-        lda     gameType
-        bne     @typeB
-
-        ldx     startHeight
-        ldy     typeBBlankInitCountByHeightTable,x
-        lda     #$4F
-@setRows:
-        cpy     #200
-        beq     @ret
-        sta     (playfieldAddr),y
-        iny
-        bne     @setRows
-
-@typeB:
-        ldx     #$00
-@ret:
+@typeA:
+        ldx     player1_startHeight
         lda     heightToSizeTable,x
-        sta     playfieldSize
-        rts
+        sta     player1_playfieldSize
+        ldx     player2_startHeight
+        lda     heightToSizeTable,x
+        sta     player2_playfieldSize
+
+        lda     #$4F
+        ldx     #$04
+        ldy     #$05
+        jsr     memset_page
+        ; right after "bne @copyPlayfieldToPlayer2" in initPlayfieldIfTypeB
+        jmp     $8855
 
 
 heightToSizeTable:
         .byte   20+2, 17+2, 15+2, 12+2, 10+2, 8+2
 
-.segment "UNREFERENCED_DATA3HDR"
-        ips_hunkhdr     "UNREFERENCED_DATA3"
-
-.segment "UNREFERENCED_DATA3"
 
 checkForCompletedRows_mod:
         tay     ; replaced code
         lda     generalCounter2
-        ; clc performed recently
         adc     #$02
         cmp     playfieldSize
         bmi     @noskip
@@ -72,13 +57,14 @@ checkForCompletedRows_mod:
         ldx     #$0A    ; replaced code
         rts
 
-.segment "JMP_INIT_GAME_STATEHDR"
-        ips_hunkhdr     "JMP_INIT_GAME_STATE"
+.segment "JMP_INIT_PLAYFIELDHDR"
+        ips_hunkhdr     "JMP_INIT_PLAYFIELD"
 
-.segment "JMP_INIT_GAME_STATE"
+.segment "JMP_INIT_PLAYFIELD"
 
-; within initGameState, replaces "jsr chooseNextTetrimino" after "sta player2_autorepeatY"
-        jsr     initGameState_mod
+; within initPlayfieldIfTypeB, replaces "bne @initPlayfieldForTypeB" and a byte
+; of the next jmp instruction
+        jmp     initPlayfield_mod
 
 .segment "JMP_CHECK_FOR_COMPLETED_ROWSHDR"
         ips_hunkhdr     "JMP_CHECK_FOR_COMPLETED_ROWS"
@@ -111,3 +97,27 @@ checkForCompletedRows_mod:
 
 ; at @checkSquare in isPositionValid, replaces "cmp #$16"
         cmp     playfieldSize
+
+.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1HDR"
+        ips_hunkhdr     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1"
+
+.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1"
+
+; at @emptyAboveHeight_player1 in initPlayfieldIfTypeB, replaces "sta playfield,y; dey; cpy #$FF".
+        ; Reorder dey to avoid off-by-one bug in
+        ; typeBBlankInitCountByHeightTable
+        dey
+        sta     playfield,y
+        ; This causes the emptying loop to underflow and clear the unused
+        ; memory at the top of the page, which is necessary for isPositionValid
+        cpy     #$C8+1
+
+.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2HDR"
+        ips_hunkhdr     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2"
+
+.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2"
+
+; at @emptyAboveHeight_player2 in initPlayfieldIfTypeB, replaces "sta playfieldForSecondPlayer,y; dey; cpy #$FF".
+        dey
+        sta     playfieldForSecondPlayer,y
+        cpy     #$C8+1
