@@ -17,7 +17,7 @@
 
 playfieldSize := $0043
 player1_playfieldSize := $0063
-player2_playfieldSize := $0084
+player2_playfieldSize := $0083
 
 initPlayfield_mod:
         beq     @typeA
