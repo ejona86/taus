@@ -317,42 +317,48 @@ copyPlayfieldRowToVRAM_fast:
 ; reg a: (input) 0=player 1, 1=player 2
 ;
 copyPlayfieldRowToVRAM4:
+        ; generalCounter is off-limits as it is used by multiple callers of
+        ; updateAudioWaitForNmiAndResetOamStaging, which waits for render.
+        ; Specifically, it breaks Type B via initPlayfieldIfTypeB. While
+        ; generalCounter is used by parts of render (e.g., @renderLevel,
+        ; twoDigsToPPU, updateLineClearingAnimation), those render paths aren't
+        ; taken in cases like Type B init. But this copying code path is taken.
         .export copyPlayfieldRowToVRAM4
         cpx     #$20
         bmi     @skipRts
         rts
 @skipRts:
-        sta     generalCounter3
+        sta     tmp3
         tay
         beq     @playerOne
 ;playerTwo:
         lda     #$0E
-        sta     generalCounter2
+        sta     tmp2
         bne     @continueSetup
 
 @playerOne:
         ldy     numberOfPlayers
         lda     @offsetTable-1,y
-        sta     generalCounter2
+        sta     tmp2
 
 @continueSetup:
         lda     #$04
-        sta     generalCounter
+        sta     tmp1
 ; reg x: vramRow
 ; reg y: playfield offset for row
-; generalCounter: loop counter
-; generalCounter2: VRAM LO offset
-; generalCounter3: 0=player 1, 1=player 2
+; tmp1: loop counter
+; tmp2: VRAM LO offset
+; tmp3: 0=player 1, 1=player 2
 @loop:
         lda     vramPlayfieldRowsHi,x
         sta     PPUADDR
         lda     vramPlayfieldRowsLo,x
         clc
-        adc     generalCounter2
+        adc     tmp2
         sta     PPUADDR
 
         ldy     multBy10Table,x
-        lda     generalCounter3
+        lda     tmp3
         bne     @playerTwoCopy
         .repeat 10,I
         lda     playfield+I,y
@@ -370,7 +376,7 @@ copyPlayfieldRowToVRAM4:
         cpx     #$14
         bpl     @doneWithAllRows
 @vramInRange:
-        dec     generalCounter
+        dec     tmp1
         beq     @ret
         jmp     @loop
 
