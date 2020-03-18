@@ -1216,6 +1216,41 @@
          lda     frameCounter
          and     #$07
          bne     @waitForVBlank
+@@ -4296,15 +4479,15 @@ gameModeState_startButtonHandling:
+ 
+ @checkIfInGame:
+         lda     renderMode
+         cmp     #$03
+         bne     @ret
+-        lda     newlyPressedButtons_player1
+-        and     #$10
+-        bne     @startPressed
++        .import isStartNewlyPressed
++        nop                             ;lda     newlyPressedButtons_player1
++        jsr     isStartNewlyPressed     ;and     #$10
++        beq     @startPressed           ;bne     @startPressed
+         jmp     @ret
+-
+ ; Do nothing if curtain is being lowered
+ @startPressed:
+         lda     player1_playState
+         cmp     #$0A
+         bne     @pause
+@@ -4327,12 +4510,12 @@ @pauseLoop:
+         lda     #$77
+         sta     spriteYOffset
+         lda     #$05
+         sta     spriteIndexInOamContentLookup
+         jsr     loadSpriteIntoOamStaging
+-        lda     newlyPressedButtons_player1
+-        cmp     #$10
++        nop                             ;lda     newlyPressedButtons_player1
++        jsr     isStartNewlyPressed     ;cmp     #$10
+         beq     @resume
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         jmp     @pauseLoop
+ 
+ @resume:lda     #$1E
 @@ -6209,17 +6392,17 @@ dmc1:   .byte   $6D,$6E,$6F,$5F,$3C,$33,
          .byte   $87,$78,$84,$7A,$77,$87,$78,$84
          .byte   $7A,$67,$87,$77,$87,$77,$72,$83

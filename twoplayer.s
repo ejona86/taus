@@ -7,7 +7,6 @@
 ; "current player" as the palette value.
 
 ; TODO:
-; Allow player 2 to pause
 ; Save another RNG to let the behind player catch up.
 ; Fix background tetrimino pattern
 ; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
@@ -15,7 +14,6 @@
 ; Allow second player to disable next piece display (minor)
 
 ; Integrations:
-; Have handicap support 2 players
 ; Any way to fit stats on screen? Seems like there's no room.
 ; No room for A/B-Type, high score
 
@@ -518,6 +516,16 @@ pickRandomTetrimino_mod:
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         rts
+
+
+isStartNewlyPressed:
+        .export isStartNewlyPressed
+        lda     newlyPressedButtons_player1
+        ora     newlyPressedButtons_player2
+        and     #$10
+        cmp     #$10
+        rts
+
 
 gameMode_levelMenu_nametable_mod:
         .export gameMode_levelMenu_nametable_mod
