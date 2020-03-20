@@ -33,9 +33,13 @@
 
 .segment "GAMEBSS"
 
-.ifndef TOURNAMENT_MODE
-.res 1 ; must be at least size 1 to prevent init loop from breaking
-.else
+; 0 for both players demo
+demo_playingPlayer:
+        .res    1
+demoIndex_player2:
+        .res    1
+
+.ifdef TOURNAMENT_MODE
 tetrisCount_P1:
         .res    1
 tetrisCount_P2:
@@ -524,6 +528,94 @@ isStartNewlyPressed:
         ora     newlyPressedButtons_player2
         and     #$10
         cmp     #$10
+        rts
+
+demo_pollController_mod_after := $9D66
+demo_pollController_mod_skip := $9D6A
+demo_pollController_mod:
+        .export demo_pollController_mod
+        jsr     pollController
+        lda     newlyPressedButtons_player1
+        ora     newlyPressedButtons_player2
+        and     #$10
+        bne     @ret
+
+        lda     numberOfPlayers
+        cmp     #$02
+        bne     @done
+        lda     demo_playingPlayer
+        cmp     #$01
+        beq     @player1Playing
+        cmp     #$02
+        beq     @player2Playing
+
+        ; check for starting player
+        lda     newlyPressedButtons_player1
+        bne     @startPlayer1
+        lda     newlyPressedButtons_player2
+        beq     @bothPlayersDemo
+
+@startPlayer2:
+        lda     #$02
+        sta     demo_playingPlayer
+@player2Playing:
+@done:
+        lda     #$00
+@ret:
+        jmp     demo_pollController_mod_after
+
+@startPlayer1:
+        inc     demo_playingPlayer
+@player1Playing:
+        ; copy player1 input to player2
+        lda     newlyPressedButtons_player1
+        sta     newlyPressedButtons_player2
+        lda     heldButtons_player1
+        sta     heldButtons_player2
+        jsr     demo_pollController_mod_skip
+        ; now swap player1 and player2 input
+        lda     newlyPressedButtons_player2
+        sta     tmp1
+        lda     newlyPressedButtons_player1
+        sta     newlyPressedButtons_player2
+        lda     tmp1
+        sta     newlyPressedButtons_player1
+
+        lda     heldButtons_player2
+        sta     tmp1
+        lda     heldButtons_player1
+        sta     heldButtons_player2
+        lda     tmp1
+        sta     heldButtons_player1
+        rts
+
+@bothPlayersDemo:
+        jsr     demo_pollController_mod_skip
+        lda     newlyPressedButtons_player1
+        sta     newlyPressedButtons_player2
+        lda     heldButtons_player1
+        sta     heldButtons_player2
+        rts
+
+
+chooseNextTetrimino_mod:
+        .export chooseNextTetrimino_mod
+        ; Assume that when demoIndex is 0/1, this is being called from
+        ; gameModeState_initGameState and that it applies to both players
+        lda     demoIndex
+        cmp     #$02
+        bmi     @bothPlayers
+        lda     activePlayer
+        cmp     #$01
+        bne     @player2
+        ldx     demoIndex
+        inc     demoIndex
+        rts
+@bothPlayers:
+        inc     demoIndex
+@player2:
+        ldx     demoIndex_player2
+        inc     demoIndex_player2
         rts
 
 

@@ -792,7 +792,7 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2803,24 +2950,30 @@ @notDelaying:
+@@ -2803,79 +2950,89 @@ @notDelaying:
          sta     tetriminoY
          lda     #$01
          sta     playState
@@ -826,11 +826,25 @@
          sta     autorepeatY
  @ret:   rts
  
-@@ -2839,43 +2992,47 @@ chooseNextTetrimino:
+ chooseNextTetrimino:
+         lda     gameMode
+         cmp     #$05
+         bne     pickRandomTetrimino
+-        ldx     demoIndex
+-        inc     demoIndex
++        .import chooseNextTetrimino_mod ; ldx     demoIndex
++        jsr     chooseNextTetrimino_mod ; inc     demoIndex
++        nop
+         lda     demoTetriminoTypeTable,x
+         lsr     a
+         lsr     a
+         lsr     a
+         lsr     a
+         and     #$07
          tax
          lda     spawnTable,x
          rts
- 
+-
  pickRandomTetrimino:
 -        jsr     @realStart
 -        rts
@@ -1021,6 +1035,30 @@
          adc     #$04
          tax
          lda     musicSelectionTable,x
+@@ -3477,19 +3660,19 @@ pollControllerButtons:
+ 
+ @demoGameMode:
+         lda     demo_recording
+         cmp     #$FF
+         beq     @recording
+-        jsr     pollController
++        .import demo_pollController_mod
++        jmp     demo_pollController_mod
+         lda     newlyPressedButtons_player1
+-        cmp     #$10
++@demo_pollController_mod_after: cmp     #$10
+         beq     @startButtonPressed
+-        lda     demo_repeats
++@demo_pollController_mod_skip:  lda     demo_repeats
+         beq     @finishedMove
+         dec     demo_repeats
+         jmp     @moveInProgress
+-
+ @finishedMove:
+         ldx     #$00
+         lda     (demoButtonsAddr,x)
+         sta     generalCounter
+         jsr     demoButtonsTable_indexIncr
 @@ -3830,11 +4013,11 @@ L9FE9:  ldy     #$00
          sty     PPUSCROLL
          sty     PPUSCROLL
