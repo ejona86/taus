@@ -24,12 +24,12 @@ function test_demo ()
 	asm.waitbefore()
 	joypad.set(1, {start=nil})
 	asm.waitexecute(0x828D)
+	local startFrame = emu.framecount()
 	memory.writebyte(labels.frameCounter+1, 5) -- force title screen timeout
 
 	asm.waitexecute(0x8158) -- wait for demo to end
-	-- Minus 255 because of fastlegal
-	if emu.framecount() ~= 5033-255 then
-		error("frame count changed: " .. emu.framecount())
+	if emu.framecount() - startFrame ~= 4760 then
+		error("frame count changed: " .. (emu.framecount()-startFrame))
 	end
 	assertbyteoff("score", 0, 0x90)
 	assertbyteoff("score", 1, 0x42)

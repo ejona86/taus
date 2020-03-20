@@ -67,10 +67,20 @@ build/custom.nes: build/tetris.nes
 	mv $@.tmp $@
 	flips --create $< $@ build/custom.dist.ips > /dev/null
 
-test: tetris.nes build/tetris.nes build/taus.nes
+build/tetris-test: tetris.nes build/tetris.nes
 	diff tetris.nes build/tetris.nes
-	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua taus-test.lua build/taus.nes
-	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua chart-test.lua build/taus.nes
+	touch $@
+
+build/%.test: %.lua
+	# Second prerequisite is assumed to be a .nes to run
+	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua $< $(word 2,$^)
+	touch $@
+
+build/taus-test.test: taus-test.lua build/taus.nes
+build/chart-test.test: chart-test.lua build/taus.nes
+build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
+
+test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
 	# fceux saves some of the configuration, so restore what we can
 	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/taus.nes
 
