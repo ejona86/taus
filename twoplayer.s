@@ -826,6 +826,11 @@ highScoreEntryScreen_get_player:
         jsr     loadSpriteIntoOamStaging
         ldx     tmp3
         beq     @ret
+        ; copy start presses from player1 to player2 for famicom
+        lda     newlyPressedButtons_player1
+        and     #$10    ; start
+        ora     newlyPressedButtons_player2
+        sta     newlyPressedButtons_player2
         ldx     #$01
 @ret:
         rts
