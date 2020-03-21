@@ -279,6 +279,27 @@
          lda     #$25
          sta     player1_lines
          sta     player2_lines
+@@ -1363,16 +1421,16 @@ gameModeState_updateCountersAndNonPlayer
+         inc     player1_fallTimer
+         inc     player2_fallTimer
+         lda     twoPlayerPieceDelayCounter
+         beq     @checkSelectButtonPressed
+         inc     twoPlayerPieceDelayCounter
+-@checkSelectButtonPressed:
+-        lda     newlyPressedButtons_player1
+-        and     #$20
++@checkSelectButtonPressed: .import gameModeState_updateCountersAndNonPlayerState_mod
++        jsr     gameModeState_updateCountersAndNonPlayerState_mod ; lda     newlyPressedButtons_player1
++        nop     ; and     #$20
+         beq     @ret
+         lda     displayNextPiece
+-        eor     #$01
++        eor     #$03
+         sta     displayNextPiece
+ @ret:   inc     gameModeState
+         rts
+ 
+ rotate_tetrimino:
 @@ -1559,17 +1617,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01

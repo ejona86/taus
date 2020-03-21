@@ -9,9 +9,7 @@
 ; TODO:
 ; Save another RNG to let the behind player catch up.
 ; Fix background tetrimino pattern
-; Demo can be two-player if second player presses start and then the system goes idle. But demo playing is broken in 2 player
 ; Allow toggling on garbage?
-; Allow second player to disable next piece display (minor)
 
 ; Integrations:
 ; Any way to fit stats on screen? Seems like there's no room.
@@ -402,9 +400,23 @@ copyOamStagingToOam_mod:
 
 .segment "CODE2"
 
+gameModeState_updateCountersAndNonPlayerState_mod:
+        .export gameModeState_updateCountersAndNonPlayerState_mod
+        lda     newlyPressedButtons_player2
+        and     #$20
+        beq     @continue
+        lda     displayNextPiece
+        eor     #$02
+        sta     displayNextPiece
+@continue:
+        lda     newlyPressedButtons_player1
+        and     #$20
+        rts
+
 stageSpriteForNextPiece_player1_mod:
         .export stageSpriteForNextPiece_player1_mod
         lda     displayNextPiece
+        and     #$01
         bne     @ret
         lda     numberOfPlayers
         cmp     #$01
@@ -452,6 +464,7 @@ savePlayer2State_mod:
 
 stageSpriteForNextPiece_player2:
         lda     displayNextPiece
+        and     #$02
         bne     @ret
         lda     #INGAME_LAYOUT_P2_PREVIEW_X
         sta     spriteXOffset
