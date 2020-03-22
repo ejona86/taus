@@ -8,7 +8,6 @@
 
 ; TODO:
 ; Save another RNG to let the behind player catch up.
-; Fix background tetrimino pattern
 ; Allow toggling on garbage?
 
 ; Integrations:
