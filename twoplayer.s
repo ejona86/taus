@@ -397,8 +397,6 @@ copyOamStagingToOam_mod:
         .import after_copyOamStagingToOam_mod
         jmp     after_copyOamStagingToOam_mod
 
-.segment "CODE2"
-
 gameModeState_updateCountersAndNonPlayerState_mod:
         .export gameModeState_updateCountersAndNonPlayerState_mod
         lda     newlyPressedButtons_player2
@@ -541,6 +539,9 @@ isStartNewlyPressed:
         and     #$10
         cmp     #$10
         rts
+
+
+.segment "CODE2"
 
 demo_pollController_mod_after := $9D66
 demo_pollController_mod_skip := $9D6A
