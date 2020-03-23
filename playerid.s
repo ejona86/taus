@@ -11,10 +11,9 @@
 
 .segment "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED"
 
-; at start of @showSelection, replaces "lda selectingLevelOrHeight; bne @showSelectionLevel"
-        jmp     level_menu_check_select_pressed
+; at gameMode_levelMenu_handleLevelHeightNavigation, replaces "lda newlyPressedButtons; cmp #$01"
+        jsr     level_menu_check_select_pressed
         nop
-afterJmpLevelMenuCheckSelectPressedMod:
 
 .segment "JMP_GAME_SHOW_PLAYERID_SPRITEHDR"
         ips_hunkhdr     "JMP_GAME_SHOW_PLAYERID_SPRITE"
@@ -52,40 +51,37 @@ afterJmpLevelMenuCheckSelectPressedMod:
         sta     PPUSCROLL
 .endif
 
+.segment "CODEHDR"
+        ips_hunkhdr     "CODE"
+
 .segment "CODE"
 
 playerId := $0003
-showSelectionLevel := $855F
 
 level_menu_check_select_pressed:
         lda     newlyPressedButtons
         cmp     #$20
-        bne     level_menu_check_select_pressed_render
-        lda     playerId
-        cmp     #$07
-        beq     reset_playerid
+        bne     @render
         inc     playerId
-        jmp     level_menu_check_select_pressed_render
-reset_playerid:
-        lda     #$00
+        lda     playerId
+        and     #$07
         sta     playerId
-level_menu_check_select_pressed_render:
+@render:
 .ifdef PLAYERID_SPRITE
         jsr     stagePlayerIdSprite
 .endif
 
-        lda     selectingLevelOrHeight
-        bne     level_menu_check_select_return_level
-        jmp     afterJmpLevelMenuCheckSelectPressedMod
-level_menu_check_select_return_level:
-        jmp     showSelectionLevel
+        ; replaced code
+        lda     newlyPressedButtons
+        cmp     #$01
+        rts
 
 .ifdef PLAYERID_SPRITE
 game_show_playerid_sprite:
         jsr     stageSpriteForNextPiece
 stagePlayerIdSprite:
         lda     playerId
-        beq     stagePlayerIdSprite_return
+        beq     @ret
         ldx     oamStagingLength
         lda     #$07
         sta     oamStaging,x
@@ -95,19 +91,19 @@ stagePlayerIdSprite:
         inx
         lda     gameMode
         cmp     #$03
-        beq     stagePlayerIdSprite_menu
+        beq     @menu
         lda     #$03
-        jmp     stagePlayerIdSprite_control
-stagePlayerIdSprite_menu:
+        jmp     @control
+@menu:
         lda     #$00
-stagePlayerIdSprite_control:
+@control:
         sta     oamStaging,x
         inx
         lda     #$F8
         sta     oamStaging,x
         inx
         stx     oamStagingLength
-stagePlayerIdSprite_return:
+@ret:
         rts
 
 .else
@@ -129,9 +125,9 @@ game_show_playerid_bg:
         lda     #$3F
         sta     PPUADDR
         lda     playerId
-        bne     game_show_playerid_bg_display
+        bne     @display
         lda     #$82
-game_show_playerid_bg_display:
+@display:
         sta     PPUDATA
         rts
 .endif

@@ -1,4 +1,4 @@
-all: tetris taus screens custom handicap twoplayer build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
+all: tetris taus screens custom handicap twoplayer playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 
 # Manually list prerequisites that are generated. Non-generated files will
 # automatically be computed.
@@ -14,7 +14,8 @@ build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 # List linker dependencies. There should be a .cfg for each target
 build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
-build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/playerid.o build/chart.o
+build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
+build/playerid.ips: build/ips.o build/playerid.o
 build/screens.ips: build/screens.o build/ips.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/handicap.ips: build/handicap.o build/ips.o
@@ -25,9 +26,10 @@ build/taus.nes: build/tetris.nes
 build/screens.nes: build/tetris.nes
 build/highscores.nes: build/tetris.nes
 build/handicap.nes: build/tetris.nes
+build/playerid.nes: build/tetris.nes
 build/twoplayer-CHR-01.chr: build/tetris-CHR-01.chr
 # Combine mods
-build/custom.nes: build/taus.ips build/highscores.ips
+build/custom.nes: build/taus.ips build/highscores.ips build/playerid.ips
 
 build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 	flips --create $^ $@ > /dev/null
@@ -91,9 +93,10 @@ screens: build/screens.nes
 custom: build/custom.nes
 handicap: build/handicap.nes
 twoplayer: build/twoplayer.nes build/twoplayer.dist.ips
+playerid: build/playerid.nes
 
 # These are simply aliases
-.PHONY: all dis tetris taus screens custom handicap twoplayer
+.PHONY: all dis tetris taus screens custom handicap twoplayer playerid
 # These are "true" phonies, and always execute something
 .PHONY: test
 
