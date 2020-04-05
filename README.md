@@ -59,7 +59,8 @@ of lines.
 [![Next on top](media/twoplayer-top.thumb.png)](media/twoplayer-top.aspect.png)
 
 The twoplayer mod allows two simultaneous players to play while receiving the
-same pieces. Garbage is not sent between players.
+same pieces. Garbage is not sent between players. The mod is incompatible with
+the TAUS mod.
 
 There are two variations of the mod. One shows the next piece on the side,
 which makes it easier to see with peripheral vision. The other shows it on top,
