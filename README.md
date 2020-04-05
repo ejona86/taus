@@ -77,6 +77,17 @@ is compatible with the TAUS and twoplayer mods.
 This mod was originally created as a training aid. When used with the twoplayer
 mod it can level the playing field.
 
+## Player ID
+
+[![In-game](media/playerid-ingame.thumb.png)](media/playerid-ingame.aspect.png)
+
+The playerid mod displays an identifier 1-7 at the top-right of the play
+screen, which can be chosen by pressing Select at the level-select screen. It
+is compatible with the TAUS and twoplayer mods.
+
+The identifier is intended to help identify the game in a recording, like
+determining which player was playing.
+
 ## How to build
 
 You only need to build if you are making changes or want to try out changes
