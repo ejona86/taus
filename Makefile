@@ -15,9 +15,13 @@ build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 # List linker dependencies. There should be a .cfg for each target
 build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
+build/playerid.ips.cfg: build/playerid.o
 build/playerid.ips: build/ips.o build/playerid.o
+build/screens.ips.cfg: build/screens.o
 build/screens.ips: build/screens.o build/ips.o
+build/highscores.ips.cfg: build/highscores.o
 build/highscores.ips: build/highscores.o build/ips.o
+build/handicap.ips.cfg: build/handicap.o
 build/handicap.ips: build/handicap.o build/ips.o
 build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o
 build/twoplayer-CHR-01.chr.ips: build/ips.o build/twoplayer-CHR-01.chr.ips.o

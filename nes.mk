@@ -11,6 +11,9 @@ build/%.o: %.s Makefile | build
 build/%: %.cfg
 	ld65 $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(filter %.o,$^)
 
+build/%.ips.cfg: ips-segments.awk
+	od65 --dump-options $(filter %.o,$^) | grep '"ips:' | sed -E 's/^ +Data: +"ips: (.*)"$$/\1/' | sort -n | awk -f ips-segments.awk > $@
+
 build/%.nes: build/%.ips
 	# Second prerequisite is assumed to be a .nes source
 	# If the first time fails, run it a second time to display output

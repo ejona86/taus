@@ -39,3 +39,21 @@ TILE_SIZE = $10
 	.dbyt (mapper_addr)+((tile)*TILE_SIZE)+IPSCHROFFSET
 	.dbyt TILE_SIZE
 .endmacro
+
+
+; Declares the IPS segment hunk with name starts at addr, and optional size.
+; The segment should be defined elsewhere. Only useful when combined with
+; auto-generation of linker config.
+.macro ips_segment name,addr,size
+	.if .paramcount = 3
+	.fileopt    comment, .concat("ips: ",.string(addr)," ",name," ",.string(size))
+	.else
+	.fileopt    comment, .concat("ips: ",.string(addr)," ",name)
+	.endif
+
+	.pushseg
+	.segment    .concat(name, "_HDR")
+	ips_hunkhdr name
+	.popseg
+.endmacro
+

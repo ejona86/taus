@@ -5,29 +5,23 @@
 .include "build/tetris.inc"
 .include "ips.inc"
 
-.segment "HUNK1HDR"
-        ips_hunkhdr     "HUNK1"
-
 .segment "HUNK1"
+        ips_segment     "HUNK1",$800E
 
 ; at nmi, replaces "jsr render"
         nop
         nop
         nop
 
-.segment "JMP_MAIN_LOOP_ITERHDR"
-        ips_hunkhdr     "JMP_MAIN_LOOP_ITER"
-
 .segment "JMP_MAIN_LOOP_ITER"
+        ips_segment     "JMP_MAIN_LOOP_ITER",$8138
 
 ; at mainLoop, replaces "jsr branchOnGameMode"
        jsr      mainLoopIterMod
 
 
-.segment "CODEHDR"
-        ips_hunkhdr     "CODE"
-
 .segment "CODE"
+        ips_segment     "CODE",$D6C9,$0637
 
 screenToDisplay := levelNumber
 backgroundRendered := levelNumber+1

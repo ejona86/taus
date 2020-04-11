@@ -4,10 +4,8 @@
 
 .include "ips.inc"
 
-.segment "DEFAULT_HIGH_SCORESHDR"
-        ips_hunkhdr     "DEFAULT_HIGH_SCORES"
-
 .segment "DEFAULT_HIGH_SCORES"
+        ips_segment     "DEFAULT_HIGH_SCORES",$AD67
 
 ; replace defaultHighScoresTable
         ; NAME

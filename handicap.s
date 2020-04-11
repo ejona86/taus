@@ -5,10 +5,8 @@
 .include "build/tetris.inc"
 .include "ips.inc"
 
-.segment "TYPE_A_MENU_PATCHHDR"
-        ips_hunkhdr     "TYPE_A_MENU_PATCH"
-
 .segment "TYPE_A_MENU_PATCH"
+        ips_segment     "TYPE_A_MENU_PATCH",$C95D,$0049
 
 ; height_menu_nametablepalette_patch:
         .byte   $3F,$0A,$01,$16
@@ -57,51 +55,39 @@ checkForCompletedRows_mod:
         ldx     #$0A    ; replaced code
         rts
 
-.segment "JMP_INIT_PLAYFIELDHDR"
-        ips_hunkhdr     "JMP_INIT_PLAYFIELD"
-
 .segment "JMP_INIT_PLAYFIELD"
+        ips_segment     "JMP_INIT_PLAYFIELD",$87DE
 
 ; within initPlayfieldIfTypeB, replaces "bne @initPlayfieldForTypeB" and a byte
 ; of the next jmp instruction
         jmp     initPlayfield_mod
 
-.segment "JMP_CHECK_FOR_COMPLETED_ROWSHDR"
-        ips_hunkhdr     "JMP_CHECK_FOR_COMPLETED_ROWS"
-
 .segment "JMP_CHECK_FOR_COMPLETED_ROWS"
+        ips_segment     "JMP_CHECK_FOR_COMPLETED_ROWS",$9A8C
 
 ; at @yInRange in playState_checkForCompletedRows, replaces "tay; ldx #$0A"
         jsr     checkForCompletedRows_mod
 
-.segment "ENABLE_HEIGHT_IN_TYPE_AHDR"
-        ips_hunkhdr     "ENABLE_HEIGHT_IN_TYPE_A"
-
 .segment "ENABLE_HEIGHT_IN_TYPE_A"
+        ips_segment     "ENABLE_HEIGHT_IN_TYPE_A",$8540
 
 ; at @checkAPressed in gameMode_levelMenu, replaces "lda gameType"
         lda     #$01
 
-.segment "ENABLE_HEIGHT_IN_TYPE_A2HDR"
-        ips_hunkhdr     "ENABLE_HEIGHT_IN_TYPE_A2"
-
 .segment "ENABLE_HEIGHT_IN_TYPE_A2"
+        ips_segment     "ENABLE_HEIGHT_IN_TYPE_A2",$8581
 
 ; at @skipShowingSelectionLevel in gameMode_levelMenu, replaces "lda gameType"
         lda     #$01
 
-.segment "IS_POSITION_VALID_MODHDR"
-        ips_hunkhdr     "IS_POSITION_VALID_MOD"
-
 .segment "IS_POSITION_VALID_MOD"
+        ips_segment     "IS_POSITION_VALID_MOD",$94B2
 
 ; at @checkSquare in isPositionValid, replaces "cmp #$16"
         cmp     playfieldSize
 
-.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1HDR"
-        ips_hunkhdr     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1"
-
 .segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1"
+        ips_segment     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR1",$885D
 
 ; at @emptyAboveHeight_player1 in initPlayfieldIfTypeB, replaces "sta playfield,y; dey; cpy #$FF".
         ; Reorder dey to avoid off-by-one bug in
@@ -112,10 +98,8 @@ checkForCompletedRows_mod:
         ; memory at the top of the page, which is necessary for isPositionValid
         cpy     #$C8+1
 
-.segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2HDR"
-        ips_hunkhdr     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2"
-
 .segment "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2"
+        ips_segment     "INIT_PLAYFIELD_IF_TYPE_B_CLEAR2",$886D
 
 ; at @emptyAboveHeight_player2 in initPlayfieldIfTypeB, replaces "sta playfieldForSecondPlayer,y; dey; cpy #$FF".
         dey

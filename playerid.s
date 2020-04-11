@@ -6,35 +6,27 @@
 .include "build/tetris.inc"
 .include "ips.inc"
 
-.segment "JMP_LEVEL_MENU_CHECK_SELECT_PRESSEDHDR"
-        ips_hunkhdr     "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED"
-
 .segment "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED"
+        ips_segment     "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED",$84AE
 
 ; at gameMode_levelMenu_handleLevelHeightNavigation, replaces "lda newlyPressedButtons; cmp #$01"
         jsr     level_menu_check_select_pressed
         nop
 
-.segment "JMP_GAME_SHOW_PLAYERID_BGHDR"
-        ips_hunkhdr     "JMP_GAME_SHOW_PLAYERID_BG"
-
 .segment "JMP_GAME_SHOW_PLAYERID_BG"
+        ips_segment     "JMP_GAME_SHOW_PLAYERID_BG",$8693
 
 ; in initGameBackground; replaces "jsr waitForVBlankAndEnableNmi"
         jsr     game_show_playerid_game_mod
 
-.segment "JMP_MENU_SHOW_PLAYERID_BGHDR"
-        ips_hunkhdr     "JMP_MENU_SHOW_PLAYERID_BG"
-
 .segment "JMP_MENU_SHOW_PLAYERID_BG"
+        ips_segment     "JMP_MENU_SHOW_PLAYERID_BG",$85EC
 
 ; in render_mode_menu_screens; replaces "sta PPUSCROLL"
         jsr     game_show_playerid_menu_mod
 
-.segment "CODEHDR"
-        ips_hunkhdr     "CODE"
-
 .segment "CODE"
+        ips_segment     "CODE",$E103,$023F
 
 playerId := $0003
 
