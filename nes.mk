@@ -40,6 +40,7 @@ build/%.s: %.bin %.info Makefile | build
 	# Strip off the first two lines of header, which contain variable
 	# information; they cause merge conflicts
 	da65 -i $(word 2,$^) $< | tail -n +3 > $@
+	da65 -i $(word 2,$^) --comments 2 $< > $(basename $@).v2.s
 
 clean:
 	[ ! -d build/ ] || rm -r build/
