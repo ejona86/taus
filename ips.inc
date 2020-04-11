@@ -46,9 +46,9 @@ TILE_SIZE = $10
 ; auto-generation of linker config.
 .macro ips_segment name,addr,size
 	.if .paramcount = 3
-	.fileopt    comment, .concat("ips: ",.string(addr)," ",name," ",.string(size))
+	.fileopt    comment, .sprintf("ips: %d %s %d", addr, name, size)
 	.else
-	.fileopt    comment, .concat("ips: ",.string(addr)," ",name)
+	.fileopt    comment, .sprintf("ips: %d %s", addr, name)
 	.endif
 
 	.pushseg

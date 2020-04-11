@@ -7,7 +7,7 @@
 .include "ips.inc"
 
 .segment "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED"
-        ips_segment     "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED",$84AE
+        ips_segment     "JMP_LEVEL_MENU_CHECK_SELECT_PRESSED",gameMode_levelMenu_handleLevelHeightNavigation
 
 ; at gameMode_levelMenu_handleLevelHeightNavigation, replaces "lda newlyPressedButtons; cmp #$01"
         jsr     level_menu_check_select_pressed
