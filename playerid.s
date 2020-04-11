@@ -26,7 +26,7 @@
         jsr     game_show_playerid_menu_mod
 
 .segment "CODE"
-        ips_segment     "CODE",$E103,$023F
+        ips_segment     "CODE",$E0C8,$003C
 
 playerId := $0003
 
