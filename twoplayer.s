@@ -15,6 +15,7 @@
 ; No room for A/B-Type, high score
 
 .include "build/tetris.inc"
+.include "tetris-tbl.inc"
 .include "twoplayer.inc"
 
 .ifdef TOURNAMENT_MODE
@@ -686,24 +687,17 @@ gameMode_levelMenu_processPlayer1Navigation_processPlayer2:
         jmp     gameMode_levelMenu_processPlayer1Navigation
 
 player2PressStartPatch:
+        set_tbl $0000
         .byte   $20,$A4,$18
-        .byte   $FF,$FF,$FF,$FF,$FF
-        .byte   $19,$02,$FF ; P2
-        .byte   $19,$1B,$0E,$1C,$1C,$FF ; PRESS
-        .byte   $1C,$1D,$0A,$1B,$1D,$52 ; START!
-        .byte   $FF,$FF,$FF,$FF
+        .byte   "     P2 PRESS START!    "
         .byte   $FF
 player1ActivePatch:
         .byte   $20,$A4,$18
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $19,$15,$0A,$22,$0E,$1B,$FF,$01
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   "        PLAYER 1        "
         .byte   $FF
 player2ActivePatch:
         .byte   $20,$A4,$18
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $19,$15,$0A,$22,$0E,$1B,$FF,$02
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+        .byte   "        PLAYER 2        "
         .byte   $FF
 
 gameMode_levelMenu_processPlayer2Navigation:
