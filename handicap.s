@@ -6,7 +6,7 @@
 .include "ips.inc"
 
 .segment "TYPE_A_MENU_PATCH"
-        ips_segment     "TYPE_A_MENU_PATCH",$C95D,$0049
+        ips_segment     "TYPE_A_MENU_PATCH",height_menu_nametablepalette_patch,$0049
 
 ; height_menu_nametablepalette_patch:
         .byte   $3F,$0A,$01,$16

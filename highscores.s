@@ -2,10 +2,11 @@
 ; Custom high scores
 ;
 
+.include "build/tetris.inc"
 .include "ips.inc"
 
 .segment "DEFAULT_HIGH_SCORES"
-        ips_segment     "DEFAULT_HIGH_SCORES",$AD67
+        ips_segment     "DEFAULT_HIGH_SCORES",defaultHighScoresTable,$0051
 
 ; replace defaultHighScoresTable
         ; NAME

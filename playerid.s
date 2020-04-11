@@ -14,7 +14,7 @@
         nop
 
 .segment "JMP_GAME_SHOW_PLAYERID_BG"
-        ips_segment     "JMP_GAME_SHOW_PLAYERID_BG",$8693
+        ips_segment     "JMP_GAME_SHOW_PLAYERID_BG",gameModeState_initGameBackground_finish
 
 ; in initGameBackground; replaces "jsr waitForVBlankAndEnableNmi"
         jsr     game_show_playerid_game_mod

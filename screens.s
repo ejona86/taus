@@ -21,7 +21,7 @@
 
 
 .segment "CODE"
-        ips_segment     "CODE",$D6C9,$0637
+        ips_segment     "CODE",unreferenced_data1,$0637
 
 screenToDisplay := levelNumber
 backgroundRendered := levelNumber+1
