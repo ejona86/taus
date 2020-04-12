@@ -68,14 +68,11 @@ drawChartBackground:
         cpx     #chartBarCount
         bne     @checkRange
 
-        ldy     #playfieldLiteralRow*10
-        ldx     #$00
+        ldx     #playfieldLiteralSize
 @copyLiteral:
-        lda     playfieldLiteral,x
-        sta     playfield,y
-        iny
-        inx
-        cpx     #playfieldLiteralSize
+        lda     playfieldLiteral-1,x
+        sta     playfieldLiteralDest-1,x
+        dex
         bne     @copyLiteral
 
         ldx     #chartBarCount/2
@@ -374,7 +371,7 @@ div3125:
 chartEffConvert := div3125
 .endif
 
-playfieldLiteralRow = 20-6-3
+playfieldLiteralDest := playfield+(20-6-3)*10
 playfieldLiteralSize = 30
 playfieldLiteral:
         set_tbl CHR01+CHR_RIGHT
