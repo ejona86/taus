@@ -10,13 +10,21 @@ building NES ips/nes files, and a LUA-based unit/integration test helpers.
 
 Pre-built IPS mod files are available in the
 [releases section of GitHub](https://github.com/ejona86/taus/releases). They
-can be applied to the USA Tetris ROM, commonly known as "Tetris (U) [!].nes".
-The ROM has CRC32 `6d72c53a`, MD5 `ec58574d96bee8c8927884ae6e7a2508`, and
-SHA1 `77747840541bfc62a28a5957692a98c550bd6b2b`. Ignoring the 16 byte iNES
-header (`tail -c +17 tetris.nes > no-header.nes`), it has CRC32 `1394f57e`,
-MD5 `5b0e571558c8c796937b96af469561c6`, and
-SHA1 `fd9079cb5e8479eb06d93c2ae5175bfce871746a`. It is generally okay if the
-iNES header is different.
+must be applied to the USA Tetris ROM:
+
+```
+Database match: Tetris (USA)
+Database: No-Intro: Nintendo Entertainment System (v. 20180803-121122)
+File SHA-1: 77747840541BFC62A28A5957692A98C550BD6B2B
+File CRC32: 6D72C53A
+ROM SHA-1: FD9079CB5E8479EB06D93C2AE5175BFCE871746A
+ROM CRC32: 1394F57E
+```
+
+You can use [Hasher-js](https://www.romhacking.net/hash/) or [ROM
+Hasher](https://www.romhacking.net/utilities/1002/) to verify your ROM matches.
+It is generally okay if the "ROM" checksum matches, but the "File" checksum
+differs. But note that `make test` will fail.
 
 ## TAUS
 
