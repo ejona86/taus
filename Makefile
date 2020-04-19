@@ -16,7 +16,7 @@ build/handicap.ips: build/handicap.o build/ips.o
 # IPS base file. There is a corresponding .ips file
 build/handicap.nes: build/tetris.nes
 
-build/handicap.o: build/tetris.inc
+build/highscores.o: build/tetris.inc
 build/highscores.ips.cfg: build/highscores.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/highscores.nes: build/tetris.nes
