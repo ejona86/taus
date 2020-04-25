@@ -2,9 +2,8 @@
 ; Two-player Tetris Mod
 ;
 
-; Normally player 1 uses palette 2 and 6 (zero indexed). The mod uses palettes
-; 1/2 and 5/6, but has player 1 uses palette 1 so that we can just use the
-; "current player" as the palette value.
+; Player 1 uses palette 2 and 6 (zero indexed) and Player 2 uses palette 1
+; and 5. This keeps player 1 palettes the same as original Tetris.
 
 ; TODO:
 ; Save another RNG to let the behind player catch up.
@@ -182,7 +181,7 @@ renderPlay_mod:
         jsr     twoDigsToPPU
         ; updatePaletteForLevel_player2
         lda     player2_levelNumber
-        ldy     #$08
+        ldy     #$04
         .import updatePaletteForLevel_postConf
         jsr     updatePaletteForLevel_postConf
         lda     outOfDateRenderFlags
@@ -441,6 +440,8 @@ stageSpriteForNextPiece_player1_mod:
 
 savePlayer2State_mod:
         .export savePlayer2State_mod
+        ; fix recent result of stageSpriteForCurrentPiece
+        jsr     adjustLast4SpritesInOamPlayer1PaletteToPlayer2
         jsr     savePlayer2State
         jsr     stageSpriteForNextPiece_player2
 
@@ -472,20 +473,20 @@ stageSpriteForNextPiece_player2:
         ldx     player2_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
-        jmp     loadSpriteIntoOamStaging_player2
+        jsr     loadSpriteIntoOamStaging
+        jsr     adjustLast4SpritesInOamPlayer1PaletteToPlayer2
 
 @ret:   rts
 
-
-loadSpriteIntoOamStaging_player2:
+adjustLast4SpritesInOamPlayer1PaletteToPlayer2:
         lda     oamStagingLength
-        sta     generalCounter3
-        jsr     loadSpriteIntoOamStaging
-        ldx     generalCounter3
+        sec
+        sbc     #4*4
+        tax
 @adjustSprite:
         inx
         inx
-        inc     oamStaging,x
+        dec     oamStaging,x
         inx
         inx
         cpx     oamStagingLength
