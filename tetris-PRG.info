@@ -25,6 +25,7 @@ LABEL { ADDR $0017; NAME "rng_seed"; SIZE 2; };
 LABEL { ADDR $0019; NAME "spawnID"; }; # canon
 LABEL { ADDR $001A; NAME "spawnCount"; }; # canon
 LABEL { ADDR $0033; NAME "verticalBlankingInterval"; }; # canon
+LABEL { ADDR $0034; NAME "unused_0E"; COMMENT "Always $0E"; };
 LABEL { ADDR $0040; NAME "tetriminoX"; COMMENT "Player data is $20 in size. It is copied here from $60 or $80, processed, then copied back"; }; # canon
 LABEL { ADDR $0041; NAME "tetriminoY"; }; # canon
 LABEL { ADDR $0042; NAME "currentPiece"; COMMENT "Current piece as an orientation ID"; };
@@ -138,10 +139,12 @@ LABEL { ADDR $00E2; NAME "AUDIOTMP3"; };
 LABEL { ADDR $00E3; NAME "AUDIOTMP4"; };
 LABEL { ADDR $00E4; NAME "AUDIOTMP5"; };
 LABEL { ADDR $00E6; NAME "musicChanTmpAddr"; SIZE 2; };
+LABEL { ADDR $00EA; NAME "music_unused2"; COMMENT "Always 0"; };
 LABEL { ADDR $00EB; NAME "soundRngSeed"; SIZE 2; COMMENT "Set, but not read"; };
 LABEL { ADDR $00ED; NAME "currentSoundEffectSlot"; COMMENT "Temporary"; };
 LABEL { ADDR $00EE; NAME "musicChannelOffset"; COMMENT "Temporary. Added to $4000-3 for MMIO"; };
 LABEL { ADDR $00EF; NAME "currentAudioSlot"; COMMENT "Temporary"; };
+LABEL { ADDR $00F1; NAME "unreferenced_buttonMirror"; SIZE 3; COMMENT "Mirror of $F5-F8"; };
 LABEL { ADDR $00F5; NAME "newlyPressedButtons_player1"; COMMENT "$80-a $40-b $20-select $10-start $08-up $04-down $02-left $01-right"; };
 LABEL { ADDR $00F6; NAME "newlyPressedButtons_player2"; };
 LABEL { ADDR $00F7; NAME "heldButtons_player1"; }; # canon is getHeldButtons
