@@ -62,7 +62,6 @@ chartDrawn:
 
 initGameState_mod:
 .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
-        jsr     memset_page
         lda     #$00
         ldx     #<__GAMEBSS_SIZE__
 @clearByte:
@@ -132,6 +131,8 @@ initGameState_mod:
         bne     @initTestEffs
 .endif
 .endif
+        ldx     #$0F
+        lda     #$00
         rts
 
 statsPerBlock:
@@ -587,8 +588,9 @@ multiplyBy100:
 
 .segment "JMP_INIT_GAME_STATE"
 
-; at beginning of initGameState, replaces "jsr memset_page"
+; at beginning of initGameState, replaces "ldx #$0F; lda #$00"
         jsr initGameState_mod
+        nop
 
 .segment "JMP_POST_GAME_STATSHDR"
         ips_hunkhdr     "JMP_POST_GAME_STATS"
