@@ -60,21 +60,6 @@ chartDrawn:
 
 .segment "CODE"
 
-renderMod:
-        jsr     render
-
-        lda     copyToPpuDuringRenderAddr+1
-        beq     @ret
-        sta     tmp2
-        lda     copyToPpuDuringRenderAddr
-        sta     tmp1
-        jsr     copyToPpu
-        lda     #$00
-        sta     copyToPpuDuringRenderAddr
-        sta     copyToPpuDuringRenderAddr+1
-@ret:
-        rts
-
 initGameState_mod:
 .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
         jsr     memset_page
@@ -345,7 +330,7 @@ renderStats:
         bne     @hasTrns
         lda     TRNS+2
         bne     @hasTrns
-        beq     @ret
+        beq     @checkForAddrToCopy
 @hasTrns:
         lda     #$22
         sta     PPUADDR
@@ -357,6 +342,16 @@ renderStats:
         jsr     twoDigsToPPU
         lda     TRNS
         jsr     twoDigsToPPU
+@checkForAddrToCopy:
+        lda     copyToPpuDuringRenderAddr+1
+        beq     @ret
+        sta     tmp2
+        lda     copyToPpuDuringRenderAddr
+        sta     tmp1
+        jsr     copyToPpu
+        lda     #$00
+        sta     copyToPpuDuringRenderAddr
+        sta     copyToPpuDuringRenderAddr+1
 @ret:
         lda     #$00
         sta     $B0
@@ -383,10 +378,14 @@ postGameStats:
 .import chart_attributetable_patch
         cmp     #20-6-2
         bne     @checkInput
+        ; Handled by renderStats
         lda     #<chart_attributetable_patch
         sta     copyToPpuDuringRenderAddr
         lda     #>chart_attributetable_patch
         sta     copyToPpuDuringRenderAddr+1
+        lda     outOfDateRenderFlags
+        ora     #$40
+        sta     outOfDateRenderFlags
 
 @checkInput:
         ; require pressing start independent of score
@@ -602,14 +601,6 @@ multiplyBy100:
         ; This leaves the cmp cut in half, but we don't jump back to it so this
         ; is okay. We want to leave the #$03 intact to support Game Genie codes
         ; that skip the ending animation.
-
-.segment "JMP_RENDER_MODHDR"
-        ips_hunkhdr     "JMP_RENDER_MOD"
-
-.segment "JMP_RENDER_MOD"
-
-; within nmi, replaces "jsr render"
-        jsr     renderMod
 
 .segment "JMP_RENDER_STATSHDR"
         ips_hunkhdr     "JMP_RENDER_STATS"
