@@ -50,7 +50,7 @@ build/tetris-test: tetris.nes build/tetris.nes
 
 twoplayer: build/twoplayer.dist.ips
 build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
-build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr
+build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr build/legal_screen_nametable.nam.rle
 # Diff base file. There is a corresponding .diff file
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 build/twoplayer-CHR-01.chr.ips: build/ips.o build/twoplayer-CHR-01.chr.ips.o
@@ -86,6 +86,8 @@ build/game_palette.pal: build/tetris-PRG.bin
 build/menu_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
 	tail -c +$$((0xAD2B - 0x8000 + 3 + 1)) $< | head -c 16 > $@
+build/legal_screen_nametable.nam: build/tetris-PRG.bin
+	tail -c +$$((0xADB8 - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 build/game_nametable.nam: build/tetris-PRG.bin
 	tail -c +$$((0xBF3C - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
 build/level_menu_nametable.nam: build/tetris-PRG.bin

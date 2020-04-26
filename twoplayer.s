@@ -15,6 +15,7 @@
 
 .include "build/tetris.inc"
 .include "tetris-tbl.inc"
+__TWOPLAYERSIMPORT = 1
 .include "twoplayer.inc"
 
 .ifdef TOURNAMENT_MODE
@@ -131,6 +132,7 @@ twoplayer_game_nametable:
 .endif
 
 copyRleNametableToPpu:
+        .export copyRleNametableToPpu
         jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
         ldx     PPUSTATUS
         lda     #$20
@@ -544,6 +546,10 @@ isStartNewlyPressed:
 
 
 .segment "CODE2"
+
+legal_screen_nametable_rle:
+        .export legal_screen_nametable_rle
+        .incbin "build/legal_screen_nametable.nam.rle"
 
 demo_pollController_mod_after := $9D66
 demo_pollController_mod_skip := $9D6A

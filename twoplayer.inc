@@ -1,3 +1,8 @@
+.ifndef __TWOPLAYERSIMPORT
+.import	copyRleNametableToPpu
+.import	legal_screen_nametable_rle
+.endif
+
 .ifdef TOURNAMENT_MODE
 
 ; Enable NEXT_ON_TOP. -DNEXT_ON_TOP is the same as -DNEXT_ON_TOP=0

@@ -136,7 +136,19 @@
          .addr   gameModeState_checkForResetKeyCombo
          .addr   gameModeState_startButtonHandling
          .addr   gameModeState_vblankThenRunState2
-@@ -527,11 +560,12 @@ gameMode_legalScreen:
+@@ -517,21 +550,22 @@ gameMode_legalScreen:
+         jsr     changeCHRBank0
+         lda     #$00
+         jsr     changeCHRBank1
+         jsr     bulkCopyToPpu
+         .addr   legal_screen_palette
+-        jsr     bulkCopyToPpu
+-        .addr   legal_screen_nametable
++        jsr     copyRleNametableToPpu
++        .addr   legal_screen_nametable_rle
+         jsr     waitForVBlankAndEnableNmi
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         jsr     updateAudioWaitForNmiAndEnablePpuRendering
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
          ldx     #$02
