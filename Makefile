@@ -75,10 +75,20 @@ build/custom.nes: build/tetris.nes
 # setup step for the user to download/run.
 build/tetris-PRG.bin: tetris.nes | build
 	tail -c +17 $< | head -c 32768 > $@
+build/tetris-pal-PRG.bin: tetris-pal.nes | build
+	tail -c +17 $< | head -c 32768 > $@
 build/tetris-CHR-00.chr: tetris.nes | build
 	tail -c +32785 $< | head -c 8192 > $@
 build/tetris-CHR-01.chr: tetris.nes | build
 	tail -c +40977 $< | head -c 8192 > $@
+
+build/tetris-pal-PRG.info: tetris-PRG.info ntsc2pal.awk | build
+	awk -f ntsc2pal.awk $< > $@
+build/tetris-pal-PRG.s: build/tetris-pal-PRG.bin build/tetris-pal-PRG.info Makefile | build
+	# Strip off the first two lines of header, which contain variable
+	# information; they cause merge conflicts
+	da65 -i $(word 2,$^) $< | tail -n +3 > $@
+	da65 -i $(word 2,$^) --comments 3 $< > $(basename $@).v2.s
 
 build/game_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
