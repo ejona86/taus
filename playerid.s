@@ -20,7 +20,7 @@
         jsr     game_show_playerid_game_mod
 
 .segment "JMP_MENU_SHOW_PLAYERID_BG"
-        ips_segment     "JMP_MENU_SHOW_PLAYERID_BG",$85EC
+        ips_segment     "JMP_MENU_SHOW_PLAYERID_BG",render_mode_menu_screens+18 ; $85EC
 
 ; in render_mode_menu_screens; replaces "sta PPUSCROLL"
         jsr     game_show_playerid_menu_mod
