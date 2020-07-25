@@ -35,7 +35,7 @@ build/screens.nes: build/tetris.nes
 
 taus: build/taus.nes
 build/chart.o: build/tetris.inc build/taus.chrs/fake
-build/taus.o: build/tetris.inc build/taus.chrs/fake
+build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
 build/taus.nes: build/tetris.nes
 build/chart-test.test: chart-test.lua build/taus.nes
@@ -96,12 +96,20 @@ build/game_palette.pal: build/tetris-PRG.bin
 build/menu_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
 	tail -c +$$((0xAD2B - 0x8000 + 3 + 1)) $< | head -c 16 > $@
-build/legal_screen_nametable.nam: build/tetris-PRG.bin
-	tail -c +$$((0xADB8 - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
-build/game_nametable.nam: build/tetris-PRG.bin
-	tail -c +$$((0xBF3C - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
-build/level_menu_nametable.nam: build/tetris-PRG.bin
-	tail -c +$$((0xBADB - 0x8000 + 1)) $< | head -c $$((1024/32*35)) | LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' > $@
+build/legal_screen_nametable.nam:
+build/legal_screen_nametable.nam.stripe: build/tetris-PRG.bin
+	tail -c +$$((0xADB8 - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
+build/game_nametable.nam.stripe: build/tetris-PRG.bin
+	tail -c +$$((0xBF3C - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
+build/level_menu_nametable.nam.stripe: build/tetris-PRG.bin
+	tail -c +$$((0xBADB - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
+
+# Converts to/from NES Stripe RLE. Only supports a _very_ limited subset that
+# is fully consecutive, only "literal to right", with each sized 0x20
+build/%: %.stripe
+	LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' $< > $@
+build/%.nam.stripe: %.nam
+	LC_ALL=C awk 'BEGIN {RS=".{32}";ADDR=0x2000} {printf("%c%c%c%s",ADDR/256,ADDR%256,32,RT);ADDR=ADDR+32}' $< > $@
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
