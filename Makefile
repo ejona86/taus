@@ -33,13 +33,15 @@ build/screens.ips.cfg: build/screens.o
 build/screens.ips: build/screens.o build/ips.o
 build/screens.nes: build/tetris.nes
 
-taus: build/taus.nes
+taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
 build/taus.nes: build/tetris.nes
 build/chart-test.test: chart-test.lua build/taus.nes
 build/taus-test.test: taus-test.lua build/taus.nes
+build/taus-CHR-01.chr: build/taus.nes
+	tail -c +40977 $< | head -c 8192 > $@
 
 tetris: build/tetris.nes
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
