@@ -321,7 +321,7 @@ RANGE { START $A225; END $A226; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A22A; END $A22B; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $A33B; END $A33D; TYPE BYTETABLE; NAME "highScorePosToY"; };
 RANGE { START $A33E; END $A343; TYPE BYTETABLE; NAME "highScoreNamePosToX"; };
-RANGE { START $A42E; END $A44C; TYPE BYTETABLE; NAME "unknown15_table"; };
+RANGE { START $A42E; END $A44C; TYPE BYTETABLE; NAME "typebSuccessGraphic"; };
 RANGE { START $A4B6; END $A4C3; TYPE ADDRTABLE; }; # switch (ending)
 RANGE { START $A540; END $A54B; TYPE ADDRTABLE; }; # switch (??)
 RANGE { START $A735; END $A738; TYPE BYTETABLE; }; # LOTS of tables
@@ -884,6 +884,9 @@ LABEL { ADDR $A3C4; NAME "@pauseLoop"; };
 LABEL { ADDR $A3DF; NAME "@resume"; };
 LABEL { ADDR $A3EF; NAME "@ret"; };
 LABEL { ADDR $A3F2; NAME "playState_bTypeGoalCheck"; };
+LABEL { ADDR $A403; NAME "@copySuccessGraphic"; };
+LABEL { ADDR $A411; NAME "@graphicCopied"; };
+LABEL { ADDR $A42B; NAME "@ret"; };
 LABEL { ADDR $A44D; NAME "sleep_for_14_vblanks"; };
 LABEL { ADDR $A451; NAME "@loop"; };
 LABEL { ADDR $A459; NAME "sleep_for_a_vblanks"; };
