@@ -162,7 +162,7 @@
          sta     generalCounter
  @waitForStartButton:
          lda     newlyPressedButtons_player1
-@@ -763,12 +797,16 @@ gameMode_levelMenu:
+@@ -763,18 +797,22 @@ gameMode_levelMenu:
          jsr     changeCHRBank0
          lda     #$00
          jsr     changeCHRBank1
@@ -181,6 +181,13 @@
          jsr     bulkCopyToPpu
          .addr   height_menu_nametablepalette_patch
  @skipTypeBHeightDisplay:
+-        jsr     showHighScores
++        jsr     showHighScores_real
+         jsr     waitForVBlankAndEnableNmi
+         jsr     updateAudioWaitForNmiAndResetOamStaging
+         lda     #$00
+         sta     PPUSCROLL
+         lda     #$00
 @@ -824,12 +862,14 @@ gameMode_levelMenu_processPlayer1Navigat
  @startAndANotPressed:
          lda     #$00
@@ -1058,19 +1065,6 @@
          lda     (demoButtonsAddr,x)
          sta     generalCounter
          jsr     demoButtonsTable_indexIncr
-@@ -3840,11 +4024,11 @@ L9FE9:  ldy     #$00
-         sty     PPUSCROLL
-         sty     PPUSCROLL
-         rts
- 
- showHighScores:
--        lda     numberOfPlayers
-+        lda     #$01
-         cmp     #$01
-         beq     showHighScores_real
-         jmp     showHighScores_ret
- 
- ; not using @-label due to MMC1_Control in PAL
 @@ -3942,11 +4126,11 @@ byteToBcdTable:
          .byte   $16,$17,$18,$19,$20,$21,$22,$23
          .byte   $24,$25,$26,$27,$28,$29,$30,$31
@@ -1161,10 +1155,14 @@
  highScoreIndexToHighScoreScoresOffset:
          .byte   $00,$03,$06,$09,$0C,$0F,$12,$15
  highScoreEntryScreen:
-@@ -4132,11 +4316,11 @@ highScoreEntryScreen:
+@@ -4129,14 +4313,14 @@ highScoreEntryScreen:
+         sta     PPUADDR
+         lda     #$0A
+         clc
          adc     gameType
          sta     PPUDATA
-         jsr     showHighScores
+-        jsr     showHighScores
++        jsr     showHighScores_real
          lda     #$02
          sta     renderMode
 -        jsr     waitForVBlankAndEnableNmi
