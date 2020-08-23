@@ -48,6 +48,10 @@ function ntsc2pal(addr) {
 	next
 }
 
+/ADDR \$A42B/ {
+	sub("@ret", "playState_bTypeGoalCheck_ret")
+}
+
 {
 	while (match($0, /\$[0-9A-Fa-f]{4}/)) {
 		printf("%s", substr($0, 1, RSTART-1))

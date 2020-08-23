@@ -47,7 +47,7 @@ tetris: build/tetris.nes
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
 build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
 build/tetris-test: tetris.nes build/tetris.nes
-	diff tetris.nes build/tetris.nes
+	diff $^
 	touch $@
 
 twoplayer: build/twoplayer.dist.ips
@@ -86,11 +86,19 @@ build/tetris-CHR-01.chr: tetris.nes | build
 
 build/tetris-pal-PRG.info: tetris-PRG.info ntsc2pal.awk | build
 	awk -f ntsc2pal.awk $< > $@
-build/tetris-pal-PRG.s: build/tetris-pal-PRG.bin build/tetris-pal-PRG.info Makefile | build
-	# Strip off the first two lines of header, which contain variable
-	# information; they cause merge conflicts
-	da65 -i $(word 2,$^) $< | tail -n +3 > $@
-	da65 -i $(word 2,$^) --comments 3 $< > $(basename $@).v2.s
+build/tetris-pal.nes.cfg: tetris.nes.cfg ntsc2pal.awk | build
+	awk -f ntsc2pal.awk $< > $@
+build/tetris-pal.nes: build/tetris.o build/tetris-CHR.o build/tetris-pal-PRG.o build/tetris-ram.o
+build/tetris-pal-PRG.o: build/tetris-pal-PRG.s
+
+ifeq "$(PAL)" "1"
+build/tetris-PRG.s: build/tetris-pal-PRG.s
+	cp $< $@
+build/tetris.nes: build/tetris-pal.nes
+	cp $< $@
+	cp $(basename $<).dbg $(basename $@).dbg
+	cp $(basename $<).lbl $(basename $@).lbl
+endif
 
 build/game_palette.pal: build/tetris-PRG.bin
 	# +3 for buildCopyToPpu header
