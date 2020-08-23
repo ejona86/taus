@@ -136,7 +136,19 @@
          .addr   gameModeState_checkForResetKeyCombo
          .addr   gameModeState_startButtonHandling
          .addr   gameModeState_vblankThenRunState2
-@@ -517,21 +550,22 @@ gameMode_legalScreen:
+@@ -506,10 +539,11 @@ playState_player2ControlsActiveTetrimino
+         jsr     rotate_tetrimino
+         jsr     drop_tetrimino
+         rts
+ 
+ gameMode_legalScreen:
++        ; TODO: delete next time diff line numbers change
+         jsr     updateAudio2
+         lda     #$00
+         sta     renderMode
+         jsr     updateAudioWaitForNmiAndDisablePpuRendering
+         jsr     disableNmi
+@@ -517,12 +551,12 @@ gameMode_legalScreen:
          jsr     changeCHRBank0
          lda     #$00
          jsr     changeCHRBank1
@@ -151,17 +163,6 @@
          jsr     updateAudioWaitForNmiAndEnablePpuRendering
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     #$00
-         ldx     #$02
-         ldy     #$02
-         jsr     memset_page
--        lda     #$FF
-+        ; TODO: split into separate mod file
-+        lda     #$00
-         jsr     sleep_for_a_vblanks
-         lda     #$FF
-         sta     generalCounter
- @waitForStartButton:
-         lda     newlyPressedButtons_player1
 @@ -763,18 +797,22 @@ gameMode_levelMenu:
          jsr     changeCHRBank0
          lda     #$00

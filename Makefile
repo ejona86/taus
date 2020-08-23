@@ -62,7 +62,10 @@ build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 build/twoplayer-CHR-01.chr.ips: build/ips.o build/twoplayer-CHR-01.chr.ips.o
 build/twoplayer-CHR-01.chr: build/tetris-CHR-01.chr
-build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o
+build/twoplayer.nes: twoplayer.nes.cfg build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o build/fastlegal.ips
+	ld65 $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(filter %.o,$^)
+	# If the first time fails, run it a second time to display output
+	flips --apply build/fastlegal.ips $@ > /dev/null || flips --apply build/fastlegal.ips $@ || (rm $@; false)
 build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 	flips --create $^ $@ > /dev/null
 build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
