@@ -78,8 +78,7 @@ of lines.
 [![Next on top](media/twoplayer-top.thumb.png)](media/twoplayer-top.aspect.png)
 
 The twoplayer mod allows two simultaneous players to play while receiving the
-same pieces. Garbage is not sent between players. The mod is incompatible with
-the TAUS mod.
+same pieces. Garbage is not sent between players.
 
 There are two variations of the mod. One shows the next piece on the side,
 which makes it easier to see with peripheral vision. The other shows it on top,
@@ -91,8 +90,7 @@ which makes it clearer at-a-glance which next piece belongs to which player.
 [![In-game](media/handicap-ingame.thumb.png)](media/handicap-ingame.aspect.png)
 
 The handicap mod provides a height-select for Type A. Instead of Type B's
-garbage within the height area the area is simply off-limits and unusable. It
-is compatible with the TAUS and twoplayer mods.
+garbage within the height area the area is simply off-limits and unusable.
 
 This mod was originally created as a training aid. When used with the twoplayer
 mod it can level the playing field.
@@ -102,8 +100,7 @@ mod it can level the playing field.
 [![In-game](media/playerid-ingame.thumb.png)](media/playerid-ingame.aspect.png)
 
 The playerid mod displays an identifier 1-7 at the top-right of the play
-screen, which can be chosen by pressing Select at the level-select screen. It
-is compatible with the TAUS and twoplayer mods.
+screen, which can be chosen by pressing Select at the level-select screen.
 
 The identifier is intended to help identify the game in a recording, like
 determining which player was playing.
