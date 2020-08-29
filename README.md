@@ -21,6 +21,17 @@ ROM SHA-1: FD9079CB5E8479EB06D93C2AE5175BFCE871746A
 ROM CRC32: 1394F57E
 ```
 
+Or the Europe Tetris ROM:
+
+```
+Database match: Tetris (Europe)
+Database: No-Intro: Nintendo Entertainment System (v. 20180803-121122)
+File SHA-1: 817169B819AADAAE52CCE6B3D8D2FC24270566D7
+File CRC32: 8319B091
+ROM SHA-1: 66883B9EDDEC933E36B6BFF0479CEFD2434FFB40
+ROM CRC32: FDFF80D5
+```
+
 You can use [Hasher-js](https://www.romhacking.net/hash/) or [ROM
 Hasher](https://www.romhacking.net/utilities/1002/) to verify your ROM matches.
 It is generally okay if the "ROM" checksum matches, but the "File" checksum
