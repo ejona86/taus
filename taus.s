@@ -394,11 +394,11 @@ postGameStats:
         cmp     #$10
         bne     @ret
         lda     player1_score+2
-        cmp     $9A50   ; #$03, but can be changed by Game Genie
+        cmp     playState_updateGameOverCurtain+$63     ; $9A50: #$03, but can be changed by Game Genie
         bcc     @exitGame
         jsr     endingAnimation_maybe
 @exitGame:
-        jmp     $9A64
+        jmp     playState_updateGameOverCurtain+$53     ; $9A64
 @ret:   rts
 
 

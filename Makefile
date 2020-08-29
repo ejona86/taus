@@ -41,17 +41,32 @@ build/screens.nes: build/tetris.nes
 taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
+ifeq "$(PAL)" "1"
+build/taus.ips: build/taus-pal.ips
+	cp $< $@
+	cp $(basename $<).dbg $(basename $@).dbg
+	cp $(basename $<).lbl $(basename $@).lbl
+build/taus-pal.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
+else
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
+endif
 build/taus.nes: build/tetris.nes
 build/chart-test.test: chart-test.lua build/taus.nes
 build/taus-test.test: taus-test.lua build/taus.nes
 build/taus-CHR-01.chr: build/taus.nes
 	tail -c +40977 $< | head -c 8192 > $@
+build/taus-pal.ips.cfg: taus.ips.cfg ntsc2pal.awk | build
+	awk -f ntsc2pal.awk $< > $@
 
 tetris: build/tetris.nes
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
 build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
-build/tetris-test: tetris.nes build/tetris.nes
+ifeq "$(PAL)" "1"
+build/tetris-test: tetris-pal.nes
+else
+build/tetris-test: tetris.nes
+endif
+build/tetris-test: build/tetris.nes
 	diff $^
 	touch $@
 
@@ -135,15 +150,20 @@ build/tetris.inc: build/tetris.nes
 build/tetris-ram.s: tetris-PRG.info tetris-ram.awk | build
 	awk -f tetris-ram.awk $< > $@
 
+ifeq "$(PAL)" "1"
+FCEUXFLAGS = --pal 1
+else
+FCEUXFLAGS =
+endif
 build/%.test: %.lua
 	# Second prerequisite is assumed to be a .nes to run
-	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 --loadlua $< $(word 2,$^)
+	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 $(FCEUXFLAGS) --loadlua $< $(word 2,$^)
 	touch $@
 
 .PHONY: test
 test:
 	# fceux saves some of the configuration, so restore what we can
-	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/taus.nes
+	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/tetris.nes
 
 # include last because it enables SECONDEXPANSION
 include nes.mk

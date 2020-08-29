@@ -3,6 +3,7 @@ require("asm")
 require("testing")
 
 local labels = asm.loadlabels("build/taus.lbl")
+local ntsc = labels["demoButtonsTable_indexIncr"] == 0x9DE8
 
 function assertbyte (label, expected)
 	local b = memory.readbyte(labels[label])
@@ -28,24 +29,24 @@ function test_demo ()
 	memory.writebyte(labels.frameCounter+1, 5) -- force title screen timeout
 
 	asm.waitexecute(0x8158) -- wait for demo to end
-	if emu.framecount() - startFrame ~= 4760 then
+	if emu.framecount() - startFrame ~= (ntsc and 4760 or 3825) then
 		error("frame count changed: " .. (emu.framecount()-startFrame))
 	end
-	assertbyteoff("score", 0, 0x90)
-	assertbyteoff("score", 1, 0x42)
+	assertbyteoff("score", 0, ntsc and 0x90 or 0x85)
+	assertbyteoff("score", 1, ntsc and 0x42 or 0x21)
 	assertbyteoff("score", 2, 0x00)
-	assertbyteoff("DHT", 0, 0x01)
+	assertbyteoff("DHT", 0, ntsc and 0x01 or 0x00)
 	assertbyteoff("DHT", 1, 0x00)
-	assertbyteoff("BRN", 0, 0x02)
+	assertbyteoff("BRN", 0, ntsc and 0x02 or 0x04)
 	assertbyteoff("BRN", 1, 0x00)
-	assertbyteoff("EFF", 0, 0x88)
+	assertbyteoff("EFF", 0, ntsc and 0x88 or 0x24)
 	assertbyteoff("EFF", 1, 0x01)
-	assertbyteoff("TRT", 0, 0x57)
+	assertbyteoff("TRT", 0, ntsc and 0x57 or 0x30)
 	assertbyteoff("TRT", 1, 0x00)
-	assertbyteoff("TRNS", 0, 0x86)
-	assertbyteoff("TRNS", 1, 0x40)
+	assertbyteoff("TRNS", 0, ntsc and 0x86 or 0x43)
+	assertbyteoff("TRNS", 1, ntsc and 0x40 or 0x19)
 	assertbyteoff("TRNS", 2, 0x00)
-	assertbyteoff("levelEffs", 0, math.floor(195/2/3.125))
+	assertbyteoff("levelEffs", 0, math.floor((ntsc and 195 or 147)/2/3.125))
 	assertbyteoff("levelEffs", 1, 0x00)
 end
 
