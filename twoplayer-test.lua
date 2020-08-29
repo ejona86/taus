@@ -3,6 +3,7 @@ require("asm")
 require("testing")
 
 local labels = asm.loadlabels("build/twoplayer.lbl")
+local ntsc = labels["demoButtonsTable_indexIncr"] == 0x9DE8
 
 function assertbyteoff (label, off, expected)
 	local b = memory.readbyte(labels[label] + off)
@@ -33,14 +34,14 @@ function test_demo ()
 	end)
 
 	asm.waitexecute(0x8158) -- wait for demo to end
-	if emu.framecount() - startFrame ~= 4760 then
+	if emu.framecount() - startFrame ~= (ntsc and 4760 or 3825) then
 		error("frame count changed: " .. (emu.framecount()-startFrame))
 	end
-	assertbyteoff("player1_score", 0, 0x90)
-	assertbyteoff("player1_score", 1, 0x42)
+	assertbyteoff("player1_score", 0, ntsc and 0x90 or 0x85)
+	assertbyteoff("player1_score", 1, ntsc and 0x42 or 0x21)
 	assertbyteoff("player1_score", 2, 0x00)
-	assertbyteoff("player2_score", 0, 0x90)
-	assertbyteoff("player2_score", 1, 0x42)
+	assertbyteoff("player2_score", 0, ntsc and 0x90 or 0x85)
+	assertbyteoff("player2_score", 1, ntsc and 0x42 or 0x21)
 	assertbyteoff("player2_score", 2, 0x00)
 end
 
