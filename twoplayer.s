@@ -22,6 +22,19 @@ __TWOPLAYERSIMPORT = 1
 .include "tournament.romlayout.inc"
 .endif
 
+.exportzp nextPiece_    := $005B
+.exportzp personal_rng  := $005C        ; size 2
+.exportzp spawnID_      := $005E
+.exportzp spawnCount_   := $005F
+.exportzp player1_nextPiece  := $007B
+.exportzp player1_rng        := $007C        ; size 2
+.exportzp player1_spawnID_   := $007E
+.exportzp player1_spawnCount_:= $007F
+.exportzp player2_nextPiece  := $009B
+.exportzp player2_rng        := $009C        ; size 2
+.exportzp player2_spawnID_   := $009E
+.exportzp player2_spawnCount_:= $009F
+
 .segment "CHR"
         .incbin "build/tetris-CHR-00.chr"
         .incbin "build/twoplayer-CHR-01.chr"
@@ -66,15 +79,6 @@ initGameState_mod:
         dex
         bne     @clearByte
 
-        .importzp personal_rng
-        .importzp spawnID_
-        .importzp spawnCount_
-        .importzp player1_rng
-        .importzp player1_spawnID_
-        .importzp player1_spawnCount_
-        .importzp player2_rng
-        .importzp player2_spawnID_
-        .importzp player2_spawnCount_
 ; FIXME. reuses the seed at beginning of game
         lda     rng_seed
         sta     personal_rng
@@ -113,14 +117,13 @@ initGameBackground_mod:
         bne     @twoPlayers
         jsr     bulkCopyToPpu
         .addr   game_nametable
-        .import after_initGameBackground_mod_player1
-        jmp     after_initGameBackground_mod_player1
+        .import after_initGameBackground_mod
+        jmp     after_initGameBackground_mod
 
 @twoPlayers:
         jsr     copyRleNametableToPpu
         .addr   twoplayer_game_nametable
-        .import after_initGameBackground_mod_player2
-        jmp     after_initGameBackground_mod_player2
+        jmp     gameModeState_initGameBackground_finish
 
 twoplayer_game_nametable:
 .ifdef  TOURNAMENT_MODE
@@ -431,7 +434,6 @@ stageSpriteForNextPiece_player1_mod:
         lda     #INGAME_LAYOUT_P1_PREVIEW_Y
         sta     spriteYOffset
 @stage:
-        .importzp player1_nextPiece
         ldx     player1_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
@@ -471,7 +473,6 @@ stageSpriteForNextPiece_player2:
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P2_PREVIEW_Y
         sta     spriteYOffset
-        .importzp player2_nextPiece
         ldx     player2_nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
@@ -907,14 +908,19 @@ updateMusicSpeed_playerDied:
         jsr     setMusicTrack
         rts
 
+.ifndef TOURNAMENT_MODE
+incrementPieceStat_mod := incrementPieceStat
+.export incrementPieceStat_mod
+.endif
+
 ;--------------------------------------------------------------------
 ; Tournament Mode Mod - additional code
 ;--------------------------------------------------------------------
 .ifdef  TOURNAMENT_MODE
 
 ;this is the update of stats for the tournament play mode
-statsPerBlock_tournamentMode:
-        .export statsPerBlock_tournamentMode
+incrementPieceStat_mod:
+        .export incrementPieceStat_mod
         tay
         lda     activePlayer
         clc
@@ -993,7 +999,6 @@ statsPerLineClear_tournamentMode:
 @rts:
         lda     #$00
         sta     completedLines
-        inc     playState
         rts
 
 ;check who is in lead and what point difference is there
