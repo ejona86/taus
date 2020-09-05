@@ -110,8 +110,8 @@ LABEL { ADDR $00B6; NAME "heldButtons"; COMMENT "Active player's buttons"; };
 LABEL { ADDR $00B7; NAME "activePlayer"; COMMENT "Which player is being processed (data in $40)"; };
 LABEL { ADDR $00B8; NAME "playfieldAddr"; SIZE 2; COMMENT "HI byte is leftPlayfield in canon. Current playfield being processed: $0400 (left; 1st player) or $0500 (right; 2nd player)"; };
 LABEL { ADDR $00BA; NAME "allegro"; }; # canon
-LABEL { ADDR $00BB; NAME "totalGarbageInactivePlayer"; COMMENT "This is exchanged with totalGarbage when swapping players"; };
-LABEL { ADDR $00BC; NAME "totalGarbage"; }; # canon
+LABEL { ADDR $00BB; NAME "pendingGarbage"; COMMENT "Garbage waiting to be delivered to the current player. This is exchanged with pendingGarbageInactivePlayer when swapping players."; };
+LABEL { ADDR $00BC; NAME "pendingGarbageInactivePlayer"; COMMENT "canon is totalGarbage"; };
 LABEL { ADDR $00BD; NAME "renderMode"; }; # canon
 LABEL { ADDR $00BE; NAME "numberOfPlayers"; }; # canon
 LABEL { ADDR $00BF; NAME "nextPiece"; COMMENT "Stored by its orientation ID"; };
@@ -802,8 +802,13 @@ LABEL { ADDR $9AD2; NAME "@incrementLineIndex"; }; # canon
 LABEL { ADDR $9AF5; NAME "@skipTetrisSoundEffect"; };
 LABEL { ADDR $9B02; NAME "@ret"; };
 LABEL { ADDR $9B03; NAME "playState_receiveGarbage"; };
-LABEL { ADDR $9B3A; NAME "@garbageEmptySpace"; };
-LABEL { ADDR $9B3C; NAME "@placeGarbage"; };
+LABEL { ADDR $9B1C; NAME "@shiftPlayfieldUp"; };
+LABEL { ADDR $9B31; NAME "@fillGarbage"; };
+LABEL { ADDR $9B3A; NAME "@hole"; };
+LABEL { ADDR $9B3C; NAME "@set"; };
+LABEL { ADDR $9B45; NAME "@inc"; };
+LABEL { ADDR $9B50; NAME "@ret"; };
+LABEL { ADDR $9B52; NAME "@delay"; };
 LABEL { ADDR $9B58; NAME "playState_updateLinesAndStatistics"; };
 LABEL { ADDR $9B62; NAME "@linesCleared"; };
 LABEL { ADDR $9B78; NAME "@noCarry"; };

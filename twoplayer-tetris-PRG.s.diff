@@ -786,27 +786,27 @@
  playState_receiveGarbage:
          lda     numberOfPlayers
          cmp     #$01
-         beq     L9B50
--        ldy     totalGarbageInactivePlayer
-+        bne     L9B50   ;ldy     totalGarbageInactivePlayer
-         beq     L9B50
+         beq     @ret
+-        ldy     pendingGarbage
++        bne     @ret    ;ldy     pendingGarbage
+         beq     @ret
          lda     vramRow
          cmp     #$20
-         bmi     L9B52
+         bmi     @delay
          lda     multBy10Table,y
-@@ -3171,11 +3244,11 @@ L9B31:  cpx     garbageHole
-         beq     @garbageEmptySpace
+@@ -3172,11 +3245,11 @@ @fillGarbage:
+         cpx     garbageHole
+         beq     @hole
          lda     #$78
-         jmp     @placeGarbage
+         jmp     @set
  
- @garbageEmptySpace:
--        lda     #$FF
-+        lda     #$EF
- @placeGarbage:
-         sta     (playfieldAddr),y
+-@hole:  lda     #$FF
++@hole:  lda     #$EF
+ @set:   sta     (playfieldAddr),y
          inx
          cpx     #$0A
-         bne     L9B45
+         bne     @inc
+         ldx     #$00
 @@ -3359,23 +3432,33 @@ L9C75:  lda     score+2
          clc
          adc     #$06
