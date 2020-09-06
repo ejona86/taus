@@ -49,6 +49,10 @@ demo_playingPlayer:
         .res    1
 demoIndex_player2:
         .res    1
+garbageUntilResetHole_P1:
+        .res    1
+garbageUntilResetHole_P2:
+        .res    1
 
 .ifdef TOURNAMENT_MODE
 tetrisCount_P1:
@@ -107,6 +111,10 @@ initGameState_mod:
         ldx     #player2_rng
         ldy     #$02
         jsr     generateNextPseudorandomNumber
+
+        lda     #$0A
+        sta     garbageUntilResetHole_P1
+        sta     garbageUntilResetHole_P2
 
         rts
 
@@ -639,6 +647,42 @@ chooseNextTetrimino_mod:
         ldx     demoIndex_player2
         inc     demoIndex_player2
         rts
+
+
+playState_receiveGarbage_fillGarbage_mod:
+        .export playState_receiveGarbage_fillGarbage_mod
+        sta     (playfieldAddr),y
+        inx
+        cpx     #$0A
+        bne     @rts
+        txa
+        ldx     activePlayer
+        dec     garbageUntilResetHole_P1-1,x
+        bne     @ret
+
+; reset hole
+        pha
+        lda     #$0A
+        sta     garbageUntilResetHole_P1-1,x
+        tya
+        pha
+@generateRandom:
+        ldx     #rng_seed
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        lda     rng_seed
+        and     #$0F
+        cmp     #$0A
+        bpl     @generateRandom
+        cmp     garbageHole
+        beq     @generateRandom
+        sta     garbageHole
+
+        pla
+        tay
+        pla
+@ret:   tax
+@rts:   rts
 
 
 gameMode_levelMenu_nametable_mod:

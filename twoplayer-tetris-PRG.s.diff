@@ -124,10 +124,24 @@
          lda     newlyPressedButtons_player1
          cmp     #$40
          bne     @chooseRandomHole_player1
-@@ -854,11 +854,11 @@ @chooseRandomHole_player2:
+@@ -842,23 +842,23 @@ @chooseRandomHole_player1:
+         ldx     #$17
+         ldy     #$02
+         jsr     generateNextPseudorandomNumber
          lda     rng_seed
          and     #$0F
-         cmp     #$0A
+-        cmp     #$0A
++        cmp     #$09    ;#$0A
+         bpl     @chooseRandomHole_player1
+         sta     player1_garbageHole
+ @chooseRandomHole_player2:
+         ldx     #$17
+         ldy     #$02
+         jsr     generateNextPseudorandomNumber
+         lda     rng_seed
+         and     #$0F
+-        cmp     #$0A
++        cmp     #$09    ;#$0A
          bpl     @chooseRandomHole_player2
          sta     player2_garbageHole
 -        jsr     updateAudioWaitForNmiAndResetOamStaging
@@ -781,32 +795,36 @@
  playState_checkForCompletedRows:
          lda     vramRow
          cmp     #$20
-@@ -3145,11 +3218,11 @@ @ret:   rts
- 
- playState_receiveGarbage:
-         lda     numberOfPlayers
-         cmp     #$01
-         beq     @ret
--        ldy     pendingGarbage
-+        bne     @ret    ;ldy     pendingGarbage
-         beq     @ret
-         lda     vramRow
-         cmp     #$20
-         bmi     @delay
-         lda     multBy10Table,y
-@@ -3172,11 +3245,11 @@ @fillGarbage:
+@@ -3123,11 +3196,11 @@ @incrementLineIndex:
+         bmi     @ret
+         ldy     completedLines
+         lda     garbageLines,y
+         clc
+         adc     pendingGarbageInactivePlayer
+-        sta     pendingGarbageInactivePlayer
++        sta     generalCounter  ; Disable garbage       ;sta     pendingGarbageInactivePlayer
+         lda     #$00
+         sta     vramRow
+         sta     rowY
+         lda     completedLines
+         cmp     #$04
+@@ -3172,13 +3245,13 @@ @fillGarbage:
          cpx     garbageHole
          beq     @hole
          lda     #$78
          jmp     @set
  
 -@hole:  lda     #$FF
+-@set:   sta     (playfieldAddr),y
+-        inx
 +@hole:  lda     #$EF
- @set:   sta     (playfieldAddr),y
-         inx
++@set:   jsr_i   playState_receiveGarbage_fillGarbage_mod        ;sta     (playfieldAddr),y
++                                                                ;inx
          cpx     #$0A
          bne     @inc
          ldx     #$00
+ @inc:   iny
+         cpy     #$C8
 @@ -3359,23 +3432,33 @@ L9C75:  lda     score+2
          clc
          adc     #$06
