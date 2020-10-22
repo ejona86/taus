@@ -147,9 +147,9 @@ build/level_menu_nametable.nam.stripe: build/tetris-PRG.bin
 # Converts to/from NES Stripe RLE. Only supports a _very_ limited subset that
 # is fully consecutive, only "literal to right", with each sized 0x20
 build/%: %.stripe
-	LC_ALL=C awk 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' $< > $@
+	LC_ALL=C awk -v BINMODE=3 'BEGIN {RS=".{35}";ORS=""} {print substr(RT, 4)}' $< > $@
 build/%.nam.stripe: %.nam
-	LC_ALL=C awk 'BEGIN {RS=".{32}";ADDR=0x2000} {printf("%c%c%c%s",ADDR/256,ADDR%256,32,RT);ADDR=ADDR+32}' $< > $@
+	LC_ALL=C awk -v BINMODE=3 'BEGIN {RS=".{32}";ADDR=0x2000} {printf("%c%c%c%s",ADDR/256,ADDR%256,32,RT);ADDR=ADDR+32}' $< > $@
 
 build/tetris.inc: build/tetris.nes
 	sort build/tetris.lbl | sed -E -e 's/al 00(.{4}) .(.*)/\2 := $$\1/' | uniq > $@
