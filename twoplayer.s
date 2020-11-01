@@ -22,15 +22,12 @@ __TWOPLAYERSIMPORT = 1
 .include "tournament.romlayout.inc"
 .endif
 
-.exportzp nextPiece_    := $005B
 .exportzp personal_rng  := $005C        ; size 2
 .exportzp spawnID_      := $005E
 .exportzp spawnCount_   := $005F
-.exportzp player1_nextPiece  := $007B
 .exportzp player1_rng        := $007C        ; size 2
 .exportzp player1_spawnID_   := $007E
 .exportzp player1_spawnCount_:= $007F
-.exportzp player2_nextPiece  := $009B
 .exportzp player2_rng        := $009C        ; size 2
 .exportzp player2_spawnID_   := $009E
 .exportzp player2_spawnCount_:= $009F
@@ -442,7 +439,7 @@ stageSpriteForNextPiece_player1_mod:
         lda     #INGAME_LAYOUT_P1_PREVIEW_Y
         sta     spriteYOffset
 @stage:
-        ldx     player1_nextPiece
+        ldx     nextPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
 
@@ -481,7 +478,7 @@ stageSpriteForNextPiece_player2:
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P2_PREVIEW_Y
         sta     spriteYOffset
-        ldx     player2_nextPiece
+        ldx     nextPiece_2player
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
         jsr     loadSpriteIntoOamStaging

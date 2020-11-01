@@ -181,7 +181,7 @@
  ; statsByType
  @initStatsByType:
          sta     $03EF,x
-@@ -1175,17 +1175,17 @@ @initStatsByType:
+@@ -1175,12 +1175,12 @@ @initStatsByType:
          sta     player1_autorepeatY
          sta     player2_autorepeatY
          jsr     chooseNextTetrimino
@@ -194,15 +194,8 @@
          ldy     #$02
          jsr     generateNextPseudorandomNumber
          jsr     chooseNextTetrimino
--        sta     nextPiece
--        sta     nextPiece_2player
-+        sta     player1_nextPiece       ;sta     nextPiece
-+        sta     player2_nextPiece       ;sta     nextPiece_2player
-         lda     gameType
-         beq     @skipTypeBInit
-         lda     #$25
-         sta     player1_lines
-         sta     player2_lines
+         sta     nextPiece
+         sta     nextPiece_2player
 @@ -1374,15 +1374,15 @@ gameModeState_updateCountersAndNonPlayer
          inc     player2_fallTimer
          lda     twoPlayerPieceDelayCounter
@@ -671,47 +664,62 @@
  colorTable:
          .dbyt   $0F30,$2112,$0F30,$291A
          .dbyt   $0F30,$2414,$0F30,$2A12
-@@ -2784,11 +2857,11 @@ @ret:   rts
+@@ -2784,15 +2857,15 @@ @ret:   rts
  
  playState_spawnNextTetrimino:
          lda     vramRow
          cmp     #$20
          bmi     @ret
 -        lda     numberOfPlayers
-+        lda     #$01    ;lda     numberOfPlayers
++        lda     activePlayer            ;lda     numberOfPlayers
          cmp     #$01
          beq     @notDelaying
-         lda     twoPlayerPieceDelayCounter
-         cmp     #$00
+-        lda     twoPlayerPieceDelayCounter
+-        cmp     #$00
++        ldx     nextPiece_2player       ;lda     twoPlayerPieceDelayCounter
++        bne     @spawn  ; always jump   ;cmp     #$00
          bne     @twoPlayerPieceDelay
-@@ -2813,35 +2886,35 @@ @notDelaying:
+         inc     twoPlayerPieceDelayCounter
+         lda     activePlayer
+         sta     twoPlayerPieceDelayPlayer
+         jsr     chooseNextTetrimino
+@@ -2805,28 +2878,28 @@ @twoPlayerPieceDelay:
+         bne     @ret
+         lda     twoPlayerPieceDelayCounter
+         cmp     #$1C
+         bne     @ret
+ @notDelaying:
+-        lda     #$00
++        ldx     nextPiece
++@spawn: lda     #$00
+         sta     twoPlayerPieceDelayCounter
+         sta     fallTimer
          sta     tetriminoY
          lda     #$01
          sta     playState
          lda     #$05
          sta     tetriminoX
 -        ldx     nextPiece
-+        ldx     nextPiece_
          lda     spawnOrientationFromOrientation,x
          sta     currentPiece
 -        jsr     incrementPieceStat
 -        lda     numberOfPlayers
 +        jsr     incrementPieceStat_mod
-+        lda     #$01            ;lda     numberOfPlayers
++        lda     activePlayer                    ;lda     numberOfPlayers
          cmp     #$01
          beq     @onePlayerPieceSelection
-         lda     nextPiece_2player
-         sta     nextPiece
-         jmp     @resetDownHold
+-        lda     nextPiece_2player
+-        sta     nextPiece
+-        jmp     @resetDownHold
++        jsr     chooseNextTetrimino             ;lda     nextPiece_2player
++        sta     nextPiece_2player               ;sta     nextPiece
++        bne     @resetDownHold  ; always jump   ;jmp     @resetDownHold
  
  @onePlayerPieceSelection:
          jsr     chooseNextTetrimino
--        sta     nextPiece
-+        sta     nextPiece_
+         sta     nextPiece
  @resetDownHold:
-         lda     #$00
-         sta     autorepeatY
- @ret:   rts
+@@ -2836,12 +2909,12 @@ @ret:   rts
  
  chooseNextTetrimino:
          lda     gameMode
