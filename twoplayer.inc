@@ -1,16 +1,7 @@
 .ifndef __TWOPLAYERSIMPORT
-.importzp nextPiece_
 .importzp personal_rng
 .importzp spawnID_
 .importzp spawnCount_
-.importzp player1_nextPiece
-.importzp player1_rng
-.importzp player1_spawnID_
-.importzp player1_spawnCount_
-.importzp player2_nextPiece
-.importzp player2_rng
-.importzp player2_spawnID_
-.importzp player2_spawnCount_
 
 .import	copyRleNametableToPpu
 .import	legal_screen_nametable_rle
