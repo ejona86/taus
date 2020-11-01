@@ -478,7 +478,7 @@ stageSpriteForNextPiece_player2:
         sta     spriteXOffset
         lda     #INGAME_LAYOUT_P2_PREVIEW_Y
         sta     spriteYOffset
-        ldx     nextPiece_2player
+        ldx     twoPlayerPieceDelayPiece
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
         jsr     loadSpriteIntoOamStaging

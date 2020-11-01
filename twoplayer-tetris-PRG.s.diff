@@ -673,12 +673,13 @@
 -        lda     numberOfPlayers
 +        lda     activePlayer            ;lda     numberOfPlayers
          cmp     #$01
-         beq     @notDelaying
+-        beq     @spawnPiece
++        beq     @spawn1
 -        lda     twoPlayerPieceDelayCounter
 -        cmp     #$00
-+        ldx     nextPiece_2player       ;lda     twoPlayerPieceDelayCounter
-+        bne     @spawn  ; always jump   ;cmp     #$00
-         bne     @twoPlayerPieceDelay
++        ldx     twoPlayerPieceDelayPiece;lda     twoPlayerPieceDelayCounter
++        bne     @spawnPiece; always jump;cmp     #$00
+         bne     @twoPlayerWaiting
          inc     twoPlayerPieceDelayCounter
          lda     activePlayer
          sta     twoPlayerPieceDelayPlayer
@@ -688,10 +689,9 @@
          lda     twoPlayerPieceDelayCounter
          cmp     #$1C
          bne     @ret
- @notDelaying:
--        lda     #$00
-+        ldx     nextPiece
-+@spawn: lda     #$00
++@spawn1:ldx     nextPiece
+ @spawnPiece:
+         lda     #$00
          sta     twoPlayerPieceDelayCounter
          sta     fallTimer
          sta     tetriminoY
@@ -708,11 +708,11 @@
 +        lda     activePlayer                    ;lda     numberOfPlayers
          cmp     #$01
          beq     @onePlayerPieceSelection
--        lda     nextPiece_2player
+-        lda     twoPlayerPieceDelayPiece
 -        sta     nextPiece
 -        jmp     @resetDownHold
-+        jsr     chooseNextTetrimino             ;lda     nextPiece_2player
-+        sta     nextPiece_2player               ;sta     nextPiece
++        jsr     chooseNextTetrimino             ;lda     twoPlayerPieceDelayPiece
++        sta     twoPlayerPieceDelayPiece        ;sta     nextPiece
 +        bne     @resetDownHold  ; always jump   ;jmp     @resetDownHold
  
  @onePlayerPieceSelection:
