@@ -1,7 +1,7 @@
-all: tetris taus screens custom handicap twoplayer playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
+all: tetris taus screens custom handicap twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
 # These are simply aliases
-.PHONY: all dis tetris taus screens custom handicap twoplayer playerid
+.PHONY: all dis tetris taus screens custom handicap twoplayer twoplayer-garbage playerid
 
 dis: build/tetris-PRG.s
 
@@ -91,6 +91,17 @@ build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
 build/twoplayer-pal.nes.cfg: twoplayer.nes.cfg ntsc2pal.awk | build
 	awk -f ntsc2pal.awk $< > $@
+
+twoplayer-garbage: build/twoplayer-garbage.nes
+# For .o files, manually list prerequisites that are generated. Non-generated
+# files will automatically be computed
+build/twoplayer-garbage.o: build/tetris.inc
+# Detect IPS hunks. These .o files used ips_segments in their .s
+build/twoplayer-garbage.ips.cfg: build/twoplayer-garbage.o
+# Linker dependencies. There is a corresponding .cfg file
+build/twoplayer-garbage.ips: build/twoplayer-garbage.o build/ips.o
+# IPS base file. There is a corresponding .ips file
+build/twoplayer-garbage.nes: build/twoplayer.nes
 
 custom: build/custom.nes
 build/custom.nes: build/taus.ips build/highscores.ips build/playerid.ips
