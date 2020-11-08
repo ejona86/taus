@@ -6,9 +6,7 @@ SEGMENT { START $8000; END $ADB7; NAME "PRG_chunk1"; };
 SEGMENT { START $ADB8; END $B218; NAME "legal_screen_nametable"; };
 SEGMENT { START $B219; END $D6C8; NAME "PRG_chunk2"; };
 SEGMENT { START $D6C9; END $DCFF; NAME "unreferenced_data1"; };
-SEGMENT { START $DD00; END $F9EA; NAME "PRG_chunk3"; };
-SEGMENT { START $F9EB; END $FEFF; NAME "unreferenced_data4"; };
-SEGMENT { START $FF00; END $FFF9; NAME "PRG_chunk4"; };
+SEGMENT { START $DD00; END $FFF9; NAME "PRG_chunk3"; };
 SEGMENT { START $FFFA; END $FFFF; NAME "VECTORS"; };
 
 # "canon" names match those in https://meatfighter.com/nintendotetrisai/
