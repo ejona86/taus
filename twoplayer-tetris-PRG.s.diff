@@ -36,19 +36,7 @@
          adc     #$01
          sta     frameCounter
          lda     #$00
-@@ -436,32 +436,32 @@ branchOnGameMode:
- gameModeState_updatePlayer1:
-         jsr     makePlayer1Active
-         jsr     branchOnPlayStatePlayer1
-         jsr     stageSpriteForCurrentPiece
-         jsr     savePlayer1State
--        jsr     stageSpriteForNextPiece
-+        jsr_i   stageSpriteForNextPiece_player1_mod     ;jsr     stageSpriteForNextPiece
-         inc     gameModeState
-         rts
- 
- gameModeState_updatePlayer2:
-         lda     numberOfPlayers
+@@ -447,21 +447,21 @@ gameModeState_updatePlayer2:
          cmp     #$02
          bne     @ret
          jsr     makePlayer2Active
@@ -235,6 +223,21 @@
          lda     tetriminoY
          rol     a
          rol     a
+@@ -1717,12 +1717,12 @@ L8B9D:  lda     orientationTable,y
+         bne     L8B9D
+         stx     oamStagingLength
+         rts
+ 
+ stageSpriteForNextPiece:
+-        lda     displayNextPiece
+-        bne     @ret
++        jmp_i   stageSpriteForNextPiece_player1_mod     ;lda     displayNextPiece
++        nop                                             ;bne     @ret
+         lda     #$C8
+         sta     spriteXOffset
+         lda     #$77
+         sta     spriteYOffset
+         ldx     nextPiece
 @@ -1899,28 +1899,53 @@ sprite03PausePalette6:
  sprite05PausePalette4:
          .byte   $00,$19,$00,$00,$00,$0A,$00,$08
