@@ -11,162 +11,85 @@
 
         jsr stageSpriteForNextPiece_mod
 
-.segment "DISABLE_HEIGHT_DISPLAY"
-        ips_segment     "DISABLE_HEIGHT_DISPLAY",$865F
-
-@nextPpuAddress:
-        jmp     gameModeState_initGameBackground_finish
-        lda     game_typeb_nametable_patch,x
-        inx
-        sta     PPUADDR
-        lda     game_typeb_nametable_patch,x
-        inx
-        sta     PPUADDR
-@nextPpuData:
-        lda     game_typeb_nametable_patch,x
-        inx
-        cmp     #$FE
-        beq     @nextPpuAddress
-        cmp     #$FD
-        beq     @endOfPpuPatching
-        sta     PPUDATA
-        jmp     @nextPpuData
-
-@endOfPpuPatching:
-        lda     #$23
-        sta     PPUADDR
-        lda     #$3B
-        sta     PPUADDR
-        lda     startHeight
-        and     #$0F
-        sta     PPUDATA
-
 .segment "GAME_NAMETABLE"
         ips_segment     "GAME_NAMETABLE",game_nametable,1120
 
         .incbin "build/TetrisControllerInputDisplay_game.nam.stripe"
 
-.code
-        ips_segment     "CODE",unreferenced_data1,$637 ; $D6C9
+.segment "DISABLE_HEIGHT_DISPLAY"
+        ; Address happens to be same for PAL
+        ips_segment     "DISABLE_HEIGHT_DISPLAY",$865F,$34
+
+        jmp     gameModeState_initGameBackground_finish
+
+heldDownPalette = $00
+controllerOamTemplate:
+        .byte   $C0,$D6,$03,$C0
+        .byte   $C0,$C6,$03,$CD
+        .byte   $C6,$E6,$03,$C7
+        .byte   $C8,$F7,$03,$D7
+        .byte   $C8,$F6,$03,$E0
+controllerOamTemplate_end:
 
 stageSpriteForNextPiece_mod:
         jsr     stageSpriteForNextPiece
-        jsr     stageSpritesForControllerInputDisplay
+
+        lda     numberOfPlayers
+        cmp     #$01
+        beq     @onePlayer
         rts
 
-stageSpritesForControllerInputDisplay:
+@onePlayer:
         ldy     oamStagingLength
-        lda     #$C0
+        ldx     #0
+@copyTemplateByte:
+        lda     controllerOamTemplate,x
         sta     oamStaging,y
-        lda     #$D6
+        inx
         iny
-        sta     oamStaging,y
-        lda     heldButtons
-        and     #$02
-        cmp     #$02
-        bne     @leftNotPressed
-        lda     #$00
-        jmp     @stageLeftSprite
+        cpx     #controllerOamTemplate_end-controllerOamTemplate
+        bne     @copyTemplateByte
 
-@leftNotPressed:
-        lda     #$03
-@stageLeftSprite:
-        iny
-        sta     oamStaging,y
-        lda     #$C0
-        iny
-        sta     oamStaging,y
-        lda     #$C0
-        iny
-        sta     oamStaging,y
-        lda     #$C6
-        iny
-        sta     oamStaging,y
-        lda     heldButtons
-        and     #$01
-        cmp     #$01
-        bne     @rightNotPressed
-        lda     #$00
-        jmp     @stageRightSprite
+        jmp stageSpriteForNextPiece_mod_secondHalf
 
-@rightNotPressed:
-        lda     #$03
-@stageRightSprite:
-        iny
-        sta     oamStaging,y
-        lda     #$CD
-        iny
-        sta     oamStaging,y
-        lda     #$C6
-        iny
-        sta     oamStaging,y
-        lda     #$E6
-        iny
-        sta     oamStaging,y
-        lda     heldButtons
-        and     #$04
-        cmp     #$04
-        bne     @downNotPressed
-        lda     #$00
-        jmp     @stageDownSprite
+.code
+        ips_segment     "CODE",game_typeb_nametable_patch,$2C
 
-@downNotPressed:
-        lda     #$03
-@stageDownSprite:
-        iny
-        sta     oamStaging,y
-        lda     #$C7
-        iny
-        sta     oamStaging,y
-        lda     #$C8
-        iny
-        sta     oamStaging,y
-        lda     #$F7
-        iny
-        sta     oamStaging,y
-        lda     heldButtons
-        and     #$40
-        cmp     #$40
-        bne     @bNotPressed
-        lda     #$00
-        jmp     @stageBSprite
 
-@bNotPressed:
-        lda     #$03
-@stageBSprite:
-        iny
-        sta     oamStaging,y
-        lda     #$D7
-        iny
-        sta     oamStaging,y
-        lda     #$C8
-        iny
-        sta     oamStaging,y
-        lda     #$F6
-        iny
-        sta     oamStaging,y
-        lda     heldButtons
-        and     #$80
-        cmp     #$80
-        bne     @aNotPressed
-        lda     #$00
-        jmp     @stageASprite
+stageSpriteForNextPiece_mod_secondHalf:
+        tya
+        ldy     oamStagingLength
+        sta     oamStagingLength
 
-@aNotPressed:
-        lda     #$03
-@stageASprite:
+        ; y=oamStaging offset, x=current button
         iny
-        sta     oamStaging,y
-        lda     #$E0
         iny
+        ldx     #0
+@checkButton:
+        lda     heldButtons
+        and     buttonMask,x
+        beq     @notHeld
+        lda     #heldDownPalette
         sta     oamStaging,y
+@notHeld:
         tya
         clc
-        adc     oamStagingLength
-        sta     oamStagingLength
+        adc     #4
+        tay
+        inx
+        cpx     #numberOfButtons
+        bne     @checkButton
+
         rts
 
-.res 1359
+numberOfButtons = 5
+buttonMask:
+        .byte   $02     ; left
+        .byte   $01     ; right
+        .byte   $04     ; down
+        .byte   $40     ; b
+        .byte   $80     ; a
+
 
 .segment "IPSCHRC6"
         ips_tile_segment        "IPSCHRC6",CHR01+CHR_RIGHT,$C6
