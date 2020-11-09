@@ -41,22 +41,15 @@ build/screens.nes: build/tetris.nes
 taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
-ifeq "$(PAL)" "1"
-build/taus.ips: build/taus-pal.ips
-	cp $< $@
-	cp $(basename $<).dbg $(basename $@).dbg
-	cp $(basename $<).lbl $(basename $@).lbl
-build/taus-pal.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
-else
 build/taus.ips: build/taus.o build/ips.o build/fastlegal.o build/chart.o
-endif
+build/taus.tmp.ips.cfg: build/taus.o build/ips.o build/fastlegal.o build/chart.o
+build/taus.ips.cfg: build/taus.tmp.ips.cfg taus.ips.cfg.snip
+	cat $^ > $@
 build/taus.nes: build/tetris.nes
 build/chart-test.test: chart-test.lua build/taus.nes
 build/taus-test.test: taus-test.lua build/taus.nes
 build/taus-CHR-01.chr: build/taus.nes
 	tail -c +40977 $< | head -c 8192 > $@
-build/taus-pal.ips.cfg: taus.ips.cfg ntsc2pal.awk | build
-	awk -f ntsc2pal.awk $< > $@
 
 tetris: build/tetris.nes
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr

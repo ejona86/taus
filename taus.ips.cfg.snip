@@ -1,0 +1,8 @@
+MEMORY {
+    RAM: start = $0780, size = $0080, file = ""; # GAMEBSS init is limited to 255 bytes
+}
+
+SEGMENTS {
+    BSS: load = RAM, type = bss;
+    GAMEBSS: load = RAM, type = bss, define = yes;
+}

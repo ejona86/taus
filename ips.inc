@@ -57,3 +57,19 @@ TILE_SIZE = $10
 	.popseg
 .endmacro
 
+; Declares the IPS segment hunk with name starts at mapper_addr+start_tile. The
+; segment should be defined elsewhere. Only useful when combined with
+; auto-generation of linker config.
+.macro ips_tile_segment name,mapper_addr,start_tile
+        .fileopt    comment, .sprintf("ips: %d00000 %s %d", (mapper_addr)+((start_tile)*TILE_SIZE), name, 4096-((start_tile)*TILE_SIZE))
+
+	.pushseg
+	.segment    .concat(name, "_HDR")
+
+	.import .ident(.concat("__", name, "_SIZE__"))
+	.byte   0
+	.dbyt   (mapper_addr)+((start_tile)*TILE_SIZE)+IPSCHROFFSET
+	.dbyt   .ident(.concat("__", name, "_SIZE__"))
+
+	.popseg
+.endmacro

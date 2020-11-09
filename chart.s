@@ -384,87 +384,62 @@ chart_attributetable_patch:
 .byte   $23,$E3,$03,$FA,$FA,$FE
 .byte   $FF
 
-.segment "CHART_IPSCHR"
+.segment "IPSCHR_40"
 
 endcap_diff_0 = $40
+        ips_tile_segment "IPSCHR_40",CHR01+CHR_RIGHT,endcap_diff_0
 
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0
         ; endcap difference = 0
         .incbin "build/taus.chrs/10"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+1
         ; endcap difference = 1
         .incbin "build/taus.chrs/11"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+2
         ; endcap difference = 2
         .incbin "build/taus.chrs/12"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+3
         ; endcap difference = 3
         .incbin "build/taus.chrs/13"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+4
         ; endcap difference = 4
         .incbin "build/taus.chrs/14"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+5
         ; endcap difference = 5
         .incbin "build/taus.chrs/15"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+6
         ; endcap difference = 6
         .incbin "build/taus.chrs/16"
-
-        ips_tilehdr CHR01+CHR_RIGHT,endcap_diff_0+7
         ; endcap difference = 7
         .incbin "build/taus.chrs/17"
 
 full_bar_none = $48
-full_bar_left = $4A
 
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none
         ; blank
         .incbin "build/taus.chrs/20"
-
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none+1
         ;  |
         .incbin "build/taus.chrs/21"
 
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_left
+full_bar_left = $4A
+
         ; |
         .incbin "build/taus.chrs/22"
-
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_left+1
         ; ||
         .incbin "build/taus.chrs/23"
 
 sevenpx_bar_both = $4C
 
-        ips_tilehdr CHR01+CHR_RIGHT,sevenpx_bar_both
         ; || 7 pixel high
         .incbin "build/taus.chrs/19"
 
 endcap = $4D
 
-        ips_tilehdr CHR01+CHR_RIGHT,endcap
         ; endcap
         .incbin "build/taus.chrs/18"
 
-full_bar_none_gridline = $50
+.segment "IPSCHR_50"
 
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline
+full_bar_none_gridline = $50
+        ips_tile_segment "IPSCHR_50",CHR01+CHR_RIGHT,full_bar_none_gridline
+
         ; blank, with gridline
         .incbin "build/taus.chrs/24"
-
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+1
         ;  |, with gridline
         .incbin "build/taus.chrs/25"
-
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+2
         ; |, with gridline
         .incbin "build/taus.chrs/26"
-
-        ips_tilehdr CHR01+CHR_RIGHT,full_bar_none_gridline+3
         ; ||, with gridline
         .incbin "build/taus.chrs/27"

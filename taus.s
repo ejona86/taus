@@ -8,10 +8,8 @@
 
 ;TESTING_POST_GAME_STATS = 1
 
-.segment "HUNK1HDR"
-        ips_hunkhdr     "HUNK1"
-
 .segment "HUNK1"
+        ips_segment     "HUNK1",incrementPieceStat+1 ; $996A
 
 ; at incrementPieceStat, replaces lda
        jmp statsPerBlock
@@ -55,10 +53,8 @@ levelEffIdx:
 chartDrawn:
         .res    1
 
-.segment "CODEHDR"
-        ips_hunkhdr     "CODE"
-
 .segment "CODE"
+        ips_segment     "CODE",unreferenced_data4,$0515
 
 initGameState_mod:
 .import __GAMEBSS_SIZE__, __GAMEBSS_RUN__
@@ -517,46 +513,39 @@ multiplyBy100:
         sta     tmp2
         rts
 
-.segment "GAME_BGHDR"
-        ips_hunkhdr     "GAME_BG"
-
 .segment "GAME_BG"
+        ips_segment     "GAME_BG",game_nametable,$8000
 
 ; game_nametable
         .incbin "build/taus_game.nam.stripe"
         .byte   $FF
 
-.segment "STATS_NUMBERHDR"
-        ips_hunkhdr     "STATS_NUMBER"
-
 .segment "STATS_NUMBER"
+        ; Address happens to be same for PAL
+        ips_segment     "STATS_NUMBER",$9669
 
 ; Only show 3 stats
         cmp     #$04
 
 
-.segment "JMP_STATS_PER_LINE_CLEARHDR"
-        ips_hunkhdr     "JMP_STATS_PER_LINE_CLEAR"
-
 .segment "JMP_STATS_PER_LINE_CLEAR"
+        ; Address happens to be same for PAL
+        ips_segment     "JMP_STATS_PER_LINE_CLEAR",$9C9E
 
 ; at end of addLineClearPoints, replaces "lda #0; sta completedLines"
         jsr statsPerLineClear
         nop
 
-.segment "JMP_INIT_GAME_STATEHDR"
-        ips_hunkhdr     "JMP_INIT_GAME_STATE"
-
 .segment "JMP_INIT_GAME_STATE"
+        ips_segment     "JMP_INIT_GAME_STATE",gameModeState_initGameState+9 ; $86E5
 
 ; at beginning of initGameState, replaces "ldx #$0F; lda #$00"
         jsr initGameState_mod
         nop
 
-.segment "JMP_POST_GAME_STATSHDR"
-        ips_hunkhdr     "JMP_POST_GAME_STATS"
-
 .segment "JMP_POST_GAME_STATS"
+        ; Address happens to be same for PAL
+        ips_segment     "JMP_POST_GAME_STATS",$9A4D
 
 ; within @curtainFinished of playState_updateGameOverCurtain, replacing
 ; "lda player1_score+2; cmp #$03"
@@ -565,17 +554,16 @@ multiplyBy100:
         ; is okay. We want to leave the #$03 intact to support Game Genie codes
         ; that skip the ending animation.
 
-.segment "JMP_RENDER_STATSHDR"
-        ips_hunkhdr     "JMP_RENDER_STATS"
-
 .segment "JMP_RENDER_STATS"
+        ; Address happens to be same for PAL
+        ips_segment     "JMP_RENDER_STATS",$9645
 
 ; within render_play_digits, after L9639, replaces "lda #$00; sta $B0"
         jsr     renderStats
         nop
 
 .segment "IPSCHR"
+        ips_tile_segment "IPSCHR",CHR01+CHR_RIGHT,$54
 
-        ips_tilehdr CHR01+CHR_RIGHT,$54
         ; percent
         .incbin "build/taus.chrs/00"
