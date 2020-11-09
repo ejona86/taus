@@ -91,6 +91,12 @@ build/twoplayer-garbage.ips.cfg: build/twoplayer-garbage.o
 build/twoplayer-garbage.ips: build/twoplayer-garbage.o build/ips.o
 build/twoplayer-garbage.nes: build/twoplayer.nes
 
+TetrisControllerInputDisplay: build/TetrisControllerInputDisplay.nes
+build/TetrisControllerInputDisplay.o: build/tetris.inc build/TetrisControllerInputDisplay.chrs/fake build/TetrisControllerInputDisplay_game.nam.stripe
+build/TetrisControllerInputDisplay.ips.cfg: build/TetrisControllerInputDisplay.o
+build/TetrisControllerInputDisplay.ips: build/TetrisControllerInputDisplay.o build/ips.o
+build/TetrisControllerInputDisplay.nes: build/tetris.nes
+
 custom: build/custom.nes
 build/custom.nes: build/taus.ips build/highscores.ips build/playerid.ips
 build/custom.nes: build/tetris.nes
