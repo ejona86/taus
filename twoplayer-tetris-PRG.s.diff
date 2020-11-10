@@ -183,7 +183,7 @@
          jsr     generateNextPseudorandomNumber
          jsr     chooseNextTetrimino
          sta     nextPiece
-         sta     nextPiece_2player
+         sta     twoPlayerPieceDelayPiece
 @@ -1374,15 +1374,15 @@ gameModeState_updateCountersAndNonPlayer
          inc     player2_fallTimer
          lda     twoPlayerPieceDelayCounter
@@ -677,9 +677,9 @@
 +        lda     activePlayer            ;lda     numberOfPlayers
          cmp     #$01
 -        beq     @spawnPiece
-+        beq     @spawn1
 -        lda     twoPlayerPieceDelayCounter
 -        cmp     #$00
++        beq     @spawn1
 +        ldx     twoPlayerPieceDelayPiece;lda     twoPlayerPieceDelayCounter
 +        bne     @spawnPiece; always jump;cmp     #$00
          bne     @twoPlayerWaiting
@@ -687,7 +687,8 @@
          lda     activePlayer
          sta     twoPlayerPieceDelayPlayer
          jsr     chooseNextTetrimino
-@@ -2805,28 +2878,28 @@ @twoPlayerPieceDelay:
+@@ -2804,29 +2877,29 @@ @twoPlayerWaiting:
+         cmp     activePlayer
          bne     @ret
          lda     twoPlayerPieceDelayCounter
          cmp     #$1C
