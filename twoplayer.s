@@ -951,7 +951,7 @@ playState_updateGameOverCurtain_curtainFinished_mod:
         beq     @bothPlayersDead
         lda     player2_playState
         beq     @bothPlayersDead
-        jmp     updateMusicSpeed_playerDied
+        jmp     @updateMusicSpeed_playerDied
 
 @bothPlayersDead:
         ; Wait for a player to press start
@@ -968,7 +968,10 @@ playState_updateGameOverCurtain_curtainFinished_mod:
         sta     newlyPressedButtons_player2
         rts
 
-updateMusicSpeed_playerDied:
+@updateMusicSpeed_playerDied:
+        lda     player1_playState
+        cmp     player2_playState
+        beq     @curtainStillFalling
         lda     allegro
         and     activePlayer
         eor     allegro
@@ -978,6 +981,7 @@ updateMusicSpeed_playerDied:
         ldx     musicType
         lda     musicSelectionTable,x
         jsr     setMusicTrack
+@curtainStillFalling:
         rts
 
 @fast:
