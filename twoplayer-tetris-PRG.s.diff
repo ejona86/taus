@@ -1139,3 +1139,18 @@
          jmp     @pauseLoop
  
  @resume:lda     #$1E
+@@ -4379,12 +4462,12 @@ @copySuccessGraphic:
+         inx
+         iny
+         jmp     @copySuccessGraphic
+ 
+ @graphicCopied:
+-        lda     #$00
+-        sta     player1_vramRow
++        jsr_i   playState_bTypeGoalCheck_mod    ;lda     #$00
++        nop                                     ;sta     player1_vramRow
+         jsr     sleep_for_14_vblanks
+         lda     #$00
+         sta     renderMode
+         lda     #$80
+         jsr     sleep_for_a_vblanks

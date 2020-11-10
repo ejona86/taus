@@ -897,6 +897,46 @@ updateMusicSpeed_foundBlockInRow_mod:
         cmp     #$00
         rts
 
+playState_bTypeGoalCheck_mod:
+        .export playState_bTypeGoalCheck_mod
+        lda     numberOfPlayers
+        cmp     #$02
+        beq     @twoPlayers
+        lda     #$00
+        sta     player1_vramRow
+        rts
+
+@twoPlayers:
+        ; pop return address
+        pla
+        pla
+
+        lda     sleepCounter
+        bne     @alreadyInited
+        ; No need to set vramRow=0 to display the "Success!" message, as
+        ; playState_checkForCompletedRows does so already
+        lda     #$80
+        sta     sleepCounter
+        rts
+
+@alreadyInited:
+        lda     currentlyPlayingMusicTrack
+        cmp     #$02
+        bne     @checkIfMusicComplete
+        ; The music is already loaded; don't restart it
+        lda     #$00
+        sta     musicTrack
+
+@checkIfMusicComplete:
+        lda     sleepCounter
+        cmp     #$01
+        beq     @doneWithEndMusic
+        rts
+
+@doneWithEndMusic:
+        lda     #$00
+        ; a is 0, to be stored in playState
+
 playState_updateGameOverCurtain_curtainFinished_mod:
         .export playState_updateGameOverCurtain_curtainFinished_mod
         sta     playState
