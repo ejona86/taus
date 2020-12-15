@@ -4,7 +4,7 @@
 
 The main project is the Actually Useful Statistics Tetris mod. However, the
 repository also contains disassembly knowledge for tetris, a structure for
-building NES ips/nes files, and a LUA-based unit/integration test helpers.
+building NES ips/nes files, and a Lua-based unit/integration test helpers.
 
 ## How to run
 
@@ -154,7 +154,7 @@ The main debug output is the .lbl file. It is basic and just contains the
 labels with their addresses, so doesn't have any more information than
 tetris-PRG.info. However, it is easy to parse so the file format is used for
 several other tasks; it is transformed into build/tetris.inc using sed and can
-be read directly by the LUA testing tools.
+be read directly by the Lua testing tools.
 
 NES and IPS files are output directly by the linker, because our .s files
 define the headers for the formats and the .cfg files specify the ordering of
