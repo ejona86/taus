@@ -1,7 +1,7 @@
-all: tetris taus screens custom handicap twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
+all: tetris taus screens custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
 # These are simply aliases
-.PHONY: all dis tetris taus screens custom handicap twoplayer twoplayer-garbage playerid
+.PHONY: all dis tetris taus screens custom handicap save-highscores twoplayer twoplayer-garbage playerid
 
 dis: build/tetris-PRG.s
 
@@ -15,6 +15,12 @@ build/handicap.ips.cfg: build/handicap.o
 build/handicap.ips: build/handicap.o build/ips.o
 # IPS base file. There is a corresponding .ips file
 build/handicap.nes: build/tetris.nes
+
+save-highscores: build/save-highscores.nes
+build/save-highscores.o: build/tetris.inc
+build/save-highscores.ips.cfg: build/save-highscores.o
+build/save-highscores.ips: build/save-highscores.o build/ips.o
+build/save-highscores.nes: build/tetris.nes
 
 build/fastlegal.o: build/tetris.inc
 build/fastlegal.ips.cfg: build/fastlegal.o
