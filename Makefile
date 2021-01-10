@@ -32,6 +32,11 @@ build/highscores.ips.cfg: build/highscores.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/highscores.nes: build/tetris.nes
 
+build/jonas-master.o: build/tetris.inc build/enter_high_score_nametable_jonas.nam.stripe
+build/jonas-master.ips.cfg: build/jonas-master.o
+build/jonas-master.ips: build/jonas-master.o build/ips.o
+build/jonas-master.nes: build/tetris.nes
+
 playerid: build/playerid.nes
 build/playerid.o: build/tetris.inc
 build/playerid.ips.cfg: build/playerid.o
@@ -148,6 +153,8 @@ build/game_nametable.nam.stripe: build/tetris-PRG.bin
 	tail -c +$$((0xBF3C - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
 build/level_menu_nametable.nam.stripe: build/tetris-PRG.bin
 	tail -c +$$((0xBADB - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
+build/enter_high_score_nametable.nam.stripe: build/tetris-PRG.bin
+	tail -c +$$((0xC39D - 0x8000 + 1)) $< | head -c $$((1024/32*35)) > $@
 
 # Converts to/from NES Stripe RLE. Only supports a _very_ limited subset that
 # is fully consecutive, only "literal to right", with each sized 0x20
