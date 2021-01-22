@@ -1,4 +1,4 @@
-override CAFLAGS += -g
+override CAFLAGS += -g --cpu 6502X
 LDFLAGS =
 VPATH = build
 
