@@ -21,6 +21,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 ; patch to load from SRAM (and use a length instead of a terminator)
 
 .segment "initHighScoreTable_patch"
+        ; Address happens to be same for PAL
         ips_segment     "initHighScoreTable_patch",$8095
 
 ; initHighScoreTable_patch:
@@ -31,7 +32,7 @@ initHighScoreTable:
 ; start button patch to add saving
 
 .segment "saveHighscoreStartPressed_patch"
-        ips_segment     "saveHighscoreStartPressed_patch",$A295
+        ips_segment     "saveHighscoreStartPressed_patch",highScoreEntryScreen+$94 ; $A295
 
 ; saveHighscoreStartPressed_patch:
         jmp saveHighScores
@@ -49,4 +50,4 @@ saveHighScores:
         inx
         cpx #$51
         bne @loop
-        jmp $A337
+        jmp highScorePosToY-4 ; @ret := $A337
