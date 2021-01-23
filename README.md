@@ -96,6 +96,11 @@ garbage within the height area the area is simply off-limits and unusable.
 This mod was originally created as a training aid. When used with the twoplayer
 mod it can level the playing field.
 
+## Save Highscores
+
+The save-highscores mod changes the mapper of the Tetris ROM to include
+save-RAM and keeps the high scores in that battery-backed RAM.
+
 ## Player ID
 
 [![In-game](media/playerid-ingame.thumb.png)](media/playerid-ingame.aspect.png)
