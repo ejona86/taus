@@ -173,18 +173,19 @@ documentation](https://www.cc65.org/doc/ld65-5.html).
 
 ## Creating new NES/IPS files
 
-To create a new NES file output (IPS/NES file), simply create a new .cfg file,
-mirroring one of the existing ones (depending on what you are making), and any
-.s files for the source. Then modify the Makefile to list the object files you
-want to include within your IPS/NES file. These will be in the form
-build/ORIGNAME.o corresponding to each ORIGINAL.s file. If your .cfg file was
-named `myfile.ext.cfg`, then run `$ make build/myfile.ext` to build the output.
-The extension used does not matter to the Makefile nor linker.
+To create new IPS mods, use handicap as a template. Make a new .s file with
+your mod and then modify the Makefile. The .s file is assembled into a .o file
+and the .o files are linked into an IPS file with the help of a .cfg linker
+config. The normal structure generates the .cfg from magic metadata in the .o
+files added by ips.inc. It not too hard to create the .cfg manually, but this
+tends to be a bit tedious for IPS as each hunk requires two segments and hunks
+should be sorted.
 
-For any modifications to the original ROM, creating the IPS hunks directly
-works well for 1) mods with few changes and 2) injecting a jsr to a custom
-function. If you need to make changes that don't reference any new labels, then
-you can manage a .diff file. The .diff is intended to be checked in and is
-applied to build/diffhead-YOURFILENAME. You can change the diffhead and `make`
-will re-generate the .diff. Similarly, changing the .diff will re-generate the
-diffhead.
+If your mod is very invasive to Tetris, manually creating the IPS hunks can be
+impractical or you may just prefer modifying the Tetris disassembly directly.
+In such a case then you can manage a .diff file that is applied to the Tetris
+PRG.s disassembly. The .diff is intended to be checked in and is applied to
+build/diffhead-YOURFILENAME. You can change the diffhead and `make` will
+re-generate the .diff. Similarly, changing the .diff will re-generate the
+diffhead. See twoplayer for an example. If you need to modify the CHR ROM, then
+that one part would need to be done as an IPS mod.
