@@ -974,6 +974,10 @@ playState_updateGameOverCurtain_curtainFinished_mod:
         cmp     #$02
         bne     @ret
 
+        lda     $9AE3
+        cmp     #pendingGarbageInactivePlayer
+        beq     @garbageEnabled
+
         ; playState has not yet been copied to player*_playState.
         ; If a player has already died, then this would make two.
         lda     player1_playState
@@ -981,6 +985,12 @@ playState_updateGameOverCurtain_curtainFinished_mod:
         lda     player2_playState
         beq     @bothPlayersDead
         jmp     @updateMusicSpeed_playerDied
+
+@garbageEnabled:
+        ; End game immediately if garbage is enabled
+        lda     #$00
+        sta     player1_playState
+        sta     player2_playState
 
 @bothPlayersDead:
         ; Wait for a player to press start
