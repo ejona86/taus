@@ -165,7 +165,7 @@ build/tetris-ram.s: tetris-PRG.info tetris-ram.awk | build
 ifeq "$(PAL)" "1"
 FCEUXFLAGS = --pal 1
 else
-FCEUXFLAGS =
+FCEUXFLAGS = --pal 0
 endif
 build/%.test: %.lua
 	# Second prerequisite is assumed to be a .nes to run
