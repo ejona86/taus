@@ -822,7 +822,7 @@ gameMode_levelMenu_processPlayer2Navigation:
         beq     @startAndANotPressed
         lda     player2_startLevel
         clc
-        adc     #$0A
+        adc     $8469   ; normally #$0A, GPTEPG support. Same for PAL
         sta     player2_startLevel
 @startAndANotPressed:
         lda     #$00
