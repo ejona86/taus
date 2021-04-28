@@ -524,7 +524,7 @@ multiplyBy100:
         ; Address happens to be same for PAL
         ips_segment     "STATS_NUMBER",$9669
 
-; Only show 3 stats
+; Only show 4 stats
         cmp     #$04
 
 
