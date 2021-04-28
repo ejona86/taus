@@ -190,7 +190,7 @@ renderPlay_mod:
 @twoPlayers:
         ; Update level/palette on a different frame than score (and implicitly
         ; lines) is updated. This reduces the number of updates on the same
-        ; frame to help squeeze updates within vsync. The wrong palette is not
+        ; frame to help squeeze updates within vblank. The wrong palette is not
         ; visible the first frame of the game in two-player because the game
         ; logic runs after rendering, so the first frame has no sprites. In
         ; one-player the statistics will have the wrong palette for an extra
@@ -290,7 +290,7 @@ renderPlay_mod:
 ; cycles down to 154).
 ;
 ; An unmodified implementation of render_mode_play_and_demo, but with 2 players
-; enabled, does not fit within a vsync because 8 rows are copied which totals
+; enabled, does not fit within a vblank because 8 rows are copied which totals
 ; 1968 cycles by itself. The optimization here brings it down to 1232 cycles
 ; which may still be tight but isn't too much more than the 984 cycles
 ; normally used for 1 player.
