@@ -28,7 +28,10 @@ function test_demo ()
 		debugger.resetcyclescount()
 	end)
 	memory.registerexecute(labels.copyOamStagingToOam_mod+10, function ()
-		if debugger.getcyclescount() > 2270 then
+		-- mod10 in updatePaletteForLevel takes 12 extra cycles per
+		-- player for levels in the 20s. We don't hit that, so just
+		-- prevent backsliding.
+		if debugger.getcyclescount() > 2270 - 14 then
 			error("too long in nmi: " .. debugger.getcyclescount())
 		end
 	end)
