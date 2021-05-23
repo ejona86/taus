@@ -28,8 +28,10 @@ build/%: %.ips
 
 build/%.chrs/fake: %.chr | build
 	[ -d build/$*.chrs ] || mkdir build/$*.chrs
+	# split -x added in coreutils 8.27
+	split -d -b 16 -a 3 $< build/$*.chrs/
+	cd build/$*.chrs/ && for X in $$(seq 0 255); do mv $$(printf "%03d %02x" $$X $$X) 2> /dev/null || break; done
 	touch $@
-	split -x -b 16 $< build/$*.chrs/
 build/%.rle: % rle-enc.awk | build
 	# 'basenc --base16 -w2' and 'basenc --base16 -d' would also work, but
 	# basenc isn't as widely available as xxd since it was added in
