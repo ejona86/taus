@@ -1035,12 +1035,16 @@ playState_updateGameOverCurtain_curtainFinished_mod:
 .ifndef TOURNAMENT_MODE
 incrementPieceStat_mod := incrementPieceStat
 .export incrementPieceStat_mod
+
+.segment "CODE3"
+.incbin "build/tetris-unreferenced_data4.bin"
 .endif
 
 ;--------------------------------------------------------------------
 ; Tournament Mode Mod - additional code
 ;--------------------------------------------------------------------
 .ifdef  TOURNAMENT_MODE
+.segment "CODE3"
 
 ;this is the update of stats for the tournament play mode
 incrementPieceStat_mod:

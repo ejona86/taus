@@ -71,7 +71,7 @@ build/tetris-test: build/tetris.nes
 
 twoplayer: build/twoplayer.dist.ips
 build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
-build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr build/legal_screen_nametable.nam.rle
+build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr build/legal_screen_nametable.nam.rle build/tetris-unreferenced_data4.bin
 # Diff base file. There is a corresponding .diff file
 build/twoplayer-tetris-PRG.s: build/tetris-PRG.s
 build/twoplayer-CHR-01.chr.ips: build/ips.o build/twoplayer-CHR-01.chr.ips.o
@@ -90,6 +90,8 @@ build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
 build/twoplayer-pal.nes.cfg: twoplayer.nes.cfg ntsc2pal.awk | build
 	awk -f ntsc2pal.awk $< > $@
+build/tetris-unreferenced_data4.bin: build/tetris-PRG.bin | build
+	tail -c +31212 $< | head -c 1301 > $@
 
 twoplayer-garbage: build/twoplayer-garbage.nes
 build/twoplayer-garbage.o: build/tetris.inc
