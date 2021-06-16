@@ -90,8 +90,13 @@ build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
 build/twoplayer-pal.nes.cfg: twoplayer.nes.cfg ntsc2pal.awk | build
 	awk -f ntsc2pal.awk $< > $@
+ifeq "$(PAL)" "1"
+build/tetris-unreferenced_data4.bin: build/tetris-pal-PRG.bin | build
+	tail -c +31222 $< | head -c 1291 > $@
+else
 build/tetris-unreferenced_data4.bin: build/tetris-PRG.bin | build
 	tail -c +31212 $< | head -c 1301 > $@
+endif
 
 twoplayer-garbage: build/twoplayer-garbage.nes
 build/twoplayer-garbage.o: build/tetris.inc
