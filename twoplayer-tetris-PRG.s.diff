@@ -991,6 +991,9 @@
 -        inx
 -        lda     player1_score
 -        sta     highScoreScoresA,x
+-        ldx     highScoreEntryRawPos
+-        lda     player1_levelNumber
+-        sta     highScoreLevels,x
 +        tay     ; swapped to y
 +        ldx     tmp3                    ; player offset
 +        lda     player1_score+2,x
@@ -1000,9 +1003,7 @@
 +        ;inx
 +        lda     player1_score,x
 +        sta     highScoreScoresA+2,y
-         ldx     highScoreEntryRawPos
--        lda     player1_levelNumber
--        sta     highScoreLevels,x
++        ldy     highScoreEntryRawPos
 +        lda     player1_levelNumber,x
 +        sta     highScoreLevels,y
          jmp     highScoreEntryScreen
