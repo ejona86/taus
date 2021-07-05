@@ -195,7 +195,7 @@ controls:
         and     #CONTROLLER_BIT_UP
         beq     @controller_end
         jsr     compute_hard_drop_distance
-        tax
+        sta     holdDownPoints
         clc
         adc     tetriminoY
         sta     tetriminoY
@@ -203,21 +203,6 @@ controls:
         sta     autorepeatY
         lda     dropSpeed
         sta     fallTimer
-        lda     #$01
-@score_loop_start:
-        clc
-        adc     #$01
-        cmp     #$0A
-        bne     @skip_10
-        lda     #$10
-@skip_10:
-        cmp     #$1A
-        bne     @skip_20
-        lda     #$20
-@skip_20:
-        dex
-        bne     @score_loop_start
-        sta     holdDownPoints
 @controller_end:
         rts
 
