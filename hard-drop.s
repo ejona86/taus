@@ -46,51 +46,20 @@ CONTROLLER_BIT_UP = $08
         ips_segment     "CODE",unreferenced_data1+$17,$0637-$17
 
 compute_hard_drop_distance:
-        lda     currentPiece
-        clc
-        rol     a
-        rol     a
-        sta     $20
-        rol     a
-        adc     $20
-        tax
-        .repeat 4,I
-        lda     orientationTable,x
-        clc
-        adc     tetriminoY
-        sta     $21+(I*2)
-        inx
-        inx
-        lda     orientationTable,x
-        clc
-        adc     tetriminoX
-        sta     $20+(I*2)
-        inx
-        .endrepeat
-        ldx     #$00
-@start_hint_depth_loop:
-        .repeat 4,I
-        inc     $21+(I*2)
-        lda     $21+(I*2)
-        cmp     #BOARD_HEIGHT
-        bpl     @end_hint_depth_loop
-        asl     a
-        sta     $28
-        asl     a
-        asl     a
-        clc
-        adc     $28
-        adc     $20+(I*2)
-        tay
-        lda     (playfieldAddr),y
-        cmp     #EMPTY_TILE
-        bne     @end_hint_depth_loop
-        .endrepeat
-        inx
-        jmp     @start_hint_depth_loop
+        ldx     tetriminoY
+        stx     originalY
+@tryLowerPosition:
+        inc     tetriminoY
+        jsr     isPositionValid
+        beq     @tryLowerPosition
 
-@end_hint_depth_loop:
-        txa
+        dec     tetriminoY
+        lda     tetriminoY
+        ldx     originalY
+        stx     tetriminoY
+
+        sec
+        sbc     originalY
         rts
 
 oam_dma_page_update:
