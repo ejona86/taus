@@ -104,6 +104,7 @@ oam_dma_page_update:
 @after_render_hint:
         rts
 
+.ifndef HIDE_GHOST_PIECE
 render_hint:
         lda     tetriminoY
         clc
@@ -122,6 +123,7 @@ render_hint:
         sta     oamStaging-3- 8,x
         sta     oamStaging-3-12,x
         rts
+.endif
 
 controls:
         jsr     shift_tetrimino
