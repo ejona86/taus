@@ -110,5 +110,3 @@ controls:
         sta     fallTimer
 @controller_end:
         rts
-
-.res $80
