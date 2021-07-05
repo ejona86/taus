@@ -105,94 +105,22 @@ oam_dma_page_update:
         rts
 
 render_hint:
-        lda     tetriminoX
-        asl     a
-        asl     a
-        asl     a
-        adc     #$60
-        sta     generalCounter3
-        lda     numberOfPlayers
-        cmp     #$01
-        beq     @render_hint_1
-        lda     generalCounter3
-        sec
-        sbc     #$40
-        sta     generalCounter3
-        lda     activePlayer
-        cmp     #$01
-        beq     @render_hint_1
-        lda     generalCounter3
-        adc     #$6F
-        sta     generalCounter3
-@render_hint_1:
-        clc
         lda     tetriminoY
+        clc
         adc     $28
-        rol     a
-        rol     a
-        rol     a
-        adc     #$2F
-        sta     generalCounter4
-        lda     currentPiece
-        sta     generalCounter5
-        clc
-        lda     generalCounter5
-        rol     a
-        rol     a
-        sta     generalCounter
-        rol     a
-        adc     generalCounter
-        tax
-        ldy     oamStagingLength
-        lda     #$04
-        sta     generalCounter2
-@render_hint_3:
-        lda     orientationTable,x
-        asl     a
-        asl     a
-        asl     a
-        clc
-        adc     generalCounter4
-        sta     oamStaging,y
-        sta     originalY
-        inc     oamStagingLength
-        iny
-        inx
+        sta     tetriminoY
+        jsr     stageSpriteForCurrentPiece
+        lda     tetriminoY
+        sec
+        sbc     $28
+        sta     tetriminoY
+
         lda     #HINT_PATTERN_INDEX
-        sta     oamStaging,y
-        inc     oamStagingLength
-        iny
-        inx
-        lda     #$02
-        sta     oamStaging,y
-        lda     originalY
-        cmp     #$2F
-        bcs     @render_hint_2
-        inc     oamStagingLength
-        dey
-        lda     #$FF
-        sta     oamStaging,y
-        iny
-        iny
-        lda     #$00
-        sta     oamStaging,y
-        jmp     @render_hint_jmp
-@render_hint_2:
-        inc     oamStagingLength
-        iny
-        lda     orientationTable,x
-        asl     a
-        asl     a
-        asl     a
-        clc
-        adc     generalCounter3
-        sta     oamStaging,y
-@render_hint_jmp:
-        inc     oamStagingLength
-        iny
-        inx
-        dec     generalCounter2
-        bne     @render_hint_3
+        ldx     oamStagingLength
+        sta     oamStaging-3   ,x
+        sta     oamStaging-3- 4,x
+        sta     oamStaging-3- 8,x
+        sta     oamStaging-3-12,x
         rts
 
 controls:
