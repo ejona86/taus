@@ -36,6 +36,12 @@ CONTROLLER_BIT_UP = $08
 ; replaces "jsr shift_tetrimino"
         jsr     controls
 
+.segment "playState_player2ControlsActiveTetrimino"
+        ips_segment     "playState_player2ControlsActiveTetrimino",playState_player2ControlsActiveTetrimino
+
+; replaces "jsr shift_tetrimino"
+        jsr     controls
+
 .segment "CODE"
         ips_segment     "CODE",unreferenced_data1+$17,$0637-$17
 
@@ -76,7 +82,7 @@ compute_hard_drop_distance:
         adc     $28
         adc     $20+(I*2)
         tay
-        lda     playfield,y
+        lda     (playfieldAddr),y
         cmp     #EMPTY_TILE
         bne     @end_hint_depth_loop
         .endrepeat
