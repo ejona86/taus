@@ -45,7 +45,7 @@ CONTROLLER_BIT_UP = $08
 .segment "CODE"
         ips_segment     "CODE",unreferenced_data1+$17,$0637-$17
 
-compute_hard_drop_distance:
+drop_piece:
         ldx     tetriminoY
         stx     originalY
 @tryLowerPosition:
@@ -55,9 +55,6 @@ compute_hard_drop_distance:
 
         dec     tetriminoY
         lda     tetriminoY
-        ldx     originalY
-        stx     tetriminoY
-
         sec
         sbc     originalY
         rts
@@ -65,24 +62,13 @@ compute_hard_drop_distance:
 oam_dma_page_update:
         jsr     stageSpriteForCurrentPiece
 .ifndef HIDE_GHOST_PIECE
-        jsr     compute_hard_drop_distance
+        jsr     drop_piece
         beq     @after_render_hint
-        sta     $28
-        jsr     render_hint
-.endif
-@after_render_hint:
-        rts
 
-.ifndef HIDE_GHOST_PIECE
-render_hint:
-        lda     tetriminoY
-        clc
-        adc     $28
-        sta     tetriminoY
+        lda     originalY
+        pha
         jsr     stageSpriteForCurrentPiece
-        lda     tetriminoY
-        sec
-        sbc     $28
+        pla
         sta     tetriminoY
 
         lda     #HINT_PATTERN_INDEX
@@ -91,19 +77,17 @@ render_hint:
         sta     oamStaging-3- 4,x
         sta     oamStaging-3- 8,x
         sta     oamStaging-3-12,x
-        rts
 .endif
+@after_render_hint:
+        rts
 
 controls:
         jsr     shift_tetrimino
         lda     heldButtons
         and     #CONTROLLER_BIT_UP
         beq     @controller_end
-        jsr     compute_hard_drop_distance
+        jsr     drop_piece
         sta     holdDownPoints
-        clc
-        adc     tetriminoY
-        sta     tetriminoY
         lda     #$00
         sta     autorepeatY
         lda     dropSpeed
