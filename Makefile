@@ -32,6 +32,12 @@ build/highscores.ips.cfg: build/highscores.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/highscores.nes: build/tetris.nes
 
+hold: build/hold.nes
+build/hold.o: build/tetris.inc
+build/hold.ips.cfg: build/hold.o
+build/hold.ips: build/hold.o build/ips.o
+build/hold.nes: build/tetris.nes
+
 playerid: build/playerid.nes
 build/playerid.o: build/tetris.inc
 build/playerid.ips.cfg: build/playerid.o
