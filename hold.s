@@ -4,6 +4,7 @@
 
 .include "ips.inc"
 .include "build/tetris.inc"
+.include "tetris-tbl.inc"
 
 ; $FF for no hold
 savedPiece := $005B
@@ -12,6 +13,11 @@ player1_savedPiece := $007B
 player1_savedPieceLocked := $007C
 player2_savedPiece := $009B
 player2_savedPieceLocked := $009C
+
+.segment "NAMETABLE"
+        ips_segment     "NAMETABLE",game_nametable,$460
+
+        .incbin "build/hold_game.nam.stripe"
 
 .segment "GAME_INIT"
         ips_segment     "GAME_INIT",$8707
@@ -72,7 +78,6 @@ playState_playerControlsActiveTetrimino_mod:
         lda     savedPieceLocked
         bne     @ret
 
-        inc     savedPieceLocked
         lda     #$00
         sta     autorepeatY
         sta     tetriminoY
@@ -87,6 +92,7 @@ playState_playerControlsActiveTetrimino_mod:
         sta     savedPiece
         bmi     @noOldPiece
 
+        inc     savedPieceLocked
         stx     currentPiece
 @ret:
         rts
@@ -110,13 +116,29 @@ stageSpriteForSavedPiece:
         jsr     loadSpriteIntoOamStaging ; from stageSpriteForNextPiece
         lda     #$28
         sta     spriteXOffset
-        lda     #$37
+        lda     #$30
         sta     spriteYOffset
         ldx     savedPiece
-        bmi     @ret
+        bmi     @showHold
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
         jmp     loadSpriteIntoOamStaging
-@ret:
+
+@showHold:
+        ldx     oamStagingLength
+        ldy     #$00
+@byte:  lda     @holdSprites,y
+        sta     oamStaging,x
+        iny
+        inx
+        cpy     #4*4
+        bne     @byte
+        stx     oamStagingLength
         rts
 
+@holdSprites:
+        set_tbl CHR01+CHR_RIGHT
+        .byte   $34,"H",$03,$20
+        .byte   $34,"O",$03,$28
+        .byte   $34,"L",$03,$30
+        .byte   $34,"D",$03,$38
