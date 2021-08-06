@@ -6,13 +6,10 @@
 .include "build/tetris.inc"
 .include "tetris-tbl.inc"
 
-; $FF for no hold
+; $80 for no hold. $40 bit set for locked
 savedPiece := $005B
-savedPieceLocked := $005C
 player1_savedPiece := $007B
-player1_savedPieceLocked := $007C
 player2_savedPiece := $009B
-player2_savedPieceLocked := $009C
 
 .segment "NAMETABLE"
         ips_segment     "NAMETABLE",game_nametable,$460
@@ -59,12 +56,10 @@ player2_savedPieceLocked := $009C
         ips_segment     "CODE",unreferenced_data1,$0637
 
 init_hold:
-        lda     #$FF
+        lda     #$80
         sta     player1_savedPiece 
         sta     player2_savedPiece 
         lda     #$00
-        sta     player1_savedPieceLocked 
-        sta     player2_savedPieceLocked 
         sta     player1_score
         sta     player1_score+1
         rts
@@ -75,8 +70,8 @@ playState_playerControlsActiveTetrimino_mod:
         and     #$20
         beq     @ret
 
-        lda     savedPieceLocked
-        bne     @ret
+        bit     savedPiece
+        bvs     @ret
 
         lda     #$00
         sta     autorepeatY
@@ -89,15 +84,16 @@ playState_playerControlsActiveTetrimino_mod:
         ldx     currentPiece
         lda     spawnOrientationFromOrientation,x
         ldx     savedPiece
-        sta     savedPiece
         bmi     @noOldPiece
 
-        inc     savedPieceLocked
+        ora     #$40
+        sta     savedPiece
         stx     currentPiece
 @ret:
         rts
 
 @noOldPiece:
+        sta     savedPiece
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
         sta     currentPiece
@@ -107,8 +103,9 @@ playState_playerControlsActiveTetrimino_mod:
         rts
 
 unlockSavedPiece:
-        lda     #$00
-        sta     savedPieceLocked
+        lda     savedPiece
+        and     #^$40
+        sta     savedPiece
         jsr     updatePlayfield
         rts
 
