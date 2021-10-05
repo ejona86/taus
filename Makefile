@@ -170,19 +170,20 @@ build/tetris-ram.s: tetris-PRG.info tetris-ram.awk | build
 	awk -f tetris-ram.awk $< > $@
 
 ifeq "$(PAL)" "1"
-FCEUXFLAGS = --pal 1
+FCEUXFLAGS = -pal 1
 else
-FCEUXFLAGS = --pal 0
+FCEUXFLAGS = -pal 0
 endif
 build/%.test: %.lua
 	# Second prerequisite is assumed to be a .nes to run
-	fceux --no-config 1 --fullscreen 0 --sound 0 --frameskip 100 $(FCEUXFLAGS) --loadlua $< $(word 2,$^)
+	# must manually disable sound for nothrottle to take effect
+	fceux -nothrottle 1 $(FCEUXFLAGS) -lua $< $(word 2,$^)
 	touch $@
 
 .PHONY: test
 test:
 	# fceux saves some of the configuration, so restore what we can
-	fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/tetris.nes
+	#fceux --no-config 1 --sound 1 --frameskip 0 --loadlua testing-reset.lua build/tetris.nes
 
 # include last because it enables SECONDEXPANSION
 include nes.mk
