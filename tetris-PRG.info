@@ -816,7 +816,15 @@ LABEL { ADDR $9B96; NAME "@checkForBorrow"; };
 LABEL { ADDR $9BA6; NAME "@gameTypeA"; };
 LABEL { ADDR $9BA8; NAME "incrementLines"; };
 LABEL { ADDR $9BFE; NAME "addHoldDownPoints"; };
+LABEL { ADDR $9C18; NAME "@noLowOverflow"; };
+LABEL { ADDR $9C27; NAME "@noHighOverflow"; };
 LABEL { ADDR $9C2D; NAME "addLineClearPoints"; };
+LABEL { ADDR $9C37; NAME "@pointsLoop"; };
+LABEL { ADDR $9C4E; NAME "@noScore0HighOverlow"; };
+LABEL { ADDR $9C64; NAME "@noScore1LowOverlow"; };
+LABEL { ADDR $9C75; NAME "@noScore1HighOverlow"; };
+LABEL { ADDR $9C84; NAME "@noScore2LowOverlow"; };
+LABEL { ADDR $9C94; NAME "@noScoreCap"; };
 LABEL { ADDR $9CAF; NAME "updatePlayfield"; }; # canon
 LABEL { ADDR $9CB8; NAME "@rowInRange"; };
 LABEL { ADDR $9CBE; NAME "@ret"; };
