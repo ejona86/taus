@@ -837,10 +837,10 @@
          ldx     #$00
  @inc:   iny
          cpy     #$C8
-@@ -3359,11 +3432,16 @@ @noScore1HighOverflow:
+@@ -3359,11 +3432,16 @@ @score2Low:
          adc     #$06
          sta     score+2
- @noScore2LowOverflow:
+ @score2High:
          lda     score+2
          and     #$F0
 +.ifdef TOURNAMENT_MODE
@@ -849,14 +849,14 @@
 +.else
          cmp     #$A0
 +.endif
-         bcc     @noScoreCap
+         bcc     @levelLoopCheck
          lda     #$99
          sta     score
          sta     score+1
          sta     score+2
-@@ -3378,12 +3456,17 @@ @noScoreCap:
+@@ -3378,12 +3456,17 @@ @levelLoopCheck:
          dec     generalCounter
-         bne     @pointsLoop
+         bne     @levelLoop
          lda     outOfDateRenderFlags
          ora     #$04
          sta     outOfDateRenderFlags
