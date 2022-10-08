@@ -1,4 +1,4 @@
-all: tetris taus screens hard-drop custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
+all: tetris taus screens hard-drop hard-drop-no-ghost custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
 # These are simply aliases
 .PHONY: all dis tetris taus screens custom handicap save-highscores twoplayer twoplayer-garbage playerid
@@ -49,6 +49,13 @@ build/hard-drop.o: build/tetris.inc
 build/hard-drop.ips.cfg: build/hard-drop.o
 build/hard-drop.ips: build/hard-drop.o build/ips.o
 build/hard-drop.nes: build/tetris.nes
+
+hard-drop-no-ghost: build/hard-drop-no-ghost.nes
+build/hard-drop-no-ghost.o: hard-drop.s build/tetris.inc
+	ca65 $(CAFLAGS) -DHIDE_GHOST_PIECE --create-dep $@.d $< -o $@
+build/hard-drop-no-ghost.ips.cfg: build/hard-drop-no-ghost.o
+build/hard-drop-no-ghost.ips: build/hard-drop-no-ghost.o build/ips.o
+build/hard-drop-no-ghost.nes: build/tetris.nes
 
 taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake

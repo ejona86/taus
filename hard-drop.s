@@ -12,11 +12,13 @@ EMPTY_TILE = $EF
 BOARD_HEIGHT = 20
 CONTROLLER_BIT_UP = $08
 
+.ifndef HIDE_GHOST_PIECE
 .segment "IPSCHR"
         ips_tile_segment "IPSCHR",CHR01+CHR_RIGHT,HINT_PATTERN_INDEX
 
         ; hint pattern
         .incbin "hard-drop.chr"
+.endif
 
 .segment "stageSpriteForCurrentPiecePlayer1"
         ips_segment     "stageSpriteForCurrentPiecePlayer1",gameModeState_updatePlayer1+6
