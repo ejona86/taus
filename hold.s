@@ -104,7 +104,7 @@ playState_playerControlsActiveTetrimino_mod:
 
 unlockSavedPiece:
         lda     savedPiece
-        and     #^$40
+        and     #<~$40
         sta     savedPiece
         jsr     updatePlayfield
         rts
@@ -115,8 +115,10 @@ stageSpriteForSavedPiece:
         sta     spriteXOffset
         lda     #$30
         sta     spriteYOffset
-        ldx     savedPiece
+        lda     savedPiece
         bmi     @showHold
+        and     #<~$40
+        tax
         lda     orientationToSpriteTable,x
         sta     spriteIndexInOamContentLookup
         jmp     loadSpriteIntoOamStaging
