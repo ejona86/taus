@@ -1,4 +1,4 @@
-all: tetris taus screens hard-drop hard-drop-no-ghost custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
+all: tetris taus screens hard-drop hard-drop-no-ghost hold custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
 # These are simply aliases
 .PHONY: all dis tetris taus screens custom handicap save-highscores twoplayer twoplayer-garbage playerid
