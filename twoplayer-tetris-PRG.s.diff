@@ -764,7 +764,7 @@
          lda     spawnTable,x
 -        cmp     spawnID
 +        cmp     spawnID_
-         bne     useNewSpawnID
+         bne     @useNewSpawnID
  @invalidIndex:
 -        ldx     #$17
 +        ldx     #personal_rng   ;ldx     #$17
@@ -776,15 +776,15 @@
          clc
 -        adc     spawnID
 +        adc     spawnID_
- L992A:  cmp     #$07
-         bcc     L9934
+ @mod7:  cmp     #$07
+         bcc     @useRem
          sec
          sbc     #$07
-         jmp     L992A
+         jmp     @mod7
  
- L9934:  tax
+ @useRem:tax
          lda     spawnTable,x
- useNewSpawnID:
+ @useNewSpawnID:
 -        sta     spawnID
 +        sta     spawnID_
          rts

@@ -777,7 +777,9 @@ LABEL { ADDR $98EB; NAME "chooseNextTetrimino"; };
 LABEL { ADDR $9903; NAME "pickRandomTetrimino"; }; # canon
 LABEL { ADDR $9907; NAME "@realStart"; };
 LABEL { ADDR $991C; NAME "@invalidIndex"; }; # canon
-LABEL { ADDR $9938; NAME "useNewSpawnID"; }; # canon
+LABEL { ADDR $992A; NAME "@mod7"; };
+LABEL { ADDR $9934; NAME "@useRem"; };
+LABEL { ADDR $9938; NAME "@useNewSpawnID"; }; # canon
 LABEL { ADDR $9969; NAME "incrementPieceStat"; };
 LABEL { ADDR $99A2; NAME "playState_lockTetrimino"; };
 LABEL { ADDR $99B8; NAME "@notGameOver"; }; # canon is updatePlayfield
