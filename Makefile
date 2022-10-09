@@ -63,6 +63,12 @@ build/hard-drop-no-ghost.ips.cfg: build/hard-drop-no-ghost.o
 build/hard-drop-no-ghost.ips: build/hard-drop-no-ghost.o build/ips.o
 build/hard-drop-no-ghost.nes: build/tetris.nes
 
+7bag: build/7bag.nes
+build/7bag.o: build/tetris.inc
+build/7bag.ips.cfg: build/7bag.o
+build/7bag.ips: build/7bag.o build/ips.o
+build/7bag.nes: build/tetris.nes
+
 taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
