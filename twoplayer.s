@@ -109,13 +109,17 @@ initGameState_mod:
         dex
         bne     @clearByte
 
-; FIXME. reuses the seed at beginning of game
         lda     rng_seed
         sta     personal_rng
-        sta     player1_rng
-        sta     player2_rng
         lda     rng_seed+1
         sta     personal_rng+1
+        .import after_initGameState_mod
+        jsr     after_initGameState_mod
+
+        lda     personal_rng
+        sta     player1_rng
+        sta     player2_rng
+        lda     personal_rng+1
         sta     player1_rng+1
         sta     player2_rng+1
         lda     spawnID_
@@ -124,19 +128,6 @@ initGameState_mod:
         lda     spawnCount_
         sta     player1_spawnCount_
         sta     player2_spawnCount_
-
-        ldx     #player1_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     #player1_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     #player2_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     #player2_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
 
         lda     #$0A
         sta     garbageUntilResetHole_P1
@@ -557,20 +548,6 @@ moveSpriteToEndOfOamStaging:
 .endif
 
 
-pickRandomTetrimino_mod:
-        .export pickRandomTetrimino_mod
-        ldx     #personal_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     #personal_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     #personal_rng
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        rts
-
-
 isStartNewlyPressed:
         .export isStartNewlyPressed
         lda     newlyPressedButtons_player1
@@ -656,6 +633,7 @@ demo_pollController_mod:
 
 chooseNextTetrimino_mod:
         .export chooseNextTetrimino_mod
+        bne     @pickRandomTetrimino_mod
         ; Assume that when demoIndex is 0/1, this is being called from
         ; gameModeState_initGameState and that it applies to both players
         lda     demoIndex
@@ -672,6 +650,37 @@ chooseNextTetrimino_mod:
 @player2:
         ldx     demoIndex_player2
         inc     demoIndex_player2
+        rts
+
+@pickRandomTetrimino_mod:
+        pla     ; throw away return address
+        pla
+        ldx     #personal_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #personal_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        ldx     #personal_rng
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+
+        jsr     swapRngState
+        jsr     pickRandomTetrimino
+        pha
+        jsr     swapRngState
+        pla
+        rts
+
+swapRngState:
+        ldx     #$04
+@swapByte:
+        lda     rng_seed-1,x
+        ldy     personal_rng-1,x
+        sty     rng_seed-1,x
+        sta     personal_rng-1,x
+        dex
+        bne     @swapByte
         rts
 
 

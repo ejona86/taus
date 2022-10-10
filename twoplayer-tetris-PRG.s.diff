@@ -163,7 +163,7 @@
 -        ldy     #$04
 -        jsr     memset_page
 +        ldy     #$05                    ;ldy     #$04
-+        jsr_i   initGameState_mod       ;jsr     memset_page
++        jmp_ie  initGameState_mod       ;jsr     memset_page
          ldx     #$0F
          lda     #$00
  ; statsByType
@@ -723,75 +723,23 @@
          jsr     chooseNextTetrimino
          sta     nextPiece
  @resetDownHold:
-@@ -2836,12 +2909,12 @@ @ret:   rts
+@@ -2835,13 +2908,13 @@ @resetDownHold:
+ @ret:   rts
  
  chooseNextTetrimino:
          lda     gameMode
          cmp     #$05
-         bne     pickRandomTetrimino
+-        bne     pickRandomTetrimino
 -        ldx     demoIndex
 -        inc     demoIndex
-+        jsr_i   chooseNextTetrimino_mod ; ldx     demoIndex
-+        nop                             ; inc     demoIndex
++        jsr_i   chooseNextTetrimino_mod ;bne     pickRandomTetrimino
++        nop                             ;ldx     demoIndex
++        nop_rep 2                       ;inc     demoIndex
          lda     demoTetriminoTypeTable,x
          lsr     a
          lsr     a
          lsr     a
          lsr     a
-@@ -2849,43 +2922,43 @@ chooseNextTetrimino:
-         tax
-         lda     spawnTable,x
-         rts
- 
- pickRandomTetrimino:
--        jsr     @realStart
--        rts
-+        jsr_i   pickRandomTetrimino_mod ;jsr     @realStart
-+        nop                             ;rts
- 
- @realStart:
--        inc     spawnCount
--        lda     rng_seed
-+        inc     spawnCount_
-+        lda     personal_rng
-         clc
--        adc     spawnCount
-+        adc     spawnCount_
-         and     #$07
-         cmp     #$07
-         beq     @invalidIndex
-         tax
-         lda     spawnTable,x
--        cmp     spawnID
-+        cmp     spawnID_
-         bne     @useNewSpawnID
- @invalidIndex:
--        ldx     #$17
-+        ldx     #personal_rng   ;ldx     #$17
-         ldy     #$02
-         jsr     generateNextPseudorandomNumber
--        lda     rng_seed
-+        lda     personal_rng
-         and     #$07
-         clc
--        adc     spawnID
-+        adc     spawnID_
- @mod7:  cmp     #$07
-         bcc     @useRem
-         sec
-         sbc     #$07
-         jmp     @mod7
- 
- @useRem:tax
-         lda     spawnTable,x
- @useNewSpawnID:
--        sta     spawnID
-+        sta     spawnID_
-         rts
- 
- tetriminoTypeFromOrientation:
-         .byte   $00,$00,$00,$00,$01,$01,$01,$01
-         .byte   $02,$02,$03,$04,$04,$05,$05,$05
 @@ -3045,12 +3118,12 @@ @checkForStartButton:
          lda     newlyPressedButtons_player1
          cmp     #$10
@@ -837,7 +785,7 @@
          ldx     #$00
  @inc:   iny
          cpy     #$C8
-@@ -3359,11 +3432,16 @@ @score2Low:
+@@ -3369,11 +3442,16 @@ @score2Low:
          adc     #$06
          sta     score+2
  @score2High:
@@ -854,7 +802,7 @@
          sta     score
          sta     score+1
          sta     score+2
-@@ -3378,12 +3456,17 @@ @levelLoopCheck:
+@@ -3381,12 +3459,17 @@ @levelLoopCheck:
          dec     generalCounter
          bne     @levelLoop
          lda     outOfDateRenderFlags
@@ -872,7 +820,7 @@
  
  pointsTable:
          .word   $0000,$0040,$0100,$0300
-@@ -3406,11 +3489,11 @@ gameModeState_handleGameOver:
+@@ -3417,11 +3500,11 @@ gameModeState_handleGameOver:
          sta     generalCounter2
          lda     player2_playState
          cmp     #$00
@@ -885,7 +833,7 @@
          lda     #$09
          sta     gameModeState
          rts
-@@ -3455,23 +3538,23 @@ @checkForBlockInRow:
+@@ -3466,23 +3549,23 @@ @checkForBlockInRow:
          bne     @foundBlockInRow
          iny
          dex
@@ -915,7 +863,7 @@
          adc     #$04
          tax
          lda     musicSelectionTable,x
-@@ -3487,15 +3570,15 @@ pollControllerButtons:
+@@ -3498,15 +3581,15 @@ pollControllerButtons:
  
  @demoGameMode:
          lda     demo_recording
@@ -934,7 +882,7 @@
          jmp     @moveInProgress
  
  @finishedMove:
-@@ -3942,11 +4025,11 @@ byteToBcdTable:
+@@ -3953,11 +4036,11 @@ byteToBcdTable:
          .byte   $16,$17,$18,$19,$20,$21,$22,$23
          .byte   $24,$25,$26,$27,$28,$29,$30,$31
          .byte   $32,$33,$34,$35,$36,$37,$38,$39
@@ -947,7 +895,7 @@
          sta     highScoreEntryRawPos
          lda     gameType
          beq     @compareWithPos
-@@ -3958,26 +4041,26 @@ @compareWithPos:
+@@ -3969,26 +4052,26 @@ @compareWithPos:
          asl     a
          clc
          adc     generalCounter2
@@ -977,7 +925,7 @@
  @tooSmall:
          inc     highScoreEntryRawPos
          lda     highScoreEntryRawPos
-@@ -4020,22 +4103,22 @@ @clearNameLetter:
+@@ -4031,22 +4114,22 @@ @clearNameLetter:
          inx
          dey
          bne     @clearNameLetter
@@ -1012,7 +960,7 @@
  ; reg a: start byte to copy
  copyHighScoreNameToNextIndex:
          sta     generalCounter
-@@ -4129,14 +4212,14 @@ highScoreEntryScreen:
+@@ -4140,14 +4223,14 @@ highScoreEntryScreen:
          sta     PPUADDR
          lda     #$0A
          clc
@@ -1029,7 +977,7 @@
          jsr     updateAudioWaitForNmiAndResetOamStaging
          lda     highScoreEntryRawPos
          asl     a
-@@ -4164,21 +4247,21 @@ @renderFrame:
+@@ -4175,21 +4258,21 @@ @renderFrame:
          lda     frameCounter
          and     #$03
          bne     @flickerStateSelected_checkForStartPressed
@@ -1055,7 +1003,7 @@
          lda     #$01
          sta     soundEffectSlot1Init
          inc     highScoreEntryNameOffsetForLetter
-@@ -4186,22 +4269,22 @@ @checkForAOrRightPressed:
+@@ -4197,22 +4280,22 @@ @checkForAOrRightPressed:
          cmp     #$06
          bmi     @checkForBOrLeftPressed
          lda     #$00
@@ -1080,7 +1028,7 @@
          lda     frameCounter
          and     #$07
          bne     @checkForUpPressed
-@@ -4209,24 +4292,24 @@ @checkForDownPressed:
+@@ -4220,24 +4303,24 @@ @checkForDownPressed:
          sta     soundEffectSlot1Init
          lda     highScoreEntryNameOffsetForRow
          sta     generalCounter
@@ -1109,7 +1057,7 @@
          lda     frameCounter
          and     #$07
          bne     @waitForVBlank
-@@ -4313,13 +4396,13 @@ gameModeState_startButtonHandling:
+@@ -4324,13 +4407,13 @@ gameModeState_startButtonHandling:
  
  @checkIfInGame:
          lda     renderMode
@@ -1126,7 +1074,7 @@
  ; Do nothing if curtain is being lowered
  @startPressed:
          lda     player1_playState
-@@ -4344,12 +4427,12 @@ @pauseLoop:
+@@ -4355,12 +4438,12 @@ @pauseLoop:
          lda     #$77
          sta     spriteYOffset
          lda     #$05
@@ -1141,7 +1089,7 @@
          jmp     @pauseLoop
  
  @resume:lda     #$1E
-@@ -4379,12 +4462,12 @@ @copySuccessGraphic:
+@@ -4390,12 +4473,12 @@ @copySuccessGraphic:
          inx
          iny
          jmp     @copySuccessGraphic
