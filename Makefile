@@ -1,10 +1,11 @@
-all: tetris taus screens hard-drop hard-drop-no-ghost hold 7bag custom handicap save-highscores twoplayer twoplayer-garbage playerid build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
-test: build/tetris-test build/taus-test.test build/chart-test.test build/twoplayer-test.test
+all: build/game_palette.pal build/menu_palette.pal build/game_nametable.nam build/level_menu_nametable.nam
 # These are simply aliases
-.PHONY: all dis tetris taus screens custom handicap save-highscores twoplayer twoplayer-garbage playerid
+.PHONY: all dis test
 
 dis: build/tetris-PRG.s
 
+.PHONY: handicap
+all: handicap
 handicap: build/handicap.nes
 # For .o files, manually list prerequisites that are generated. Non-generated
 # files will automatically be computed
@@ -16,6 +17,8 @@ build/handicap.ips: build/handicap.o build/ips.o
 # IPS base file. There is a corresponding .ips file
 build/handicap.nes: build/tetris.nes
 
+.PHONY: save-highscores
+all: save-highscores
 save-highscores: build/save-highscores.nes
 build/save-highscores.o: build/tetris.inc
 build/save-highscores.ips.cfg: build/save-highscores.o
@@ -32,30 +35,40 @@ build/highscores.ips.cfg: build/highscores.o
 build/highscores.ips: build/highscores.o build/ips.o
 build/highscores.nes: build/tetris.nes
 
+.PHONY: hold
+all: hold
 hold: build/hold.nes
 build/hold.o: build/tetris.inc build/hold_game.nam.stripe
 build/hold.ips.cfg: build/hold.o
 build/hold.ips: build/hold.o build/ips.o
 build/hold.nes: build/tetris.nes
 
+.PHONY: playerid
+all: playerid
 playerid: build/playerid.nes
 build/playerid.o: build/tetris.inc
 build/playerid.ips.cfg: build/playerid.o
 build/playerid.ips: build/ips.o build/playerid.o
 build/playerid.nes: build/tetris.nes
 
+.PHONY: screens
+all: screens
 screens: build/screens.nes
 build/screens.o: build/tetris.inc
 build/screens.ips.cfg: build/screens.o
 build/screens.ips: build/screens.o build/ips.o
 build/screens.nes: build/tetris.nes
 
+.PHONY: hard-drop
+all: hard-drop
 hard-drop: build/hard-drop.nes
 build/hard-drop.o: build/tetris.inc
 build/hard-drop.ips.cfg: build/hard-drop.o
 build/hard-drop.ips: build/hard-drop.o build/ips.o
 build/hard-drop.nes: build/tetris.nes
 
+.PHONY: hard-drop-no-ghost
+all: hard-drop-no-ghost
 hard-drop-no-ghost: build/hard-drop-no-ghost.nes
 build/hard-drop-no-ghost.o: hard-drop.s build/tetris.inc
 	ca65 $(CAFLAGS) -DHIDE_GHOST_PIECE --create-dep $@.d $< -o $@
@@ -63,12 +76,17 @@ build/hard-drop-no-ghost.ips.cfg: build/hard-drop-no-ghost.o
 build/hard-drop-no-ghost.ips: build/hard-drop-no-ghost.o build/ips.o
 build/hard-drop-no-ghost.nes: build/tetris.nes
 
+.PHONY: 7bag
+all: 7bag
 7bag: build/7bag.nes
 build/7bag.o: build/tetris.inc
 build/7bag.ips.cfg: build/7bag.o
 build/7bag.ips: build/7bag.o build/ips.o
 build/7bag.nes: build/tetris.nes
 
+.PHONY: taus
+all: taus
+test: build/taus-test.test build/chart-test.test
 taus: build/taus.nes build/taus-CHR-01.chr
 build/chart.o: build/tetris.inc build/taus.chrs/fake
 build/taus.o: build/tetris.inc build/taus.chrs/fake build/taus_game.nam.stripe
@@ -82,6 +100,9 @@ build/taus-test.test: taus-test.lua build/taus.nes
 build/taus-CHR-01.chr: build/taus.nes
 	tail -c +40977 $< | head -c 8192 > $@
 
+.PHONY: tetris
+all: tetris
+test: build/tetris-test
 tetris: build/tetris.nes
 build/tetris-CHR.o: build/tetris-CHR-00.chr build/tetris-CHR-01.chr
 build/tetris.nes: build/tetris.o build/tetris-CHR.o build/tetris-PRG.o build/tetris-ram.o
@@ -94,6 +115,9 @@ build/tetris-test: build/tetris.nes
 	diff $^
 	touch $@
 
+.PHONY: twoplayer
+all: twoplayer
+test: build/twoplayer-test.test
 twoplayer: build/twoplayer.dist.ips
 build/twoplayer-CHR-01.chr.ips.o: build/twoplayer.chrs/fake
 build/twoplayer.o: build/tetris.inc build/twoplayer_game.nam.rle build/twoplayer_game_top.nam.rle build/tournament.nam.rle build/tetris-CHR-00.chr build/twoplayer-CHR-01.chr build/legal_screen_nametable.nam.rle build/tetris-unreferenced_data4.bin
@@ -123,12 +147,16 @@ build/tetris-unreferenced_data4.bin: build/tetris-PRG.bin | build
 	tail -c +31212 $< | head -c 1301 > $@
 endif
 
+.PHONY: twoplayer-garbage
+all: twoplayer-garbage
 twoplayer-garbage: build/twoplayer-garbage.nes
 build/twoplayer-garbage.o: build/tetris.inc
 build/twoplayer-garbage.ips.cfg: build/twoplayer-garbage.o
 build/twoplayer-garbage.ips: build/twoplayer-garbage.o build/ips.o
 build/twoplayer-garbage.nes: build/twoplayer.nes
 
+.PHONY: custom
+all: custom
 custom: build/custom.nes
 build/custom.nes: build/taus.ips build/highscores.ips build/playerid.ips
 build/custom.nes: build/tetris.nes
