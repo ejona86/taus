@@ -45,7 +45,8 @@ CONTROLLER_BIT_UP = $08
         jsr     controls
 
 .segment "CODE"
-        ips_segment     "CODE",unreferenced_data1+$17,$0637-$17
+        ; Hold follows in unreferenced_data1.
+        ips_segment     "CODE",unreferenced_data1,$4C
 
 drop_piece:
         ldx     tetriminoY

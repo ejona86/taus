@@ -26,17 +26,25 @@ player2_savedPiece := $009B
         nop
 
 .segment "DISABLE_SELECT"
-        ips_segment     "DISABLE_SELECT",$889E
+        ips_segment     "DISABLE_SELECT",$88A6
 
-; Replaces "and #$20"
+; Replaces "sta displayNextPiece"
 
-        and #$00
+        lda     displayNextPiece        ; nop
 
 .segment "CONTROL_PIECE"
         ips_segment     "CONTROL_PIECE",$81B9
 
 ; Replaces in branchOnPlayStatePlayer1:
 ;       .addr   playState_playerControlsActiveTetrimino
+
+        .addr   playState_playerControlsActiveTetrimino_mod
+
+.segment "CONTROL_PIECE_P2"
+        ips_segment     "CONTROL_PIECE_P2",$81E0
+
+; Replaces in branchOnPlayStatePlayer2:
+;       .addr   playState_player2ControlsActiveTetrimino
 
         .addr   playState_playerControlsActiveTetrimino_mod
 
@@ -53,13 +61,15 @@ player2_savedPiece := $009B
         jmp     stageSpriteForSavedPiece
 
 .segment "CODE"
-        ips_segment     "CODE",unreferenced_data1,$0637
+        ; Hard-drop uses bottom portion of unreferenced_data1.
+        ; Twoplayer uses top portion of unreferenced_data1, with bottom portion
+        ; set aside for TetrisControllerInputDisplay.
+        ips_segment     "CODE",unreferenced_data1+$4C,$D0-$4C
 
 init_hold:
-        lda     #$80
-        sta     player1_savedPiece 
-        sta     player2_savedPiece 
-        lda     #$00
+        ldx     #$80
+        stx     player1_savedPiece
+        stx     player2_savedPiece
         sta     player1_score
         sta     player1_score+1
         rts
@@ -83,31 +93,24 @@ playState_playerControlsActiveTetrimino_mod:
 
         ldx     currentPiece
         lda     spawnOrientationFromOrientation,x
+        ora     #$40
         ldx     savedPiece
+        sta     savedPiece
         bmi     @noOldPiece
 
-        ora     #$40
-        sta     savedPiece
         stx     currentPiece
 @ret:
         rts
 
 @noOldPiece:
-        sta     savedPiece
         ldx     nextPiece
-        lda     spawnOrientationFromOrientation,x
-        sta     currentPiece
-        jsr     incrementPieceStat
-        jsr     chooseNextTetrimino
-        sta     nextPiece
-        rts
+        jmp     playState_spawnNextTetrimino+$3E ; $98CC
 
 unlockSavedPiece:
         lda     savedPiece
         and     #<~$40
         sta     savedPiece
-        jsr     updatePlayfield
-        rts
+        jmp     updatePlayfield
 
 stageSpriteForSavedPiece:
         jsr     loadSpriteIntoOamStaging ; from stageSpriteForNextPiece
@@ -124,20 +127,16 @@ stageSpriteForSavedPiece:
         jmp     loadSpriteIntoOamStaging
 
 @showHold:
-        ldx     oamStagingLength
-        ldy     #$00
-@byte:  lda     @holdSprites,y
-        sta     oamStaging,x
-        iny
-        inx
-        cpy     #4*4
-        bne     @byte
-        stx     oamStagingLength
-        rts
+        lda     #<@holdSprites
+        sta     generalCounter
+        lda     #>@holdSprites
+        sta     generalCounter2
+        jmp     loadSpriteIntoOamStaging+$10
 
 @holdSprites:
         set_tbl CHR01+CHR_RIGHT
-        .byte   $34,"H",$03,$20
-        .byte   $34,"O",$03,$28
-        .byte   $34,"L",$03,$30
-        .byte   $34,"D",$03,$38
+        .byte   $04,"H",$03,$F8
+        .byte   $04,"O",$03,$00
+        .byte   $04,"L",$03,$08
+        .byte   $04,"D",$03,$10
+        .byte   $FF
