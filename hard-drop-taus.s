@@ -1,7 +1,7 @@
 ;
 ; Hard drop
-; Originally by Stephen Sherratt (stevebob)
-; Reimplemented from https://github.com/stevebob/mos6502/tree/master/tetris-hard-drop-patcher
+; Originally by Stephen Sherratt (stevebob, gridbugs)
+; Reimplemented from https://github.com/gridbugs/mos6502/tree/main/tetris-hard-drop-patcher
 ;
 
 .include "build/tetris.inc"
@@ -17,7 +17,7 @@ CONTROLLER_BIT_UP = $08
         ips_tile_segment "IPSCHR",CHR01+CHR_RIGHT,HINT_PATTERN_INDEX
 
         ; hint pattern
-        .incbin "hard-drop.chr"
+        .incbin "hard-drop-taus.chr"
 .endif
 
 .segment "stageSpriteForCurrentPiecePlayer1"

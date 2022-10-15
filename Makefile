@@ -59,22 +59,22 @@ build/screens.ips.cfg: build/screens.o
 build/screens.ips: build/screens.o build/ips.o
 build/screens.nes: build/tetris.nes
 
-.PHONY: hard-drop
-all: hard-drop
-hard-drop: build/hard-drop.nes
-build/hard-drop.o: build/tetris.inc
-build/hard-drop.ips.cfg: build/hard-drop.o
-build/hard-drop.ips: build/hard-drop.o build/ips.o
-build/hard-drop.nes: build/tetris.nes
+.PHONY: hard-drop-taus
+all: hard-drop-taus
+hard-drop-taus: build/hard-drop-taus.nes
+build/hard-drop-taus.o: build/tetris.inc
+build/hard-drop-taus.ips.cfg: build/hard-drop-taus.o
+build/hard-drop-taus.ips: build/hard-drop-taus.o build/ips.o
+build/hard-drop-taus.nes: build/tetris.nes
 
-.PHONY: hard-drop-no-ghost
-all: hard-drop-no-ghost
-hard-drop-no-ghost: build/hard-drop-no-ghost.nes
-build/hard-drop-no-ghost.o: hard-drop.s build/tetris.inc
+.PHONY: hard-drop-taus-no-ghost
+all: hard-drop-taus-no-ghost
+hard-drop-taus-no-ghost: build/hard-drop-taus-no-ghost.nes
+build/hard-drop-taus-no-ghost.o: hard-drop-taus.s build/tetris.inc
 	ca65 $(CAFLAGS) -DHIDE_GHOST_PIECE --create-dep $@.d $< -o $@
-build/hard-drop-no-ghost.ips.cfg: build/hard-drop-no-ghost.o
-build/hard-drop-no-ghost.ips: build/hard-drop-no-ghost.o build/ips.o
-build/hard-drop-no-ghost.nes: build/tetris.nes
+build/hard-drop-taus-no-ghost.ips.cfg: build/hard-drop-taus-no-ghost.o
+build/hard-drop-taus-no-ghost.ips: build/hard-drop-taus-no-ghost.o build/ips.o
+build/hard-drop-taus-no-ghost.nes: build/tetris.nes
 
 .PHONY: 7bag
 all: 7bag
