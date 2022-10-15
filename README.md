@@ -101,6 +101,25 @@ mod it can level the playing field.
 The save-highscores mod changes the mapper of the Tetris ROM to include
 save-RAM and keeps the high scores in that battery-backed RAM.
 
+## Hard Drop
+
+The hard-drop mod, [originally made by Stephen Sherratt][gridbugs hard-drop],
+instantly drops the piece when pressing UP. It was changed to have twoplayer
+support and compatibility with other TAUS mods.
+
+[gridbugs hard-drop]: https://github.com/gridbugs/mos6502/tree/main/tetris-hard-drop-patcher
+
+## Hold
+
+The hold mod allows saving a piece for later using SELECT. It does not fully
+support two players.
+
+## 7 Bag
+
+The 7bag mod chooses pieces so that all pieces are chosen evenly. It is a
+drop-in replacement for the default piece selection, using no extra memory or
+code space than the default; it should be highly compatible with other mods.
+
 ## Player ID
 
 [![In-game](media/playerid-ingame.thumb.png)](media/playerid-ingame.aspect.png)
