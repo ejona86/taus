@@ -78,11 +78,13 @@ build/hard-drop-taus-no-ghost.nes: build/tetris.nes
 
 .PHONY: 7bag
 all: 7bag
+test: build/7bag-test.test
 7bag: build/7bag.nes
 build/7bag.o: build/tetris.inc
 build/7bag.ips.cfg: build/7bag.o
 build/7bag.ips: build/7bag.o build/ips.o
 build/7bag.nes: build/tetris.nes
+build/7bag-test.test: 7bag-test.lua build/7bag.nes
 
 .PHONY: taus
 all: taus
