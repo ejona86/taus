@@ -1,0 +1,50 @@
+name: Testing
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # 22.04 suffers from https://github.com/TASEmulators/fceux/issues/413
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install cc65 fceux
+
+    - name: Grab Dependencies
+      env:
+        ERSOFT_SECRET: ${{ secrets.ERSOFT_SECRET }}
+      run: |
+        mkdir -p ~/.local/bin
+        curl -L -u "$ERSOFT_SECRET" https://ejona.ersoft.org/taus-ci/flips -o ~/.local/bin/flips
+        chmod +x ~/.local/bin/flips
+        curl -OL -u "$ERSOFT_SECRET" https://ejona.ersoft.org/taus-ci/tetris.nes
+        curl -OL -u "$ERSOFT_SECRET" https://ejona.ersoft.org/taus-ci/tetris-pal.nes
+
+    - name: Build NTSC
+      run: |
+        make V=1
+        mv build/ build-ntsc/
+
+    - name: Build PAL
+      run: |
+        make V=1 PAL=1
+        mv build/ build-pal/
+
+    - name: Test NTSC
+      run: |
+        ln -snf build-ntsc/ build
+        xvfb-run -a make V=1 test
+
+    - name: Test PAL
+      run: |
+        ln -snf build-pal/ build
+        xvfb-run -a make V=1 PAL=1 test
