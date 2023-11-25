@@ -86,15 +86,49 @@ function push (byte)
 	memory.setregister("s", s-1)
 end
 
-local jsrretaddr = 1 -- arbitrary address that is not executed elsewhere
--- Jumps to the named address and waits for it to return
+-- Pop byte from stack
+function pop ()
+	local s = memory.getregister("s") + 1
+	memory.setregister("s", s)
+	return memory.readbyte(0x100 + s, byte)
+end
+
+-- Jumps to the named address and waits for it to return. The PC is restored to
+-- the same value after the subroutine. The currently-executing instruction
+-- when calling this function should be a nop or compare. It can be an
+-- instruction that writes to a register, as long as the value for the register
+-- is not important. It must not be an instruction that writes to memory,
+-- adjusts the stack, or changes the PC.
+--
+-- FCEUX's callbacks run in the middle of instruction processing and don't
+-- provide single-clock stepping. The current instruction's execution must
+-- complete before running the chosen subroutine, but it will run in a
+-- corrupted manner.
 function jsr (addr)
 	assert(addr ~= nil, "addr must not be nil")
 	local curaddr = memory.getregister("pc")
-	push(((jsrretaddr-1)/256) % 256)
-	push(((jsrretaddr-1)    ) % 256)
-	memory.setregister("pc", addr)
 
-	waitexecute(jsrretaddr)
-	memory.setregister("pc", curaddr)
+	-- Wait until FCEUX has finished the current instruction.
+	-- NOP sled because FCEUX hasn't incremented the PC for the current
+	-- instruction yet, and we don't know how long the instruction is.
+	local lastnopaddr = 0x100 + memory.getregister("s")
+	push(0xEA) -- NOP
+	push(0xEA) -- NOP
+	push(0xEA) -- NOP
+	push(0xEA) -- NOP
+	-- This may corrupt the current instruction, especially for multi-byte
+	-- insturctions. The later bytes will be relative to this new pc.
+	memory.setregister("pc", lastnopaddr-2)
+
+	waitexecute(lastnopaddr)
+	pop()
+	pop()
+	pop()
+	pop()
+
+	push(((curaddr-1)/256) % 256)
+	push(((curaddr-1)    ) % 256)
+
+	memory.setregister("pc", addr-1) -- -1 for the NOP's size
+	waitexecute(curaddr)
 end

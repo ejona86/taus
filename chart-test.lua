@@ -5,6 +5,8 @@ require("testing")
 local labels = asm.loadlabels("build/taus.lbl")
 
 function test_chartEffConvert ()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local chartEffConvertDivisor
 	if labels.chartEffConvert == labels.div3 then
 		chartEffConvertDivisor = 3
@@ -14,8 +16,6 @@ function test_chartEffConvert ()
 		error("unknown chartEffConvert")
 	end
 	for i=0,255 do
-		asm.waitbefore()
-		asm.waitbefore()
 		local raw = i / chartEffConvertDivisor
 		local expected = math.floor(i / chartEffConvertDivisor)
 		memory.setregister("a", i)
@@ -24,14 +24,12 @@ function test_chartEffConvert ()
 		if result ~= expected then
 			error("i " .. i .. " expected: " .. expected .. " actual: " .. result .. " raw: " .. raw)
 		end
-		asm.waitbefore()
-		emu.poweron()
 	end
 end
 
 function test_drawChartBackground ()
-	asm.waitbefore()
-	asm.waitbefore()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local levelEffs = {8, 8, 9, 9, 8, 9, 16, 17, 48, 1}
 	for i, levelEffs in ipairs(levelEffs) do
 		memory.writebyte(labels.levelEffs+(i-1), levelEffs)
@@ -72,8 +70,8 @@ function test_drawChartBackground ()
 end
 
 function test_drawChartSprites ()
-	asm.waitbefore()
-	asm.waitbefore()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local levelEffs = {
 		48, 14, 14, 48,
 		16, 14, 14, 16,

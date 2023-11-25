@@ -51,6 +51,8 @@ function test_demo ()
 end
 
 function test_divmod ()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local tests = {
 		{1234, 43},
 		{0, 1},
@@ -58,8 +60,6 @@ function test_divmod ()
 		{255*255, 255},
 	}
 	for _, test in ipairs(tests) do
-		asm.waitbefore()
-		asm.waitbefore()
 		local dividend = test[1]
 		local divisor = test[2]
 		memory.writebyte(labels.tmp1, dividend % 256)
@@ -71,12 +71,12 @@ function test_divmod ()
 		print("cycles: " .. cycles)
 		assertbyte("tmp1", math.floor(dividend / divisor))
 		assertbyte("tmp2", dividend % divisor)
-		asm.waitbefore()
-		emu.poweron()
 	end
 end
 
 function test_binaryToBcd ()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local tests = {
 		{0, 0x00},
 		{10, 0x10},
@@ -85,8 +85,6 @@ function test_binaryToBcd ()
 		{134, 0x134},
 	}
 	for _, test in ipairs(tests) do
-		asm.waitbefore()
-		asm.waitbefore()
 		local bin = test[1]
 		local bcd = test[2]
 		memory.writebyte(labels.tmp1, bin % 256)
@@ -98,12 +96,12 @@ function test_binaryToBcd ()
 		local a = memory.getregister("a")
 		assert(a == (bcd % 256), "a: " .. a)
 		assertbyte("tmp2", math.floor(bcd / 256))
-		asm.waitbefore()
-		emu.poweron()
 	end
 end
 
 function test_multiplyBy100 ()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	local tests = {
 		{0, 0},
 		{3, 300},
@@ -111,8 +109,6 @@ function test_multiplyBy100 ()
 		{655, 65500},
 	}
 	for _, test in ipairs(tests) do
-		asm.waitbefore()
-		asm.waitbefore()
 		local bin = test[1]
 		local bcd = test[2]
 		memory.writebyte(labels.tmp1, test[1] % 256)
@@ -123,8 +119,6 @@ function test_multiplyBy100 ()
 		print("cycles: " .. cycles)
 		assertbyte("tmp1", math.floor(test[2] % 256))
 		assertbyte("tmp2", math.floor(test[2] / 256))
-		asm.waitbefore()
-		emu.poweron()
 	end
 end
 
@@ -148,8 +142,8 @@ end
 -- If repeated, this can produce different results, because it doesn't sanitize
 -- the current stats values.
 function test_benchstatsPerLineClear ()
-	asm.waitbefore()
-	asm.waitbefore()
+	asm.waitexecute(0x813B) -- cmp gameModeState in @mainLoop
+	asm.jsr(labels.disableNmi)
 	memory.writebyte(labels.completedLines, 3)
 	local startcycles = debugger.getcyclescount()
 	asm.jsr(labels.statsPerLineClear)
