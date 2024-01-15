@@ -161,7 +161,7 @@ twoplayer_game_nametable:
 
 copyRleNametableToPpu:
         .export copyRleNametableToPpu
-        jsr     copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
+        jsr     bulkCopyToPpu_reworkReturnAddress
         ldx     PPUSTATUS
         lda     #$20
         sta     PPUADDR
