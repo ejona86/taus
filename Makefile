@@ -135,7 +135,7 @@ endif
 build/twoplayer.nes: build/tetris.o build/twoplayer-tetris-PRG.o build/tetris-ram.o build/twoplayer.o build/rle.o build/fastlegal.ips
 	ld65 $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $(filter %.cfg,$^) $(filter %.o,$^)
 	# If the first time fails, run it a second time to display output
-	flips --apply build/fastlegal.ips $@ > /dev/null || flips --apply build/fastlegal.ips $@ || (rm $@; false)
+	flips --apply build/fastlegal.ips $@ $@ > /dev/null || flips --apply build/fastlegal.ips $@ $@ || (rm $@; false)
 build/twoplayer.dist.ips: build/tetris.nes build/twoplayer.nes
 	flips --create $^ $@ > /dev/null
 build/twoplayer-test.test: twoplayer-test.lua build/twoplayer.nes
@@ -164,7 +164,7 @@ build/custom.nes: build/taus.ips build/highscores.ips build/playerid.ips
 build/custom.nes: build/tetris.nes
 	cp $< $@.tmp
 	for ips in $(filter %.ips,$^); do \
-		flips --apply $$ips $@.tmp > /dev/null; \
+		flips --apply $$ips $@.tmp $@.tmp > /dev/null; \
 	done
 	mv $@.tmp $@
 	flips --create $< $@ build/custom.dist.ips > /dev/null
