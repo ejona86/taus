@@ -355,7 +355,7 @@ RANGE { START $AA11; END $AA15; TYPE BYTETABLE; NAME "rocketToSpriteTable"; };
 RANGE { START $AA16; END $AA1F; TYPE BYTETABLE; NAME "rocketToJetSpriteTable"; };
 RANGE { START $AA20; END $AA24; TYPE BYTETABLE; NAME "rocketToJetXOffsetTable"; };
 RANGE { START $AA25; END $AA29; TYPE BYTETABLE; NAME "rocketToXOffsetTable"; };
-RANGE { START $AA2A; END $AA2E; TYPE BYTETABLE; };
+RANGE { START $AA2A; END $AA2E; TYPE BYTETABLE; NAME "ending_customVars_init"; };
 RANGE { START $A93E; END $A93F; TYPE ADDRTABLE; }; # bulkCopyToPpu
 RANGE { START $ACF3; END $AD16; TYPE BYTETABLE; NAME "game_palette"; };
 RANGE { START $AD17; END $AD2A; TYPE BYTETABLE; NAME "legal_screen_palette"; };
@@ -558,6 +558,7 @@ LABEL { ADDR $829F; NAME "@startButtonPressed"; COMMENT "Show menu screens"; };
 LABEL { ADDR $82A7; NAME "@timeout"; COMMENT "Start demo"; };
 LABEL { ADDR $82B1; NAME "render_mode_legal_and_title_screens"; };
 LABEL { ADDR $82D1; NAME "gameMode_gameTypeMenu"; };
+LABEL { ADDR $830B; NAME "@handleInput"; };
 LABEL { ADDR $8326; NAME "@rightNotPressed"; };
 LABEL { ADDR $8335; NAME "@leftNotPressed"; };
 LABEL { ADDR $8350; NAME "@downNotPressed"; };
@@ -643,6 +644,8 @@ LABEL { ADDR $89EC; NAME "@notPressingRight"; }; # canon
 LABEL { ADDR $8A01; NAME "@restoreX"; }; # canon
 LABEL { ADDR $8A09; NAME "@ret"; };
 LABEL { ADDR $8A0A; NAME "stageSpriteForCurrentPiece"; };
+LABEL { ADDR $8B8C; NAME "unreferenced_func2"; };
+LABEL { ADDR $8B9D; NAME "@loop"; };
 LABEL { ADDR $8BCE; NAME "stageSpriteForNextPiece"; };
 LABEL { ADDR $8BE4; NAME "@ret"; };
 LABEL { ADDR $8C27; NAME "loadSpriteIntoOamStaging"; };
@@ -781,6 +784,7 @@ LABEL { ADDR $992A; NAME "@mod7"; };
 LABEL { ADDR $9934; NAME "@useRem"; };
 LABEL { ADDR $9938; NAME "@useNewSpawnID"; }; # canon
 LABEL { ADDR $9969; NAME "incrementPieceStat"; };
+LABEL { ADDR $9996; NAME "@storeStat"; };
 LABEL { ADDR $99A2; NAME "playState_lockTetrimino"; };
 LABEL { ADDR $99B8; NAME "@notGameOver"; }; # canon is updatePlayfield
 LABEL { ADDR $99DD; NAME "@lockSquare"; COMMENT "Copies a single square of the tetrimino to the playfield"; };
@@ -864,6 +868,7 @@ LABEL { ADDR $9E37; NAME "playState_incrementPlayState"; };
 LABEL { ADDR $9E39; NAME "playState_noop"; };
 LABEL { ADDR $9E3A; NAME "endingAnimation_maybe"; };
 LABEL { ADDR $9F95; NAME "render_mode_ending_animation"; };
+LABEL { ADDR $9FE9; NAME "@done"; };
 LABEL { ADDR $9FF2; NAME "showHighScores"; };
 LABEL { ADDR $9FFB; NAME "showHighScores_real"; COMMENT "not using @-label due to MMC1_Control in PAL"; };
 LABEL { ADDR $9FFF; NAME "MMC1_Control"; };
@@ -986,7 +991,11 @@ LABEL { ADDR $AB9D; NAME "pollController"; }; # canon
 LABEL { ADDR $ABBD; NAME "diffOldAndNewButtons"; };
 LABEL { ADDR $ABBF; NAME "@diffForPlayer"; };
 LABEL { ADDR $ABCE; NAME "unreferenced_func1"; };
-LABEL { ADDR $AC1C; NAME "memset_ppu_page_and_more"; };
+LABEL { ADDR $AC1C; NAME "memset_ppu_page"; COMMENT "reg a: ppu addr hi; reg x: (preserved) value to set; reg y: (preserved) if pattern table: number of pages, else (nametable): value of attribute table to set (number of pages assumed 4)"; };
+LABEL { ADDR $AC40; NAME "@loopInit"; };
+LABEL { ADDR $AC44; NAME "@storeByte"; };
+LABEL { ADDR $AC61; NAME "@storeAttributeTableByte"; };
+LABEL { ADDR $AC67; NAME "@ret"; };
 LABEL { ADDR $AC6A; NAME "memset_page"; COMMENT "reg a: value; reg x: start page; reg y: end page (inclusive)"; };
 LABEL { ADDR $AC77; NAME "@setByte"; };
 LABEL { ADDR $AC82; NAME "switch_s_plus_2a"; };
