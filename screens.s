@@ -72,7 +72,7 @@ load_background:
         lda     screenToDisplay
         cmp     #$07
         bpl     @continue
-        jsr     switch_s_plus_2a
+        jsr     switchOnA
         .addr   @continue
         .addr   @continue
         .addr   @continue

@@ -49,7 +49,7 @@
  
  gameMode_playAndEndingHighScore:
          lda     gameModeState
-         jsr     switch_s_plus_2a
+         jsr     switchOnA
          .addr   gameModeState_initGameBackground
          .addr   gameModeState_initGameState
          .addr   gameModeState_updateCountersAndNonPlayerState

@@ -146,7 +146,7 @@ statsPerBlock:
 statsPerLineClear:
 ; Manage the burn
         lda     completedLines
-        jsr     switch_s_plus_2a
+        jsr     switchOnA
         .addr   statsPerLineClearDone
         .addr   @worstenBurn1
         .addr   @worstenBurn2
