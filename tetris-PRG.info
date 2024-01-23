@@ -972,7 +972,7 @@ LABEL { ADDR $AA8A; NAME "copyCurrentScrollAndCtrlToPPU"; };
 LABEL { ADDR $AA98; NAME "bulkCopyToPpu"; COMMENT "Return address should contain data address; ret addr+2 is actual return. $80-$FF end. $4C recurse, 2 byte cpu addr. $60 unrecurse. Otherwise NES data stripe, 2 byte ppu addr, 1 byte length, data. length controls RLE and write direction"; };
 LABEL { ADDR $AA9E; NAME "@processStripe"; };
 LABEL { ADDR $AAB5; NAME "@setDirection"; COMMENT "Bit 7 of length: 0-right, 1-down"; };
-LABEL { ADDR $AAC2; NAME "@checkForZeroLength"; COMMENT "Bit 6 of length: 0-literal, 1-run. If bits 0-5 are zero, length is 128"; };
+LABEL { ADDR $AAC2; NAME "@checkForZeroLength"; COMMENT "Bit 6 of length: 0-literal, 1-run. If bits 0-5 are zero, length is 64"; };
 LABEL { ADDR $AAC7; NAME "@clearLengthFlagBits"; };
 LABEL { ADDR $AACA; NAME "@copyByteLoop"; };
 LABEL { ADDR $AACD; NAME "@copyByte"; };
