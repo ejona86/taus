@@ -206,7 +206,7 @@
 @@ -1569,17 +1569,17 @@ stageSpriteForCurrentPiece:
          lda     numberOfPlayers
          cmp     #$01
-         beq     L8A2C
+         beq     @calcYPos
          lda     generalCounter3
          sec
 -        sbc     #$40
@@ -214,15 +214,15 @@
          sta     generalCounter3
          lda     activePlayer
          cmp     #$01
-         beq     L8A2C
+         beq     @calcYPos
          lda     generalCounter3
 -        adc     #$6F
 +        adc     #$8F    ;adc     #$6F
          sta     generalCounter3
- L8A2C:  clc
+ ; generalCounter4=tetrimino y pos
+ @calcYPos:
+         clc
          lda     tetriminoY
-         rol     a
-         rol     a
 @@ -1717,12 +1717,12 @@ L8B9D:  lda     orientationTable,y
          bne     L8B9D
          stx     oamStagingLength

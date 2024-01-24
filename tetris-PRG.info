@@ -289,7 +289,7 @@ RANGE { START $887C; END $8882; TYPE BYTETABLE; NAME "rngTable"; };
 RANGE { START $88EE; END $8913; TYPE DBYTETABLE; NAME "rotationTable"; }; # canon
 RANGE { START $898E; END $89AB; TYPE BYTETABLE; NAME "framesPerDropTable"; }; # canon
 RANGE { START $89AC; END $89AD; TYPE BYTETABLE; NAME "unreferenced_framesPerDropTable"; };
-RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; }; # canon
+RANGE { START $8A9C; END $8B8B; TYPE BYTETABLE; NAME "orientationTable"; COMMENT "4 sprites per tetrimino. 3 bytes per sprite: signed y off, tile, signed x off"; }; # canon
 RANGE { START $8BE5; END $8BF7; TYPE BYTETABLE; NAME "orientationToSpriteTable"; COMMENT "Only cares about orientations selected by spawnTable"; };
 RANGE { START $8BF8; END $8C0A; TYPE BYTETABLE; NAME "unreferenced_orientationToSpriteTable"; COMMENT "Same as orientationToSpriteTable except sprites have different offsets"; };
 RANGE { START $8C0B; END $8C26; TYPE BYTETABLE; NAME "unreferenced_data2"; };
@@ -643,7 +643,12 @@ LABEL { ADDR $89D7; NAME "@buttonHeldDown"; };
 LABEL { ADDR $89EC; NAME "@notPressingRight"; }; # canon
 LABEL { ADDR $8A01; NAME "@restoreX"; }; # canon
 LABEL { ADDR $8A09; NAME "@ret"; };
-LABEL { ADDR $8A0A; NAME "stageSpriteForCurrentPiece"; };
+LABEL { ADDR $8A0A; NAME "stageSpriteForCurrentPiece"; COMMENT "temp memory usage: generalCounter3=tetrimino x pos"; };
+LABEL { ADDR $8A2C; NAME "@calcYPos"; COMMENT "generalCounter4=tetrimino y pos"; };
+LABEL { ADDR $8A36; NAME "@calcOrientationTableOffset"; COMMENT "x=currentPiece*12"; };
+LABEL { ADDR $8A4B; NAME "@copySprite"; };
+LABEL { ADDR $8A84; NAME "@spriteShown"; COMMENT "If y <= 2F, then the sprite is shown. Calculate and set x pos"; };
+LABEL { ADDR $8A93; NAME "@inc"; };
 LABEL { ADDR $8B8C; NAME "unreferenced_func2"; };
 LABEL { ADDR $8B9D; NAME "@loop"; };
 LABEL { ADDR $8BCE; NAME "stageSpriteForNextPiece"; };
