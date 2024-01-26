@@ -345,7 +345,7 @@ renderStats:
         sta     tmp2
         lda     copyToPpuDuringRenderAddr
         sta     tmp1
-        jsr     bulkCopyToPpu+2
+        jsr     bulkCopyToPpu+3
         lda     #$00
         sta     copyToPpuDuringRenderAddr
         sta     copyToPpuDuringRenderAddr+1
