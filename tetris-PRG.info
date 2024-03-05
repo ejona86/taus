@@ -134,7 +134,7 @@ LABEL { ADDR $00D6; NAME "highScoreEntryNameOffsetForRow"; COMMENT "Relative to 
 LABEL { ADDR $00D7; NAME "highScoreEntryCurrentLetter"; };
 LABEL { ADDR $00D8; NAME "lineClearStatsByType"; SIZE 4; COMMENT "bcd. one entry for each of single, double, triple, tetris"; };
 LABEL { ADDR $00DC; NAME "totalScore"; SIZE 3; };
-LABEL { ADDR $00DF; NAME "displayNextPiece"; }; # canon
+LABEL { ADDR $00DF; NAME "displayNextPiece"; COMMENT "0=show, 1=hide"; }; # canon
 LABEL { ADDR $00E0; NAME "AUDIOTMP1"; };
 LABEL { ADDR $00E1; NAME "AUDIOTMP2"; };
 LABEL { ADDR $00E2; NAME "AUDIOTMP3"; };
